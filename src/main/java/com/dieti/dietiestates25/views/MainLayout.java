@@ -11,7 +11,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
 
-public class MainLayout extends AppLayout implements BeforeEnterObserver {
+public class MainLayout extends AppLayout {
 
     public MainLayout() {
         HorizontalLayout header = new HorizontalLayout();
@@ -52,14 +52,6 @@ public class MainLayout extends AppLayout implements BeforeEnterObserver {
         );
 
         return navigation;
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        String route = event.getLocation().getPath();
-        if (!route.isEmpty() && !RouteConfiguration.forSessionScope().isPathAvailable(route)) {
-            event.rerouteTo(PageNotFoundView.class);
-        }
     }
 
 }
