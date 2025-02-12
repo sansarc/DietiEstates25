@@ -27,7 +27,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 @Route("login")
 public class LoginView extends VerticalLayout {
 
-    private final Image logo = new Image("/images/logo_cropped.png", "dietiestates_logo");
+    private final Image logo = new Image("/images/logo.png", "dietiestates_logo");
     private final EmailField emailField = new EmailField("Email");
     private final PasswordField passwordField = new PasswordField("Password");
     private final Button loginButton = new Button("Login");
@@ -45,7 +45,7 @@ public class LoginView extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.START);
 
-        H4 title = new H4("Log in DietiEstates");
+        H4 title = new H4("Login");
         setAlignSelf(Alignment.CENTER, title);
 
         logoSetUp();
@@ -117,8 +117,10 @@ public class LoginView extends VerticalLayout {
     }
 
     private void logoSetUp() {
-        logo.setWidth("100px");
-        logo.setHeight("auto");
+        logo.setMaxWidth("300px"); // Recommended base width
+        logo.setMaxHeight("150px");
+        logo.getStyle().set("width", "100%");
+        logo.getStyle().set("height", "auto");
         logo.getStyle().set("margin-bottom", "var(--lumo-space-s)");
     }
 

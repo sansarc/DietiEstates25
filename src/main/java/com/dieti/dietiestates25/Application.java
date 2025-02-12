@@ -1,6 +1,7 @@
 package com.dieti.dietiestates25;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
@@ -18,6 +19,11 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 @Theme("my-theme")
 public class Application implements AppShellConfigurator {
+
+    @Override
+    public void configurePage(AppShellSettings settings) {
+        settings.addFavIcon("icon", "favicon.ico", "16x16");
+    }
 
     @Bean
     RestTemplate restTemplate() {
