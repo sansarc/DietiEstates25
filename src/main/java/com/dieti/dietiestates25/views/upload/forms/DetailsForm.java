@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
-import com.dieti.dietiestates25.views.upload.components.CustomInfoPopover;
+import com.dieti.dietiestates25.views.ui_components.CustomInfoPopover;
 import com.dieti.dietiestates25.views.upload.utils.FormFieldFactory;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;

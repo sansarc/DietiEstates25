@@ -1,44 +1,42 @@
 package com.dieti.dietiestates25.services;
 
 
-import com.dieti.dietiestates25.constants.ApiConstants;
+import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.LoginRequest;
+import com.dieti.dietiestates25.dto.OtpRequest;
+import com.dieti.dietiestates25.views.upload.utils.Response;
+import com.dieti.dietiestates25.dto.SignupRequest;
 import com.google.gson.Gson;
 import com.vaadin.flow.server.VaadinSession;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-
 @Service
 public class AuthenticationService {
-    public boolean authenticate(String email, String pwd) {
 
-        try {
-            LoginRequest loginRequest = new LoginRequest(email, pwd);
-            String json = new Gson().toJson(loginRequest);
+    public Response authenticate(String email, String pwd) {
+        LoginRequest loginRequest = new LoginRequest(email, pwd);
+        String json = new Gson().toJson(loginRequest);
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(ApiConstants.LOGIN_ENDPOINT))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
+        Response response = RequestService.POST(Constants.ApiEndpoints.LOGIN, json);
 
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.getStatusCode() == 200)
+            VaadinSession.getCurrent().setAttribute("user", loginRequest);
 
-            System.out.println("API response: " + response.statusCode());
+        return response;
+    }
 
-            if (response.statusCode() == 200)
-                VaadinSession.getCurrent().setAttribute("user", loginRequest);
+    public Response createUser(String firstName, String lastName, String email, String password) {
+        SignupRequest signupRequest = new SignupRequest(firstName, lastName, email, password);
+        String json = new Gson().toJson(signupRequest);
 
-            return response.statusCode() == 200;
+        return RequestService.POST(Constants.ApiEndpoints.SIGNUP, json);
+    }
 
-        } catch (Exception e) {
-            throw new RuntimeException("Authentication failed", e);
-        }
+    public Response confirmUser(String email, String otp) {
+        OtpRequest otpRequest = new OtpRequest(email, otp);
+        String json = new Gson().toJson(otpRequest);
+
+        return RequestService.POST(Constants.ApiEndpoints.OTP_CONFIRMATION, json);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.dieti.dietiestates25.views.upload.components;
+package com.dieti.dietiestates25.views.ui_components;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;

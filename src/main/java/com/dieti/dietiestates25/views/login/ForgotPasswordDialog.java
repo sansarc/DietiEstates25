@@ -20,11 +20,22 @@ public class ForgotPasswordDialog extends Dialog {
     private final EmailField emailField = new EmailField("Email");
     private final Span helperText = new Span("Make sure to use the email address linked to your account.");
     private final Button sendButton = createSendButton();
-    private final Button cancelButton = createCancelButton();
+    private final Span subtitle = createSubtitle();
+    private final Button cancelButton = new Button("Cancel", event -> close());
+
+    private final HorizontalLayout buttonsLayout = createButtonsLayout();
+    private final VerticalLayout emailLayout = createEmailLayout();
 
     public ForgotPasswordDialog() {
+        configureLayout();
         configureComponents();
-        assembleLayout();
+        add(layout);
+    }
+
+    private void configureLayout() {
+        setCloseOnEsc(true);
+        setCloseOnOutsideClick(true);
+        addDialogCloseActionListener(event -> close());
     }
 
     private void configureComponents() {
@@ -36,15 +47,7 @@ public class ForgotPasswordDialog extends Dialog {
                 .set("font-size", "12px")
                 .set("color", "var(--lumo-tertiary-text-color)");
 
-        cancelButton.addClickShortcut(Key.ESCAPE);
-    }
-
-    private void assembleLayout() {
-        HorizontalLayout buttonsLayout = createButtonsLayout();
-        VerticalLayout emailLayout = createEmailLayout();
-
-        layout.add(title, createSubtitle(), emailLayout, buttonsLayout);
-        add(layout);
+        layout.add(title, subtitle, emailLayout, buttonsLayout);
     }
 
     private HorizontalLayout createButtonsLayout() {
@@ -71,24 +74,18 @@ public class ForgotPasswordDialog extends Dialog {
     private Button createSendButton() {
         Button button = new Button("Send");
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        button.addClickListener(event -> handleSendButtonClick());
         button.addClickShortcut(Key.ENTER);
-        return button;
-    }
 
-    private Button createCancelButton() {
-        Button button = new Button("Cancel");
-        button.addClickListener(event -> close());
-        return button;
-    }
+        button.addClickListener(event -> {
+            if (emailField.isEmpty() || emailField.isInvalid()) {
+                emailField.setInvalid(true);
+            } else {
+                Notification.show("Reset instructions sent. Check your inbox.")
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                close();
+            }
+        });
 
-    private void handleSendButtonClick() {
-        if (emailField.isEmpty() || emailField.isInvalid()) {
-            emailField.setInvalid(true);
-        } else {
-            Notification.show("Reset instructions sent. Check your inbox.")
-                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            close();
-        }
+        return button;
     }
 }

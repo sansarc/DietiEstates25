@@ -1,6 +1,7 @@
 package com.dieti.dietiestates25.views.notfound;
 
 import com.dieti.dietiestates25.views.MainLayout;
+import com.dieti.dietiestates25.views.ui_components.DietiEstatesLogo;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
@@ -11,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Route(value = "404")
 public class PageNotFoundView extends VerticalLayout implements HasErrorParameter<NotFoundException> {
 
-    Image logo = new Image("/images/logo.png", "logo");
+    DietiEstatesLogo logo = new DietiEstatesLogo("600px", "auto");
     H1 title = new H1("Oops... Page Not Found");
     Paragraph paragraph = new Paragraph("Whatever you're looking for, it is not here.");
 
@@ -22,14 +23,7 @@ public class PageNotFoundView extends VerticalLayout implements HasErrorParamete
     }
 
     private void configureComponents() {
-        createLogo();
         paragraph.setMinHeight("300px");
-    }
-
-    private void createLogo() {
-        logo.setWidth("600px");
-        logo.setHeight("auto");
-        logo.getStyle().set("margin-bottom", "70px");
     }
 
     private void configureLayout() {

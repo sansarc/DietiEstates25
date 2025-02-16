@@ -1,4 +1,4 @@
-package com.dieti.dietiestates25.views.upload.components;
+package com.dieti.dietiestates25.views.upload.specific_components;
 
 import com.dieti.dietiestates25.views.upload.utils.FormFieldFactory;
 import com.vaadin.flow.component.button.Button;
@@ -8,7 +8,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
 
 import java.util.ArrayList;
 import java.util.HashMap;

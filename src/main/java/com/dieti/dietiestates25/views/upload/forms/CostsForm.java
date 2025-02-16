@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
-import com.dieti.dietiestates25.views.upload.components.OtherCostsEntryForm;
+import com.dieti.dietiestates25.views.upload.specific_components.OtherCostsEntryForm;
 import com.dieti.dietiestates25.views.upload.utils.FormFieldFactory;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -39,8 +39,8 @@ public class CostsForm extends UploadForm {
     protected void addComponents() {
         add(
                 price,
-                condominiumFees,
                 hidePrice,
+                condominiumFees,
                 otherCostsEntryForm
         );
 

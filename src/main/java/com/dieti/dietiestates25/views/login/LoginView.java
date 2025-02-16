@@ -1,8 +1,14 @@
 package com.dieti.dietiestates25.views.login;
 
 import com.dieti.dietiestates25.services.AuthenticationService;
+import com.dieti.dietiestates25.views.ui_components.CustomDivCard;
+import com.dieti.dietiestates25.views.ui_components.DietiEstatesLogo;
+import com.dieti.dietiestates25.views.ui_components.TextWithLink;
+import com.dieti.dietiestates25.views.ui_components.ThirdPartyLoginButton;
 import com.dieti.dietiestates25.views.home.HomeView;
+import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.dieti.dietiestates25.views.signup.SignUpView;
+import com.dieti.dietiestates25.views.upload.utils.Response;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -12,7 +18,6 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -20,20 +25,21 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @AnonymousAllowed
 @PageTitle("Login")
 @Route("login")
 public class LoginView extends VerticalLayout {
 
-    private final Image logo = new Image("/images/logo.png", "dietiestates_logo");
-    private final EmailField emailField = new EmailField("Email");
-    private final PasswordField passwordField = new PasswordField("Password");
-    private final Button loginButton = new Button("Login");
-    private final Anchor forgotPasswordLink = new Anchor("#", "Forgot Password?");
-    private final Footer footer = new Footer();
-    private final Div loginDiv = new Div();
+    H3 title = new H3("Login");
+    EmailField emailField = new EmailField("Email");
+    PasswordField passwordField = new PasswordField("Password");
+    Button loginButton = createLoginButton();
+    Anchor forgotPasswordLink = new Anchor("#", "Forgot Password?");
+    CustomDivCard loginDiv = new CustomDivCard("400px", "auto");
+    ThirdPartyLoginButton googleButton = new ThirdPartyLoginButton("Google", "75%", "/images/google_logo.png", "/oauth2/authorization/google");
+    ThirdPartyLoginButton linkedinButton = new ThirdPartyLoginButton("Linkedin", "75%", "/images/linkedin_logo.png", "");
+    ThirdPartyLoginButton facebookButton = new ThirdPartyLoginButton("Facebook", "75%", "/images/facebook_logo.png", "");
 
     private final AuthenticationService authenticationService;
 
@@ -41,19 +47,14 @@ public class LoginView extends VerticalLayout {
 
         this.authenticationService = authenticationService;
 
-        setSizeFull();
-        setAlignItems(Alignment.CENTER);
-        setJustifyContentMode(JustifyContentMode.START);
+        configureLayout();
+        configureComponents();
 
-        H4 title = new H4("Login");
-        setAlignSelf(Alignment.CENTER, title);
+        add(new DietiEstatesLogo(), loginDiv, createFooter());
+    }
 
-        logoSetUp();
-
+    private void configureComponents() {
         loginFormSetUp();
-        loginButtonSetUp();
-
-        loginDivStyling();
         loginDiv.add(
                 title,
                 emailField,
@@ -61,47 +62,31 @@ public class LoginView extends VerticalLayout {
                 forgotPasswordLink,
                 loginButton,
                 new Hr(),
-                get3rdPartyLoginButton("Google", "/images/google_logo.png", "/oauth2/authorization/google"),
-                get3rdPartyLoginButton("Linkedin", "/images/linkedin_logo.png", ""),
-                get3rdPartyLoginButton("Facebook", "/images/facebook_logo.png", ""),
+                googleButton,
+                linkedinButton,
+                facebookButton,
                 new Hr(),
-                getTextWithLink(new Span("Don't have an account yet?"), new RouterLink("Sign up", SignUpView.class)),
-                getTextWithLink(new Span("Want to register your agency? Do it"), new RouterLink("here", SignUpView.class))
+                new TextWithLink("Don't have an account yet?", new RouterLink("Sign up", SignUpView.class)),
+                new TextWithLink("Want to register your agency? Do it", new RouterLink("here", RegisterAgencyView.class))
         );
-
-        footerStyling();
-        add(logo, loginDiv, footer);
     }
 
-    private void footerStyling() {
+    private void configureLayout() {
+        setSizeFull();
+        setAlignItems(Alignment.CENTER);
+        setJustifyContentMode(JustifyContentMode.START);
+        setAlignSelf(Alignment.CENTER, title, loginButton, googleButton, linkedinButton, facebookButton);
+        setAlignSelf(Alignment.START, forgotPasswordLink);
+    }
+
+    private Footer createFooter() {
+        var footer = new Footer();
         footer.add(new Span("Made with ♥\uFE0F by DietiEstates Team."));
         footer.getStyle()
                 .set("font-size", "12px")
-                .set("color", "var(--lumo-tertiary-text-color)");
-    }
+                .set("color", "var<(--lumo-tertiary-text-color)");
 
-    private HorizontalLayout getTextWithLink(Span text, RouterLink link) {
-        HorizontalLayout layout = new HorizontalLayout(text, link, new Span("."));
-        layout.setJustifyContentMode(JustifyContentMode.CENTER);
-        layout.getStyle().set("font-size", "14px");
-        link.getStyle().set("margin-left", "4px");
-        layout.setSpacing(false);
-        return layout;
-    }
-
-    private Button get3rdPartyLoginButton(String label, String iconPath, String url) {
-        var button = new Button("Login with " + label);
-        button.setWidth("75%");
-        setAlignSelf(Alignment.CENTER, button);
-
-        Image logo = new Image(iconPath, "logo");
-        logo.setHeight("16px");
-        logo.setWidth("16px");
-        button.setIcon(logo);
-
-        button.addClickListener(event -> UI.getCurrent().getPage().setLocation(url));
-
-        return button;
+        return footer;
     }
 
     private void loginFormSetUp() {
@@ -109,58 +94,38 @@ public class LoginView extends VerticalLayout {
         emailField.setErrorMessage("Please enter a valid email address");
         passwordField.setPrefixComponent(new Icon(VaadinIcon.KEY));
         passwordField.setErrorMessage("Please enter a password");
-        setAlignSelf(Alignment.START, forgotPasswordLink);
         forgotPasswordLink.getElement().getStyle().set("font-size", "12px");
         forgotPasswordLink.getElement().addEventListener("click", event ->
                 new ForgotPasswordDialog().open()
         ).addEventData("event.preventDefault()");
     }
 
-    private void logoSetUp() {
-        logo.setMaxWidth("300px"); // Recommended base width
-        logo.setMaxHeight("150px");
-        logo.getStyle().set("width", "100%");
-        logo.getStyle().set("height", "auto");
-        logo.getStyle().set("margin-bottom", "var(--lumo-space-s)");
-    }
+    private Button createLoginButton() {
+        var button = new Button("Login");
 
-    private void loginButtonSetUp() {
-        loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        setAlignSelf(Alignment.CENTER, loginButton);
-        loginButton.setPrefixComponent(new Icon(VaadinIcon.SIGN_IN));
-        loginButton.addClickShortcut(Key.ENTER);
-        loginButton.setWidth("75%");
+        button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        button.setPrefixComponent(new Icon(VaadinIcon.SIGN_IN));
+        button.addClickShortcut(Key.ENTER);
+        button.setWidth("75%");
 
-        loginButton.addClickListener(event -> {
+        button.addClickListener(event -> {
             if (passwordField.isEmpty() || emailField.isEmpty()) {
                 emailField.setInvalid(true);
                 passwordField.setInvalid(true);
             }
             else login();
         });
+
+        return button;
     }
 
     private void login() {
-        boolean authenticated = authenticationService.authenticate(emailField.getValue(), passwordField.getValue());
-        if (authenticated) {
+        Response authenticated = authenticationService.authenticate(emailField.getValue(), passwordField.getValue());
+        if (authenticated.ok()) {
             Notification.show("Login successful!", 5000, Notification.Position.BOTTOM_END).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             UI.getCurrent().navigate(HomeView.class);
         }
         else
-            Notification.show("Invalid credentials.", 5000, Notification.Position.BOTTOM_END).addThemeVariants(NotificationVariant.LUMO_ERROR);
-    }
-
-    private void loginDivStyling() {
-        loginDiv.addClassNames(
-                LumoUtility.Background.BASE,
-                LumoUtility.BoxShadow.MEDIUM,
-                LumoUtility.BorderRadius.LARGE,
-                LumoUtility.Padding.LARGE
-        );
-        loginDiv.setWidth("400px");
-        loginDiv.getStyle().set("display", "flex")
-                .set("flex-direction", "column")
-                .set("gap", "var(--lumo-space-xs)");
-
+            Notification.show(authenticated.getStatusMessage(), 5000, Notification.Position.BOTTOM_END).addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 }
