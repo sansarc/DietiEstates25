@@ -1,7 +1,7 @@
 package com.dieti.dietiestates25.views.signup;
 
 import com.dieti.dietiestates25.constants.Constants;
-import com.dieti.dietiestates25.views.upload.utils.Response;
+import com.dieti.dietiestates25.dto.Response;
 import com.dieti.dietiestates25.services.AuthenticationService;
 import com.dieti.dietiestates25.views.ui_components.CustomDivCard;
 import com.dieti.dietiestates25.views.ui_components.DietiEstatesLogo;
@@ -23,11 +23,10 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.flow.spring.VaadinApplicationConfiguration;
 
 @Route("signup")
 @PageTitle("Sign Up")
@@ -105,8 +104,12 @@ public class SignUpView extends VerticalLayout {
 
     private void signup() {
         Response signed = authenticationService.createUser(firstName.getValue(), lastName.getValue(), email.getValue(), password.getValue());
+        VaadinSession session = VaadinSession.getCurrent();
+        if (session == null) {
+            session = new VaadinSession(VaadinService.getCurrent());
+            VaadinSession.setCurrent(session);
+        }
         if (signed.getStatusCode() == Constants.Codes.CREATED) {
-            VaadinSession session = VaadinSession.getCurrent();
             session.setAttribute("email", email.getValue());
             UI.getCurrent().navigate(OtpView.class);
         }

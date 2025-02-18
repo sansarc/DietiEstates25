@@ -1,8 +1,7 @@
-package com.dieti.dietiestates25.views.upload.utils;
+package com.dieti.dietiestates25.dto;
 
 import com.dieti.dietiestates25.constants.Constants;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class Response {

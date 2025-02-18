@@ -1,5 +1,6 @@
 package com.dieti.dietiestates25.views.login;
 
+import com.dieti.dietiestates25.dto.SessionResponse;
 import com.dieti.dietiestates25.services.AuthenticationService;
 import com.dieti.dietiestates25.views.ui_components.CustomDivCard;
 import com.dieti.dietiestates25.views.ui_components.DietiEstatesLogo;
@@ -8,7 +9,6 @@ import com.dieti.dietiestates25.views.ui_components.ThirdPartyLoginButton;
 import com.dieti.dietiestates25.views.home.HomeView;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.dieti.dietiestates25.views.signup.SignUpView;
-import com.dieti.dietiestates25.views.upload.utils.Response;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -24,6 +24,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @AnonymousAllowed
@@ -120,12 +121,13 @@ public class LoginView extends VerticalLayout {
     }
 
     private void login() {
-        Response authenticated = authenticationService.authenticate(emailField.getValue(), passwordField.getValue());
+        SessionResponse authenticated = authenticationService.authenticate(emailField.getValue(), passwordField.getValue());
         if (authenticated.ok()) {
-            Notification.show("Login successful!", 5000, Notification.Position.BOTTOM_END).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            Notification.show("Welcome Back!", 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            VaadinSession.getCurrent().getSession().setAttribute("session_id", authenticated.getSessionId());
             UI.getCurrent().navigate(HomeView.class);
         }
         else
-            Notification.show(authenticated.getStatusMessage(), 5000, Notification.Position.BOTTOM_END).addThemeVariants(NotificationVariant.LUMO_ERROR);
+            Notification.show(authenticated.getStatusMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 }
