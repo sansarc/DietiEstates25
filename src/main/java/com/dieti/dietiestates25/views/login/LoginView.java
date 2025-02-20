@@ -2,11 +2,11 @@ package com.dieti.dietiestates25.views.login;
 
 import com.dieti.dietiestates25.dto.SessionResponse;
 import com.dieti.dietiestates25.services.AuthenticationService;
-import com.dieti.dietiestates25.views.ui_components.CustomDivCard;
-import com.dieti.dietiestates25.views.ui_components.DietiEstatesLogo;
-import com.dieti.dietiestates25.views.ui_components.TextWithLink;
-import com.dieti.dietiestates25.views.ui_components.ThirdPartyLoginButton;
 import com.dieti.dietiestates25.views.home.HomeView;
+import com.dieti.dietiestates25.ui_components.DivContainer;
+import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
+import com.dieti.dietiestates25.ui_components.TextWithLink;
+import com.dieti.dietiestates25.ui_components.ThirdPartyLoginButton;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.dieti.dietiestates25.views.signup.SignUpView;
 import com.vaadin.flow.component.Key;
@@ -25,9 +25,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-@AnonymousAllowed
 @PageTitle("Login")
 @Route("login")
 public class LoginView extends VerticalLayout {
@@ -37,7 +35,7 @@ public class LoginView extends VerticalLayout {
     PasswordField passwordField = new PasswordField("Password");
     Button loginButton = createLoginButton();
     Anchor forgotPasswordLink = new Anchor("#", "Forgot Password?");
-    CustomDivCard loginDiv = new CustomDivCard("400px", "auto");
+    DivContainer loginDiv = new DivContainer("400px", "auto");
     ThirdPartyLoginButton googleButton = new ThirdPartyLoginButton("Google", "75%", "/images/google_logo.png", "/oauth2/authorization/google");
     ThirdPartyLoginButton linkedinButton = new ThirdPartyLoginButton("Linkedin", "75%", "/images/linkedin_logo.png", "");
     ThirdPartyLoginButton facebookButton = new ThirdPartyLoginButton("Facebook", "75%", "/images/facebook_logo.png", "");
@@ -82,7 +80,7 @@ public class LoginView extends VerticalLayout {
 
     private Footer createFooter() {
         var footer = new Footer();
-        footer.add(new Span("Made with ♥\uFE0F by DietiEstates Team."));
+        footer.add(new Span("Made with ♥️ by DietiEstates Team."));
         footer.getStyle()
                 .set("font-size", "12px")
                 .set("color", "var<(--lumo-tertiary-text-color)");

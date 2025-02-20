@@ -1,9 +1,7 @@
 package com.dieti.dietiestates25.views.notfound;
 
-import com.dieti.dietiestates25.views.MainLayout;
-import com.dieti.dietiestates25.views.ui_components.DietiEstatesLogo;
+import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;

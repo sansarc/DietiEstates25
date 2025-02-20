@@ -1,7 +1,7 @@
 package com.dieti.dietiestates25.views.registerAgency;
 
-import com.dieti.dietiestates25.views.ui_components.CustomDivCard;
-import com.dieti.dietiestates25.views.ui_components.DietiEstatesLogo;
+import com.dieti.dietiestates25.ui_components.DivContainer;
+import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -14,7 +14,7 @@ import com.vaadin.flow.router.Route;
 @Route("register-agency")
 public class RegisterAgencyView extends VerticalLayout {
 
-    private final CustomDivCard registerAgencyDiv = new CustomDivCard("400px", "auto");
+    private final DivContainer registerAgencyDiv = new DivContainer("400px", "auto");
     private final TextField companyName = new TextField("Company Name");
     private final TextField VATNumberField = new TextField("VAT Number");
     private final H3 title = new H3("Register Your Agency");

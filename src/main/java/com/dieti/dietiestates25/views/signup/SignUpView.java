@@ -3,10 +3,10 @@ package com.dieti.dietiestates25.views.signup;
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.Response;
 import com.dieti.dietiestates25.services.AuthenticationService;
-import com.dieti.dietiestates25.views.ui_components.CustomDivCard;
-import com.dieti.dietiestates25.views.ui_components.DietiEstatesLogo;
-import com.dieti.dietiestates25.views.ui_components.TextWithLink;
-import com.dieti.dietiestates25.views.ui_components.ThirdPartyLoginButton;
+import com.dieti.dietiestates25.ui_components.DivContainer;
+import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
+import com.dieti.dietiestates25.ui_components.TextWithLink;
+import com.dieti.dietiestates25.ui_components.ThirdPartyLoginButton;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.vaadin.flow.component.Key;
@@ -42,7 +42,7 @@ public class SignUpView extends VerticalLayout {
     ThirdPartyLoginButton googleButton = new ThirdPartyLoginButton("Google", "50%", "/images/google_logo.png", "/oauth2/authorization/google");
     ThirdPartyLoginButton linkedinButton = new ThirdPartyLoginButton("Linkedin", "50%", "/images/linkedin_logo.png", "");
     ThirdPartyLoginButton facebookButton = new ThirdPartyLoginButton("Facebook", "50%", "/images/facebook_logo.png", "");
-    CustomDivCard signupDiv = new CustomDivCard("600px", "auto");
+    DivContainer signupDiv = new DivContainer("600px", "auto");
 
     private final AuthenticationService authenticationService;
 

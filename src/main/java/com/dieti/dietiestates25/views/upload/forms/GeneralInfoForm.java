@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
-import com.dieti.dietiestates25.views.ui_components.CustomInfoPopover;
+import com.dieti.dietiestates25.ui_components.InfoPopover;
 import com.dieti.dietiestates25.views.upload.utils.FloorUtils;
 import com.dieti.dietiestates25.views.upload.utils.FormFieldFactory;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -34,7 +34,7 @@ public class GeneralInfoForm extends UploadForm {
         propertyType = createPropertyTypeComboBox();
         saleType = createSaleTypeRadioGroup();
         availability = new Checkbox("Immediate availability");
-        new CustomInfoPopover(availability, "Check this option if the property is available for immediate occupancy or possession by the client without additional delays.");
+        new InfoPopover(availability, "Check this option if the property is available for immediate occupancy or possession by the client without additional delays.");
         city = new ComboBox<>("City");
         address = new TextField("Address");
         streetNumber = createStreetNumberField();

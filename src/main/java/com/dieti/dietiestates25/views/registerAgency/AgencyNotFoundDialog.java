@@ -3,13 +3,10 @@ package com.dieti.dietiestates25.views.registerAgency;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Style;
 
 public class AgencyNotFoundDialog extends Dialog {
-    VerticalLayout contentLayout = new VerticalLayout();
     Button closeButton = new Button("Close", event -> close());
 
     public AgencyNotFoundDialog(String vatNumber) {
@@ -35,7 +32,7 @@ public class AgencyNotFoundDialog extends Dialog {
     private Span createHelperText(String vatNumber) {
         var vatNumberText  = new Span(vatNumber);
         vatNumberText.getStyle()
-                .setFontWeight(700)
+                .setFontWeight(Style.FontWeight.BOLD)
                 .setColor("red");
 
         return new Span(new Text("The VAT number "), vatNumberText, new Text(" could not be found."));

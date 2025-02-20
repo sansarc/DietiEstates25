@@ -1,4 +1,4 @@
-package com.dieti.dietiestates25.views.ui_components;
+package com.dieti.dietiestates25.ui_components;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -6,9 +6,9 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.popover.Popover;
 import com.vaadin.flow.component.popover.PopoverPosition;
 
-public class CustomInfoPopover extends Popover {
+public class InfoPopover extends Popover {
 
-    public CustomInfoPopover(Component target, final String POPOVER_TEXT) {
+    public InfoPopover(Component target, final String POPOVER_TEXT) {
         configurePopover();
         setContent(POPOVER_TEXT);
         setTarget(target);

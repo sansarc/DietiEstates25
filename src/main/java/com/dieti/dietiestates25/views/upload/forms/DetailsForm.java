@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
-import com.dieti.dietiestates25.views.ui_components.CustomInfoPopover;
+import com.dieti.dietiestates25.ui_components.InfoPopover;
 import com.dieti.dietiestates25.views.upload.utils.FormFieldFactory;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -48,7 +48,7 @@ public class DetailsForm extends UploadForm {
         otherDetails = createOtherDetailsCheckboxGroup();
         garageSpots = createIntegerFieldWithIcon("Parking spots in a garage", new Icon(VaadinIcon.CAR));
         externalSpots = createIntegerFieldWithIcon("External parking spots", new Icon(VaadinIcon.CAR));
-        parkingInfo = new CustomInfoPopover(externalSpots, "In this category are NOT included parking spots in the road or lots in stores or parks nearby, ONLY parking spots within the property.");
+        parkingInfo = new InfoPopover(externalSpots, "In this category are NOT included parking spots in the road or lots in stores or parks nearby, ONLY parking spots within the property.");
         furnitureType = createFurnitureTypeRadioGroup();
         heatingSystem = createHeatingSystemComboBox();
         propertyStatus = createPropertyStatusComboBox();

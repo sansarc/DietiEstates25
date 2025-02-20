@@ -1,9 +1,9 @@
 package com.dieti.dietiestates25.views.signup;
 
 import com.dieti.dietiestates25.services.AuthenticationService;
-import com.dieti.dietiestates25.views.home.HomeView;
-import com.dieti.dietiestates25.views.ui_components.CustomDivCard;
-import com.dieti.dietiestates25.views.ui_components.DietiEstatesLogo;
+import com.dieti.dietiestates25.views.login.LoginView;
+import com.dieti.dietiestates25.ui_components.DivContainer;
+import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.dto.Response;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
@@ -27,7 +27,7 @@ import com.vaadin.flow.server.VaadinSession;
 public class OtpView extends VerticalLayout implements BeforeEnterObserver {
 
     DietiEstatesLogo logo = new DietiEstatesLogo("600px", "auto");
-    CustomDivCard otpViewDiv = new CustomDivCard("600px", "200px");
+    DivContainer otpViewDiv = new DivContainer("600px", "200px");
     H3 title = new H3("Confirm your account");
     Paragraph description = new Paragraph();
     TextField otpTextField = createOtpTextField();
@@ -109,12 +109,12 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
     private void confirmUser() {
         Response confirmed = authenticationService.confirmUser(email, otpTextField.getValue());
         VaadinSession.getCurrent().setAttribute("email", null);
-        Notification notification = new Notification(confirmed.getStatusMessage(), 5000, Notification.Position.TOP_CENTER   );
+
         if (confirmed.ok()) {
-            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            UI.getCurrent().navigate(HomeView.class);
-        }
-        notification.open();
+            Notification.show(confirmed.getStatusMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            UI.getCurrent().navigate(LoginView.class);
+        } else
+            Notification.show(confirmed.getStatusMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
     @Override
@@ -123,7 +123,6 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
 
         if (session != null && event.getTrigger() != NavigationTrigger.PAGE_LOAD) {
             email = (String) session.getAttribute("email");
-            System.out.println("Email in beforeEnter: " + email);
             description = createDescription();
             configureComponents();
         }

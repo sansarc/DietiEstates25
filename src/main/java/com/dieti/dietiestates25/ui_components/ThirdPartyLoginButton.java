@@ -1,4 +1,4 @@
-package com.dieti.dietiestates25.views.ui_components;
+package com.dieti.dietiestates25.ui_components;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
