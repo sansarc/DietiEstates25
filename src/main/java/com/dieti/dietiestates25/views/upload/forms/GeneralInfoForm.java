@@ -1,8 +1,8 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
 import com.dieti.dietiestates25.ui_components.InfoPopover;
-import com.dieti.dietiestates25.views.upload.utils.FloorUtils;
-import com.dieti.dietiestates25.views.upload.utils.FormFieldFactory;
+import com.dieti.dietiestates25.utils.FloorUtils;
+import com.dieti.dietiestates25.utils.FormFieldFactory;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;

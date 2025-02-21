@@ -1,4 +1,4 @@
-package com.dieti.dietiestates25.views.upload.utils;
+package com.dieti.dietiestates25.utils;
 
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -6,6 +6,8 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 
 public class FormFieldFactory {
+
+    private FormFieldFactory() {}
 
     public static IntegerField createIntegerField(String label) {
         var field = new IntegerField(label);

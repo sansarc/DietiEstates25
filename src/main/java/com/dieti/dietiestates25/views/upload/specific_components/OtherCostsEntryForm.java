@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.upload.specific_components;
 
-import com.dieti.dietiestates25.views.upload.utils.FormFieldFactory;
+import com.dieti.dietiestates25.utils.FormFieldFactory;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -20,20 +20,16 @@ public class OtherCostsEntryForm extends VerticalLayout {
     private final VerticalLayout entriesContainer = new VerticalLayout();
 
     public OtherCostsEntryForm() {
-        // Create container for entries with proper spacing
         entriesContainer.setSpacing(true);
         entriesContainer.setPadding(false);
         entriesContainer.setWidth("100%");
 
-        // Create initial entry row
         addNewCostEntry();
 
-        // Add button for new entries
         Button addButton = new Button("Add Another Cost", VaadinIcon.PLUS.create());
         addButton.addClickListener(e -> addNewCostEntry());
         addButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
 
-        // Setup main layout
         add(entriesContainer, addButton);
         setPadding(false);
         setSpacing(true);
@@ -89,7 +85,6 @@ public class OtherCostsEntryForm extends VerticalLayout {
         }
     }
 
-    // Getter for all cost entries
     public List<Map<String, Object>> getCostEntries() {
         return costEntries.stream()
                 .map(row -> {
