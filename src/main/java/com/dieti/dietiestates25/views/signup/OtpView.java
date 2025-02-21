@@ -111,10 +111,10 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
         VaadinSession.getCurrent().setAttribute("email", null);
 
         if (confirmed.ok()) {
-            Notification.show(confirmed.getStatusMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            Notification.show(confirmed.getMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             UI.getCurrent().navigate(LoginView.class);
         } else
-            Notification.show(confirmed.getStatusMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            Notification.show(confirmed.getMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
     @Override

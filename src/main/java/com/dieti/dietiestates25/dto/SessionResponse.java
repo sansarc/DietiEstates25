@@ -1,28 +1,18 @@
 package com.dieti.dietiestates25.dto;
 
-import com.dieti.dietiestates25.constants.Constants;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
-@Setter
-public class SessionResponse {
-
-    private int statusCode;
+public class SessionResponse extends Response {
 
     @SerializedName("sessionid")
-    private final String sessionId;
-    @SerializedName("message")
-    private final String statusMessage;
+    private String sessionId;
 
-    public SessionResponse(int statusCode, String sessionId, String statusMessage) {
-        this.statusCode = statusCode;
+    public SessionResponse(int statusCode, String sessionId, String message) {
+        super(statusCode, message);
         this.sessionId = sessionId;
-        this.statusMessage = statusMessage;
-    }
-
-    public boolean ok() {
-        return statusCode == Constants.Codes.OK;
     }
 }

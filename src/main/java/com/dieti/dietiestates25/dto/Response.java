@@ -2,16 +2,19 @@ package com.dieti.dietiestates25.dto;
 
 import com.dieti.dietiestates25.constants.Constants;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
 public class Response {
 
-    private final int statusCode;
-    private final String statusMessage;
+    private int statusCode;
 
-    public Response(int statusCode, String statusMessage) {
+    private String message;
+
+    public Response(int statusCode, String message) {
         this.statusCode = statusCode;
-        this.statusMessage = statusMessage;
+        this.message = message;
     }
 
     public boolean ok() {

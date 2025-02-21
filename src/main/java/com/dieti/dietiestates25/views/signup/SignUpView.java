@@ -114,7 +114,7 @@ public class SignUpView extends VerticalLayout {
             UI.getCurrent().navigate(OtpView.class);
         }
         else
-            Notification.show(signed.getStatusMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR);
+            Notification.show(signed.getMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
     private Paragraph createDisclaimer() {

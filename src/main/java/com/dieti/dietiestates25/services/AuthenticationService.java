@@ -3,9 +3,7 @@ package com.dieti.dietiestates25.services;
 
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.*;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.vaadin.flow.server.VaadinSession;
+import com.google.gson.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,10 +14,18 @@ public class AuthenticationService {
         String json = new Gson().toJson(loginRequest);
 
         Response response = RequestService.POST(Constants.ApiEndpoints.LOGIN, json);
-        SessionResponse sessionResponse = new Gson().fromJson(response.getStatusMessage(), SessionResponse.class);
-        sessionResponse.setStatusCode(response.getStatusCode()); // consider making sessionResponse extend Response
 
-        return sessionResponse;
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(SessionResponse.class, (JsonDeserializer<SessionResponse>) (json1, typeOfT, context) -> {
+            JsonObject jsonObject = json1.getAsJsonObject();
+            String message = jsonObject.get("message").getAsString();
+            String sessionId = jsonObject.get("sessionid").getAsString();
+            int statusCode = response.getStatusCode();
+
+            return new SessionResponse(statusCode, message, sessionId);
+        });
+
+        return gsonBuilder.create().fromJson(response.getMessage(), SessionResponse.class);
     }
 
     public Response createUser(String firstName, String lastName, String email, String password) {
