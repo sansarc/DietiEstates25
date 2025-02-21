@@ -7,6 +7,7 @@ import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.ui_components.TextWithLink;
 import com.dieti.dietiestates25.ui_components.ThirdPartyLoginButton;
+import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.vaadin.flow.component.Key;
@@ -26,11 +27,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route("signup")
 @PageTitle("Sign Up")
-@AnonymousAllowed
 public class SignUpView extends VerticalLayout {
 
     H3 title = new H3("Sign Up");
@@ -103,18 +102,23 @@ public class SignUpView extends VerticalLayout {
     }
 
     private void signup() {
-        Response signed = authenticationService.createUser(firstName.getValue(), lastName.getValue(), email.getValue(), password.getValue());
-        VaadinSession session = VaadinSession.getCurrent();
-        if (session == null) {
-            session = new VaadinSession(VaadinService.getCurrent());
-            VaadinSession.setCurrent(session);
+        try {
+            Response signed = authenticationService.createUser(firstName.getValue(), lastName.getValue(), email.getValue(), password.getValue());
+            VaadinSession session = VaadinSession.getCurrent();
+            if (session == null) {
+                session = new VaadinSession(VaadinService.getCurrent());
+                VaadinSession.setCurrent(session);
+            }
+            if (signed.getStatusCode() == Constants.Codes.CREATED) {
+                session.setAttribute("email", email.getValue());
+                UI.getCurrent().navigate(OtpView.class);
+            }
+            else
+                NotificationFactory.error(signed.getMessage());
+        } catch (RuntimeException e) {
+            NotificationFactory.critical();
+            throw new RuntimeException(e);
         }
-        if (signed.getStatusCode() == Constants.Codes.CREATED) {
-            session.setAttribute("email", email.getValue());
-            UI.getCurrent().navigate(OtpView.class);
-        }
-        else
-            Notification.show(signed.getMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
     private Paragraph createDisclaimer() {

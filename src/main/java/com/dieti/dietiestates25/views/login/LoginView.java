@@ -2,6 +2,7 @@ package com.dieti.dietiestates25.views.login;
 
 import com.dieti.dietiestates25.dto.SessionResponse;
 import com.dieti.dietiestates25.services.AuthenticationService;
+import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.home.HomeView;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
@@ -16,15 +17,12 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.VaadinSession;
 
 @PageTitle("Login")
 @Route("login")
@@ -119,13 +117,18 @@ public class LoginView extends VerticalLayout {
     }
 
     private void login() {
-        SessionResponse authenticated = authenticationService.authenticate(emailField.getValue(), passwordField.getValue());
-        if (authenticated.ok()) {
-            Notification.show("Welcome Back!", 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            VaadinSession.getCurrent().getSession().setAttribute("session_id", authenticated.getSessionId());
-            UI.getCurrent().navigate(HomeView.class);
+        try {
+            SessionResponse authenticated = authenticationService.authenticate(
+                    emailField.getValue(), passwordField.getValue());
+            if (authenticated.ok()) {
+                NotificationFactory.success("Welcome to Back!");
+                UI.getCurrent().navigate(HomeView.class);
+            } else
+                NotificationFactory.error(authenticated.getMessage());
+
+        } catch (RuntimeException e) {
+            NotificationFactory.critical();
+            throw new RuntimeException(e);
         }
-        else
-            Notification.show(authenticated.getStatusMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 }
