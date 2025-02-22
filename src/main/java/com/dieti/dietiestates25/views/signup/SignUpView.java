@@ -1,5 +1,6 @@
 package com.dieti.dietiestates25.views.signup;
 
+import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.Response;
 import com.dieti.dietiestates25.services.AuthenticationService;
@@ -28,6 +29,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 
+@ForwardLoggedUser
 @Route("signup")
 @PageTitle("Sign Up")
 public class SignUpView extends VerticalLayout {
@@ -117,7 +119,6 @@ public class SignUpView extends VerticalLayout {
                 NotificationFactory.error(signed.getMessage());
         } catch (RuntimeException e) {
             NotificationFactory.critical();
-            throw new RuntimeException(e);
         }
     }
 
@@ -126,7 +127,7 @@ public class SignUpView extends VerticalLayout {
         setAlignSelf(Alignment.CENTER, disclaimer);
         disclaimer.getStyle()
                 .setFontSize("12px")
-                .set("color", "var(--lumo-secondary-text-color)");
+                .setColor("var(--lumo-secondary-text-color)");
 
         Span preTerms = new Span("By selecting Sign Up, you agree to our ");
         Anchor terms = new Anchor("#", "Terms");

@@ -1,5 +1,6 @@
 package com.dieti.dietiestates25.views.login;
 
+import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
 import com.dieti.dietiestates25.dto.SessionResponse;
 import com.dieti.dietiestates25.services.AuthenticationService;
 import com.dieti.dietiestates25.utils.NotificationFactory;
@@ -20,10 +21,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.router.*;
 
+@ForwardLoggedUser()
 @PageTitle("Login")
 @Route("login")
 public class LoginView extends VerticalLayout {
@@ -121,14 +121,13 @@ public class LoginView extends VerticalLayout {
             SessionResponse authenticated = authenticationService.authenticate(
                     emailField.getValue(), passwordField.getValue());
             if (authenticated.ok()) {
-                NotificationFactory.success("Welcome to Back!");
+                NotificationFactory.success("Welcome Back!");
                 UI.getCurrent().navigate(HomeView.class);
             } else
                 NotificationFactory.error(authenticated.getMessage());
 
         } catch (RuntimeException e) {
             NotificationFactory.critical();
-            throw new RuntimeException(e);
         }
     }
 }

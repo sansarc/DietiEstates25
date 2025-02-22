@@ -4,6 +4,7 @@ package com.dieti.dietiestates25.services;
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.*;
 import com.google.gson.*;
+import com.vaadin.flow.server.VaadinSession;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,16 +17,24 @@ public class AuthenticationService {
         Response response = RequestService.POST(Constants.ApiEndpoints.LOGIN, json);
 
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(SessionResponse.class, (JsonDeserializer<SessionResponse>) (json1, typeOfT, context) -> {
-            JsonObject jsonObject = json1.getAsJsonObject();
-            String message = jsonObject.get("message").getAsString();
-            String sessionId = jsonObject.get("sessionid").getAsString();
+        gsonBuilder.registerTypeAdapter(SessionResponse.class, (JsonDeserializer<SessionResponse>) (jsonElement, typeOfT, context) -> {
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+
             int statusCode = response.getStatusCode();
+            String message = "";
+            if (jsonObject.has("message") && !jsonObject.get("message").isJsonNull())
+                message = jsonObject.get("message").getAsString();
+            String sessionId = (jsonObject.has("sessionid") && !jsonObject.get("sessionid").isJsonNull())
+                    ? jsonObject.get("sessionid").getAsString()
+                    : null;
 
             return new SessionResponse(statusCode, message, sessionId);
         });
 
-        return gsonBuilder.create().fromJson(response.getMessage(), SessionResponse.class);
+        var sessionResponse = gsonBuilder.create().fromJson(response.getMessage(), SessionResponse.class);
+        VaadinSession.getCurrent().setAttribute("session_id", sessionResponse.getSessionId());
+
+        return sessionResponse;
     }
 
     public Response createUser(String firstName, String lastName, String email, String password) {
