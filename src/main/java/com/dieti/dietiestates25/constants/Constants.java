@@ -20,4 +20,10 @@ public final class Constants {
         public static final int CREATED = 201;
         public static final int NOT_FOUND = 404;
     }
+
+    public static final class StaticPaths {
+        private StaticPaths() {}
+
+        public static final String favicon = "icons/favicon.ico";
+    }
 }
