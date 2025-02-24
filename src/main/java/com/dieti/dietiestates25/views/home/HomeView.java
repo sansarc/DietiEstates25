@@ -20,7 +20,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import java.util.ArrayList;
 
 
-@Route(value = "landing", layout = MainLayout.class)
+@Route(value = "", layout = MainLayout.class)
 public class HomeView extends VerticalLayout {
 
     Div titleContainer;

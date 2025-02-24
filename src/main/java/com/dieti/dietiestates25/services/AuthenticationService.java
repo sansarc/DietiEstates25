@@ -33,6 +33,7 @@ public class AuthenticationService {
 
         var sessionResponse = gsonBuilder.create().fromJson(response.getMessage(), SessionResponse.class);
         VaadinSession.getCurrent().setAttribute("session_id", sessionResponse.getSessionId());
+        VaadinSession.getCurrent().setAttribute("email", email);
 
         return sessionResponse;
     }

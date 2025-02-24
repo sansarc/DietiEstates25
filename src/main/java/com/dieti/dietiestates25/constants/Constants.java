@@ -26,4 +26,10 @@ public final class Constants {
 
         public static final String favicon = "icons/favicon.ico";
     }
+
+    public static final class Colors {
+        private Colors() {}
+
+        public static final String PRIMARY = "var(--lumo-primary-color)";
+    }
 }
