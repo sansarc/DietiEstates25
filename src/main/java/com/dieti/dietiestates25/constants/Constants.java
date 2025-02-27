@@ -24,12 +24,15 @@ public final class Constants {
     public static final class StaticPaths {
         private StaticPaths() {}
 
-        public static final String favicon = "icons/favicon.ico";
+        public static final String FAVICON = "icons/favicon.ico";
+        public static final String BACKGROUND = "images/background.jpg";
     }
 
     public static final class Colors {
         private Colors() {}
 
-        public static final String PRIMARY = "var(--lumo-primary-color)";
+        public static final String PRIMARY_BLUE = "var(--lumo-primary-color)";
+        public static final String GRAY_OVER_WHITEMODE = "#F5F5F5";
+            public static final String GRAY_OVER_DARKMODE = "#2D2F31";
     }
 }

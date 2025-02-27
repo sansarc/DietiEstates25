@@ -16,4 +16,8 @@ vaadin-text-field.bordered::part(input-field) {
   background-color: var(--lumo-base-color);
 }
 
+[theme~="dark"] {
+  --lumo-base-color: #202123;
+  --lumo-shade: #202123; /* Optional: Adjusts other shades to match */
+}
 
