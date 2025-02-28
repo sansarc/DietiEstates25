@@ -1,20 +1,15 @@
 package com.dieti.dietiestates25.views.signup;
 
-import com.dieti.dietiestates25.services.AuthenticationService;
-import com.dieti.dietiestates25.views.login.LoginView;
+import com.dieti.dietiestates25.services.authentication.AuthenticationHandlerProvider;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
-import com.dieti.dietiestates25.dto.Response;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -24,7 +19,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 
 @Route("confirm-account")
-public class OtpView extends VerticalLayout implements BeforeEnterObserver {
+public class OtpView extends VerticalLayout implements BeforeEnterObserver, AuthenticationHandlerProvider {
 
     DietiEstatesLogo logo = new DietiEstatesLogo("600px", "auto");
     DivContainer otpViewDiv = new DivContainer("600px", "200px");
@@ -35,14 +30,9 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
     HorizontalLayout inputLayout = new HorizontalLayout(otpTextField, confirmButton);
 
     private String email;
-    private final AuthenticationService authenticationService;
 
-    public OtpView(AuthenticationService authenticationService) {
-
-        this.authenticationService = authenticationService;
-
+    public OtpView() {
         configureLayout();
-
         add(logo, otpViewDiv);
     }
 
@@ -100,21 +90,11 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
                 otpTextField.setErrorMessage("This field cannot be empty.");
                 otpTextField.setInvalid(true);
             }
-            else confirmUser();
+            else
+                authHandler.confirmUser(email, otpTextField.getValue());
         });
 
         return button;
-    }
-
-    private void confirmUser() {
-        Response confirmed = authenticationService.confirmUser(email, otpTextField.getValue());
-        VaadinSession.getCurrent().setAttribute("email", null);
-
-        if (confirmed.ok()) {
-            Notification.show(confirmed.getMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            UI.getCurrent().navigate(LoginView.class);
-        } else
-            Notification.show(confirmed.getMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
     @Override

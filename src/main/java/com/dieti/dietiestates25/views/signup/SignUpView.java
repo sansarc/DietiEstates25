@@ -1,24 +1,19 @@
 package com.dieti.dietiestates25.views.signup;
 
 import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
-import com.dieti.dietiestates25.constants.Constants;
-import com.dieti.dietiestates25.dto.Response;
-import com.dieti.dietiestates25.services.AuthenticationService;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.ui_components.TextWithLink;
 import com.dieti.dietiestates25.ui_components.ThirdPartyLoginButton;
 import com.dieti.dietiestates25.utils.NotificationFactory;
+import com.dieti.dietiestates25.services.authentication.AuthenticationHandlerProvider;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -26,13 +21,11 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinSession;
 
 @ForwardLoggedUser
 @Route("signup")
 @PageTitle("Sign Up")
-public class SignUpView extends VerticalLayout {
+public class SignUpView extends VerticalLayout implements AuthenticationHandlerProvider {
 
     H3 title = new H3("Sign Up");
     TextField firstName = new TextField("First name");
@@ -45,23 +38,18 @@ public class SignUpView extends VerticalLayout {
     ThirdPartyLoginButton facebookButton = new ThirdPartyLoginButton("Facebook", "50%", "/images/facebook_logo.png", "");
     DivContainer signupDiv = new DivContainer("600px", "auto");
 
-    private final AuthenticationService authenticationService;
 
-    SignUpView(AuthenticationService authenticationService) {
-
-        this.authenticationService = authenticationService;
-
+    SignUpView() {
         configureLayout();
         configureComponents();
-
-        add(new DietiEstatesLogo(), signupDiv);
+        add(new DietiEstatesLogo(true), signupDiv);
     }
 
     private void configureComponents() {
         signupDiv.add(
                 title,
-                new TextWithLink("Already have an account?", new RouterLink("Log in", LoginView.class)),
-                new TextWithLink("Looking to register your agency? Do it ", new RouterLink("here", RegisterAgencyView.class)),
+                new TextWithLink("Already have an account?", new RouterLink("Log in", LoginView.class), "14px"),
+                new TextWithLink("Looking to register your agency? Do it ", new RouterLink("here", RegisterAgencyView.class), "12px"),
                 createFormLayout(),
                 createSignUpButton(),
                 createDisclaimer(),
@@ -90,36 +78,17 @@ public class SignUpView extends VerticalLayout {
 
         signUpButton.addClickListener(event -> {
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Notification.show("Fill all the required fields.").addThemeVariants(NotificationVariant.LUMO_ERROR);
+                NotificationFactory.error("Please fill all the required fields.");
             }
             else if (!password.getValue().equals(confirmPassword.getValue())) {
                 password.setInvalid(true);
                 confirmPassword.setInvalid(true);
                 confirmPassword.setErrorMessage("Passwords do not match.");
             }
-            else signup();
+            else authHandler.signup(firstName.getValue(), lastName.getValue(), email.getValue(), password.getValue());
         });
 
         return signUpButton;
-    }
-
-    private void signup() {
-        try {
-            Response signed = authenticationService.createUser(firstName.getValue(), lastName.getValue(), email.getValue(), password.getValue());
-            VaadinSession session = VaadinSession.getCurrent();
-            if (session == null) {
-                session = new VaadinSession(VaadinService.getCurrent());
-                VaadinSession.setCurrent(session);
-            }
-            if (signed.getStatusCode() == Constants.Codes.CREATED) {
-                session.setAttribute("email", email.getValue());
-                UI.getCurrent().navigate(OtpView.class);
-            }
-            else
-                NotificationFactory.error(signed.getMessage());
-        } catch (RuntimeException e) {
-            NotificationFactory.critical();
-        }
     }
 
     private Paragraph createDisclaimer() {

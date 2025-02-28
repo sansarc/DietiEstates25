@@ -1,18 +1,15 @@
 package com.dieti.dietiestates25.views.login;
 
 import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
-import com.dieti.dietiestates25.dto.SessionResponse;
-import com.dieti.dietiestates25.services.AuthenticationService;
-import com.dieti.dietiestates25.utils.NotificationFactory;
-import com.dieti.dietiestates25.views.home.HomeView;
+import com.dieti.dietiestates25.services.authentication.AuthenticationHandlerProvider;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.ui_components.TextWithLink;
 import com.dieti.dietiestates25.ui_components.ThirdPartyLoginButton;
+import com.dieti.dietiestates25.views.login.specific_components.ForgotPasswordDialog;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.dieti.dietiestates25.views.signup.SignUpView;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.*;
@@ -26,7 +23,7 @@ import com.vaadin.flow.router.*;
 @ForwardLoggedUser()
 @PageTitle("Login")
 @Route("login")
-public class LoginView extends VerticalLayout {
+public class LoginView extends VerticalLayout implements AuthenticationHandlerProvider {
 
     H3 title = new H3("Login");
     EmailField emailField = new EmailField("Email");
@@ -38,16 +35,10 @@ public class LoginView extends VerticalLayout {
     ThirdPartyLoginButton linkedinButton = new ThirdPartyLoginButton("Linkedin", "75%", "/images/linkedin_logo.png", "");
     ThirdPartyLoginButton facebookButton = new ThirdPartyLoginButton("Facebook", "75%", "/images/facebook_logo.png", "");
 
-    private final AuthenticationService authenticationService;
-
-    public LoginView(AuthenticationService authenticationService) {
-
-        this.authenticationService = authenticationService;
-
+    public LoginView() {
         configureLayout();
         configureComponents();
-
-        add(new DietiEstatesLogo(), loginDiv, createFooter());
+        add(new DietiEstatesLogo(true), loginDiv, createFooter());
     }
 
     private void configureComponents() {
@@ -110,24 +101,10 @@ public class LoginView extends VerticalLayout {
                 emailField.setInvalid(true);
                 passwordField.setInvalid(true);
             }
-            else login();
+            else
+                authHandler.login(emailField.getValue(), passwordField.getValue());
         });
 
         return button;
-    }
-
-    private void login() {
-        try {
-            SessionResponse authenticated = authenticationService.authenticate(
-                    emailField.getValue(), passwordField.getValue());
-            if (authenticated.ok()) {
-                NotificationFactory.success("Welcome Back!");
-                UI.getCurrent().navigate(HomeView.class);
-            } else
-                NotificationFactory.error(authenticated.getMessage());
-
-        } catch (RuntimeException e) {
-            NotificationFactory.critical();
-        }
     }
 }

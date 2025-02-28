@@ -1,13 +1,12 @@
-package com.dieti.dietiestates25.services;
+package com.dieti.dietiestates25.services.authentication;
 
 
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.*;
+import com.dieti.dietiestates25.services.RequestService;
 import com.google.gson.*;
 import com.vaadin.flow.server.VaadinSession;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AuthenticationService {
 
     public SessionResponse authenticate(String email, String pwd) {
