@@ -1,4 +1,4 @@
-package com.dieti.dietiestates25.views.login;
+package com.dieti.dietiestates25.views.login.specific_components;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;

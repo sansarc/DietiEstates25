@@ -47,7 +47,7 @@ public class HomeView extends VerticalLayout {
             cards.add(new DivCard(
                     "https://picsum.photos/2670/1780",
                     400000,
-                    Constants.StaticPaths.favicon,
+                    Constants.StaticPaths.FAVICON,
                     "DietiEstates",
                     "2 baths | 3 bedrooms"
             ));
@@ -60,7 +60,7 @@ public class HomeView extends VerticalLayout {
     }
 
     private void createSecondTitle() {
-        var secondTitle = new H1("Last Listings");
+        var secondTitle = new H1("Latest Listings");
         var subtitle = new Paragraph("Check out the latest uploaded homes in the last days.");
 
         secondTitleContainer = new VerticalLayout(secondTitle, subtitle);
