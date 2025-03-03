@@ -3,6 +3,7 @@ package com.dieti.dietiestates25.views.upload.forms;
 import com.dieti.dietiestates25.ui_components.InfoPopover;
 import com.dieti.dietiestates25.utils.FloorUtils;
 import com.dieti.dietiestates25.utils.FormFieldFactory;
+import com.dieti.dietiestates25.views.upload.specific_components.RadioButtonGroupCustomFontSize;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
@@ -13,7 +14,7 @@ import com.vaadin.flow.component.textfield.TextField;
 
 public class GeneralInfoForm extends UploadForm {
     private ComboBox<String> propertyType;
-    private RadioButtonGroup<String> saleType;
+    private RadioButtonGroupCustomFontSize<String> saleType;
     private Checkbox availability;
     private ComboBox<String> city;
     private TextField address;
@@ -41,6 +42,8 @@ public class GeneralInfoForm extends UploadForm {
         surfaceArea = createSurfaceAreaField();
         floor = createFloorsComboBox();
         numberOfFloors = createNumberOfFloorsField();
+
+        availability.getStyle().set("--vaadin-checkbox-label-font-size", "14px");
     }
 
     @Override
@@ -74,10 +77,11 @@ public class GeneralInfoForm extends UploadForm {
         return comboBox;
     }
 
-    private RadioButtonGroup<String> createSaleTypeRadioGroup() {
-        var radioGroup = new RadioButtonGroup<String>("Type");
+    private RadioButtonGroupCustomFontSize<String> createSaleTypeRadioGroup() {
+        var radioGroup = new RadioButtonGroupCustomFontSize<String>("Sale Type");
         radioGroup.setItems("For Sale", "Rent");
         radioGroup.setValue("For Sale");
+        radioGroup.resize("14px");
         return radioGroup;
     }
 

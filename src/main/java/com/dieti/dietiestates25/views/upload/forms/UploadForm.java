@@ -15,13 +15,17 @@ public abstract class UploadForm extends FormLayout {
     private void configureBase() {
         getStyle().set("margin-bottom", "var(--lumo-space-l)");
 
-        getElement().executeJs(
-                "this.querySelectorAll('*').forEach(el => {" +
-                        "  if(el.shadowRoot) {" +
-                        "    el.shadowRoot.querySelector('[part=\"label\"]')?.style.setProperty('color', 'black');" +
-                        "  }" +
-                        "});"
-                );
+//        getElement().executeJs(
+//                "this.querySelectorAll('*').forEach(el => {" +
+//                        "  if(el.shadowRoot) {" +
+//                        "    el.shadowRoot.querySelector('[part=\"label\"]')?.style.setProperty('color', 'black');" +
+//                        "  }" +
+//                        "});"
+//                );
+
+
+
+
     }
 
     protected abstract void configureLayout();

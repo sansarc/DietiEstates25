@@ -2,6 +2,7 @@ package com.dieti.dietiestates25.views.upload.forms;
 
 import com.dieti.dietiestates25.ui_components.InfoPopover;
 import com.dieti.dietiestates25.utils.FormFieldFactory;
+import com.dieti.dietiestates25.views.upload.specific_components.RadioButtonGroupCustomFontSize;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -67,8 +68,9 @@ public class DetailsForm extends UploadForm {
     }
 
     private RadioButtonGroup<String> createFurnitureTypeRadioGroup() {
-        var radioGroup = new RadioButtonGroup<String>("Furniture Type");
+        var radioGroup = new RadioButtonGroupCustomFontSize<String>("Furniture Type");
         radioGroup.setItems("Furnished", "Unfurnished");
+        radioGroup.resize("14px");
         return radioGroup;
     }
 

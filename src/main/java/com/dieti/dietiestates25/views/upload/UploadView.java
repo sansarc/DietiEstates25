@@ -115,16 +115,25 @@ public class UploadView extends VerticalLayout {
     private VerticalLayout wrapInVerticalLayout(Component content) {
         var continueButton = new Button("Continue");
         continueButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        continueButton.setWidth("25%");
-        setAlignSelf(Alignment.CENTER, continueButton);
+        continueButton.setWidth("15%");
+        var backButton = new Button("Back");
+        backButton.setWidth("15%");
+
+        var buttonLayout = new HorizontalLayout(backButton, continueButton);
+        buttonLayout.setWidth("80%");
+        buttonLayout.setJustifyContentMode(JustifyContentMode.END);
+
 
         continueButton.addClickListener(event -> {
             Tab selectedTab = tabs.getSelectedTab();
-            if (selectedTab.equals(generalInfoTab) && generalInfoForm.areRequiredFieldsValid()) {
+            if (selectedTab.equals(generalInfoTab) /* && generalInfoForm.areRequiredFieldsValid() */ ) {
+                generalInfoTab.getStyle().setColor("green");
                 tabs.setSelectedTab(detailsTab);
             } else if (selectedTab.equals(detailsTab)) {
+                detailsTab.getStyle().setColor("green");
                 tabs.setSelectedTab(costsInfoTab);
             } else if (selectedTab.equals(costsInfoTab)) {
+                costsInfoTab.getStyle().setColor("green");
                 tabs.setSelectedTab(descriptionNMediaTab);
             } else {
                 Notification.show("Fill all the required fields to continue.").addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -136,7 +145,7 @@ public class UploadView extends VerticalLayout {
         contentContainer.setJustifyContentMode(JustifyContentMode.CENTER);
         setAlignSelf(Alignment.CENTER, contentContainer);
 
-        var layout = new VerticalLayout(contentContainer, continueButton);
+        var layout = new VerticalLayout(contentContainer, buttonLayout);
         layout.setSizeFull();
         layout.setAlignItems(Alignment.CENTER);
         return layout;
