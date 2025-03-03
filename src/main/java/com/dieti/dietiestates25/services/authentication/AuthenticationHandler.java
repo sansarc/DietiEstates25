@@ -12,9 +12,12 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthenticationHandler {
     private final AuthenticationService authenticationService;
+    private final static Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
 
     public AuthenticationHandler() {
         authenticationService = new AuthenticationService();
@@ -22,33 +25,46 @@ public class AuthenticationHandler {
 
     public void confirmUser(String email, String otp) {
         Response confirmed = authenticationService.confirmUser(email, otp);
-            VaadinSession.getCurrent().setAttribute("email", null);
+        VaadinSession.getCurrent().setAttribute("email", null);
 
-        if (confirmed.ok()) {
-            Notification.show(confirmed.getMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            UI.getCurrent().navigate(LoginView.class);
-        } else
-            Notification.show(confirmed.getMessage(), 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        try {
+            if (confirmed.ok()) {
+                NotificationFactory.success(confirmed.getMessage());
+                UI.getCurrent().navigate(LoginView.class);
+                logger.info("User confirmed OTP with email: {}", email);
+            } else {
+                NotificationFactory.error(confirmed.getMessage());
+                logger.warn("User wasn't confirmed with email: {}", email);
+            }
+        } catch (RuntimeException e) {
+            logger.error("Critical error while confirming user.", e);
+            NotificationFactory.critical();
+        }
     }
 
     public void login(String email, String password) {
+        SessionResponse authenticated = authenticationService.authenticate(email, password);
         try {
-            SessionResponse authenticated = authenticationService.authenticate(email, password);
             if (authenticated.ok()) {
                 NotificationFactory.success("Welcome Back!");
                 UI.getCurrent().navigate(HomeView.class);
-            } else
+                logger.info("User logged in with email: {}", email);
+            } else {
+                logger.warn("User was unable to log in with email: {}", email);
                 NotificationFactory.error(authenticated.getMessage());
+            }
 
         } catch (RuntimeException e) {
+            logger.error("Critical error while logging in.", e);
             NotificationFactory.critical();
         }
     }
 
     public void signup(String firstName, String lastName, String email, String password) {
+        Response signed = authenticationService.createUser(firstName, lastName, email, password);
+        VaadinSession session = VaadinSession.getCurrent();
+
         try {
-            Response signed = authenticationService.createUser(firstName, lastName, email, password);
-            VaadinSession session = VaadinSession.getCurrent();
             if (session == null) {
                 session = new VaadinSession(VaadinService.getCurrent());
                 VaadinSession.setCurrent(session);
@@ -56,10 +72,14 @@ public class AuthenticationHandler {
             if (signed.getStatusCode() == Constants.Codes.CREATED) {
                 session.setAttribute("email", email);
                 UI.getCurrent().navigate(OtpView.class);
+                logger.info("User signed with email: {}", email);
             }
-            else
+            else {
                 NotificationFactory.error(signed.getMessage());
+                logger.warn("User attempted to sign with email : {}", email);
+            }
         } catch (RuntimeException e) {
+            logger.error("Critical error while signing up.", e);
             NotificationFactory.critical();
         }
     }

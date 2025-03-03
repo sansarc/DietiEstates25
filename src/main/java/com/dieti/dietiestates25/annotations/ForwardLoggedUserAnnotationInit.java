@@ -5,6 +5,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.VaadinSession;
+import org.slf4j.LoggerFactory;
 
 public class ForwardLoggedUserAnnotationInit implements VaadinServiceInitListener {
 
@@ -18,7 +19,6 @@ public class ForwardLoggedUserAnnotationInit implements VaadinServiceInitListene
                     if (VaadinSession.getCurrent().getAttribute("session_id") != null) {
                         ForwardLoggedUser annotation = classTarget.getAnnotation(ForwardLoggedUser.class);
                         Class<? extends Component> destination = annotation.value();
-                        System.out.println("@ForwardLoggedUser: redirecting to " + destination);
                         beforeEnterEvent.forwardTo(destination);
                     }
                 }

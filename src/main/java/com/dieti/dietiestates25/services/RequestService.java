@@ -3,6 +3,8 @@ package com.dieti.dietiestates25.services;
 import com.dieti.dietiestates25.dto.Response;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import java.net.URI;
@@ -17,7 +19,10 @@ public class RequestService {
 
     private RequestService() {}
 
+    private static final Logger logger = LoggerFactory.getLogger(RequestService.class);
+
     public static Response POST(String endpoint, String json) {
+
         try {
             HttpClient client = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(15))
@@ -31,17 +36,19 @@ public class RequestService {
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
-            System.out.println("(POST Request to " + endpoint + "): " + json);
+            logger.info("Sending POST request to {} with payload: {}", endpoint, json);
 
             HttpResponse<String> response = client.send(
                     request, HttpResponse.BodyHandlers.ofString()
             );
 
-            System.out.println(response + ": " + response.body());
+            logResponse(response);
+
             return new Response(response.statusCode(), response.body());
 
-        } catch (Exception exception) {
-            throw new RuntimeException("Failed to POST to " + endpoint + ": " + exception.getMessage(), exception);
+        } catch (Exception ex) {
+            logger.error("Failed to POST to {}: {}", endpoint, ex.getMessage(), ex);
+            throw new RuntimeException("Failed to POST to " + endpoint + ": " + ex.getMessage(), ex);
         }
     }
 
@@ -63,7 +70,7 @@ public class RequestService {
                 }
 
                 endpoint = endpoint + "?" + String.join("&", parameters);
-                System.out.println("(GET Request to " + endpoint + ")");
+                logger.info("Sending GET request to {} with payload: {}", endpoint, json);
             }
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -76,11 +83,17 @@ public class RequestService {
                     request, HttpResponse.BodyHandlers.ofString()
             );
 
-            System.out.println(response + ": " + response.body());
+            logResponse(response);
+
             return new Response(response.statusCode(), response.body());
 
-        } catch (Exception exception) {
-            throw new RuntimeException("Failed to GET to " + endpoint + ": " + exception.getMessage(), exception);
+        } catch (Exception ex) {
+            logger.error("Failed to GET to {}: {}", endpoint, ex.getMessage(), ex);
+            throw new RuntimeException("Failed to GET to " + endpoint + ": " + ex.getMessage(), ex);
         }
+    }
+
+    private static void logResponse(HttpResponse<String> response) {
+        logger.info("Received response {}: {}", response.statusCode(), response.body());
     }
 }
