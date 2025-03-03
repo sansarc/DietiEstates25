@@ -8,10 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SignupRequest {
-    @NotBlank private String firstName;
-    @NotBlank private String lastName;
-    @Email @NotBlank private String email;
-    @NotBlank private String pwd;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String pwd;
 
     public SignupRequest(String firstName, String lastName, String email, String pwd) {
         this.firstName = firstName;

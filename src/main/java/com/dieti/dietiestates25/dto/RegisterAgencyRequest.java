@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RegisterAgencyRequest {
-    @NotBlank private String agencyName;
-    @NotBlank private String vatNumber;
-    @NotBlank private SignupRequest signupRequest;
+    private String agencyName;
+    private String vatNumber;
+    private SignupRequest signupRequest;
 
     public RegisterAgencyRequest(String agencyName, String vatNumber, SignupRequest signupRequest) {
         this.agencyName = agencyName;

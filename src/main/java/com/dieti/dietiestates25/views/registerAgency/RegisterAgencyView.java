@@ -27,7 +27,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RegisterAgencyView extends VerticalLayout {
 
     FormLayout formLayout;
-    private static BeanValidationBinder<RegisterAgencyRequest> binder = new BeanValidationBinder<>(RegisterAgencyRequest.class);
+
+    TextField agencyName = new TextField("Agency Name");
+    TextField vatNumber = new TextField("VAT Number");
+    TextField firstName = new TextField("First Name");
+    TextField lastName = new TextField("Last Name");
+    EmailField email = new EmailField("Email");
+    PasswordField password = new PasswordField("Password");
+    TextField confirmPassword = new TextField("Confirm Password");
 
     public RegisterAgencyView() {
         configureLayout();
@@ -71,13 +78,11 @@ public class RegisterAgencyView extends VerticalLayout {
         setAlignSelf(Alignment.CENTER, register);
         register.setWidth("35%");
 
-        binder.bindInstanceFields(this);
-
         register.addClickListener(event -> {
-            if (binder.validate().hasErrors()) {
+            if (agencyName.isEmpty()|| vatNumber.isEmpty()|| firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 NotificationFactory.error("Please fill all required fields");
             } else {
-                // Proceed with submission
+                NotificationFactory.success("Registered Agency");
             }
         });
 
@@ -91,6 +96,7 @@ public class RegisterAgencyView extends VerticalLayout {
     }
 
     private static FormLayout getFormLayout() {
+
         var agencyName = new TextField("Agency Name");
         var vatNumber = new TextField("VAT Number");
         var firstName = new TextField("First Name");
@@ -98,6 +104,7 @@ public class RegisterAgencyView extends VerticalLayout {
         var email = new EmailField("Email");
         var password = new PasswordField("Password");
         var confirmPassword = new PasswordField("Confirm Password");
+
         var secondTitle =  new H4("Fill in your personal information");
         secondTitle.getStyle().setPaddingTop("20px");
 
@@ -123,9 +130,5 @@ public class RegisterAgencyView extends VerticalLayout {
         setJustifyContentMode(JustifyContentMode.START);
         setAlignItems(Alignment.CENTER);
         setSpacing(false);
-    }
-
-    public void setAgency(RegisterAgencyRequest agency) {
-        binder.setBean(agency);
     }
 }
