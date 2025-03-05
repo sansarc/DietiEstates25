@@ -1,66 +1,31 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
-import com.dieti.dietiestates25.ui_components.InfoPopover;
 import com.dieti.dietiestates25.utils.FloorUtils;
-import com.dieti.dietiestates25.utils.FormFieldFactory;
 import com.dieti.dietiestates25.views.upload.specific_components.RadioButtonGroupCustomFontSize;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 
 public class GeneralInfoForm extends UploadForm {
-    private ComboBox<String> propertyType;
-    private RadioButtonGroupCustomFontSize<String> saleType;
-    private Checkbox availability;
-    private ComboBox<String> city;
-    private TextField address;
-    private NumberField streetNumber;
-    private NumberField surfaceArea;
-    private ComboBox<String> floor;
-    private IntegerField numberOfFloors;
 
     public GeneralInfoForm() {
         configureLayout();
         createComponents();
-        addComponents();
-        setRequiredIndicatorVisibleTrue(propertyType, saleType, city, address, streetNumber, surfaceArea, floor);
     }
 
-    @Override
     protected void createComponents() {
-        propertyType = createPropertyTypeComboBox();
-        saleType = createSaleTypeRadioGroup();
-        availability = new Checkbox("Immediate availability");
-        new InfoPopover(availability, "Check this option if the property is available for immediate occupancy or possession by the client without additional delays.");
-        city = new ComboBox<>("City");
-        address = new TextField("Address");
-        streetNumber = createStreetNumberField();
-        surfaceArea = createSurfaceAreaField();
-        floor = createFloorsComboBox();
-        numberOfFloors = createNumberOfFloorsField();
+        var saleType = createSaleTypeRadioGroup();
+        var city = new ComboBox<>("City");
+        var address = new TextField("Address");
+        var streetNumber = createStreetNumberField();
+        var surfaceArea = createSurfaceAreaField();
+        var floor = createFloorsComboBox();
+        var numberOfFloors = createNumberOfFloorsField();
 
-        availability.getStyle().set("--vaadin-checkbox-label-font-size", "14px");
-    }
-
-    @Override
-    protected void configureLayout() {
-        setWidth("80%");
-        setResponsiveSteps(
-                new ResponsiveStep("0", 1),
-                new ResponsiveStep("500px", 3)
-        );
-    }
-
-    @Override
-    protected void addComponents() {
         add(
-                propertyType,
                 saleType,
-                availability,
                 city,
                 address,
                 streetNumber,
@@ -69,6 +34,15 @@ public class GeneralInfoForm extends UploadForm {
                 numberOfFloors
         );
 
+        setRequiredTrue(saleType, city, address, streetNumber, surfaceArea, floor);
+    }
+
+    protected void configureLayout() {
+        setWidth("80%");
+        setResponsiveSteps(
+                new ResponsiveStep("0", 1),
+                new ResponsiveStep("500px", 3)
+        );
     }
 
     private ComboBox<String> createPropertyTypeComboBox() {
@@ -105,7 +79,7 @@ public class GeneralInfoForm extends UploadForm {
     }
 
     private IntegerField createNumberOfFloorsField() {
-        var field = FormFieldFactory.createIntegerField("Total number of floors");
+        var field = integerField("Total number of floors");
         field.setHelperText("In case of a single building, type the same number twice.");
         return field;
     }

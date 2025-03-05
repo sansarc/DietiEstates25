@@ -1,10 +1,13 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.formlayout.FormLayout;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.TextFieldBase;
 
 public abstract class UploadForm extends FormLayout {
 
@@ -12,43 +15,38 @@ public abstract class UploadForm extends FormLayout {
         configureBase();
     }
 
-    private void configureBase() {
-        getStyle().set("margin-bottom", "var(--lumo-space-l)");
-
-//        getElement().executeJs(
-//                "this.querySelectorAll('*').forEach(el => {" +
-//                        "  if(el.shadowRoot) {" +
-//                        "    el.shadowRoot.querySelector('[part=\"label\"]')?.style.setProperty('color', 'black');" +
-//                        "  }" +
-//                        "});"
-//                );
-
-
-
-
+    public IntegerField integerField(String label) {
+        var field = new IntegerField(label);
+        field.setMin(0);
+        field.setValue(0);
+        field.setStepButtonsVisible(true);
+        return field;
     }
 
-    protected abstract void configureLayout();
-    protected abstract void createComponents();
-    protected abstract void addComponents();
+    public NumberField priceInEuroNumberField(String label, boolean isRequired) {
+        var numberField = new NumberField(label);
+        numberField.setPrefixComponent(new Icon(VaadinIcon.EURO));
+        numberField.setErrorMessage("That's clearly not a positive number.");
+        numberField.setRequiredIndicatorVisible(isRequired);
+        numberField.setMin(0);
+        return numberField;
+    }
 
-    protected final void setRequiredIndicatorVisibleTrue(HasValue...components) {
-        for (HasValue component : components)
-            component.setRequiredIndicatorVisible(true);
+    private void configureBase() {
+        getStyle().setMarginBottom("var(--lumo-space-l)");
+    }
+
+    protected final void setRequiredTrue(HasValue<?,?>...fields) {
+        for (HasValue<?,?> field : fields) {
+            field.setRequiredIndicatorVisible(true);
+        }
     }
 
     public boolean areRequiredFieldsValid() {
-        AtomicBoolean fieldsValidation = new AtomicBoolean(true);
-
-        this.getChildren()
-                .filter(child -> child instanceof HasValue<?,?>)
-                .map(child -> (HasValue<?,?>)child)
-                .forEach(hasValue -> {
-                    if (hasValue.isRequiredIndicatorVisible() && hasValue.getValue() == null)
-                        fieldsValidation.set(false);
-                });
-
-        return fieldsValidation.get();
+        return getChildren()
+                .filter(TextFieldBase.class::isInstance)
+                .map(TextFieldBase.class::cast)
+                .noneMatch(AbstractField::isEmpty);
     }
 
 }

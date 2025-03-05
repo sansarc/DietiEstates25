@@ -20,28 +20,30 @@ import com.vaadin.flow.router.Route;
 @Route(value = "upload", layout = MainLayout.class)
 @PageTitle("Upload")
 public class UploadView extends VerticalLayout {
-    private final Tabs tabs;
-    private final Div tabsContent;
-    private final Tab generalInfoTab;
-    private final Tab detailsTab;
-    private final Tab costsInfoTab;
-    private final Tab descriptionNMediaTab;
-    private final Div generalInfoContent;
-    private final Div detailsContent;
-    private final Div costsInfoContent;
-    private final Div descriptionNMediaContent;
 
-    private final UploadForm generalInfoForm = new GeneralInfoForm();
+    private Tabs tabs;
+    private Div tabsContent;
+    private Tab generalInfoTab;
+    private Tab detailsTab;
+    private Tab costsInfoTab;
+    private Tab descriptionNMediaTab;
+    private Div generalInfoContent;
+    private Div detailsContent;
+    private Div costsInfoContent;
+    private Div descriptionNMediaContent;
 
     public UploadView() {
         configureLayout();
+        configureComponents();
+    }
 
+    private void configureComponents() {
         generalInfoTab = new Tab("General Information");
         detailsTab = new Tab("Details");
         costsInfoTab = new Tab("Costs Information");
         descriptionNMediaTab = new Tab("Description & Media");
 
-        generalInfoContent = createTabContent(generalInfoForm);
+        generalInfoContent = createTabContent(new GeneralInfoForm());
         detailsContent = createTabContent(new DetailsForm());
         costsInfoContent = createTabContent(new CostsForm());
         descriptionNMediaContent = createTabContent(new DescriptionNMediaForm());
@@ -137,6 +139,21 @@ public class UploadView extends VerticalLayout {
                 tabs.setSelectedTab(descriptionNMediaTab);
             } else {
                 Notification.show("Fill all the required fields to continue.").addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+        });
+
+        backButton.addClickListener(event -> {
+            Tab selectedTab = tabs.getSelectedTab();
+            selectedTab.getStyle().remove("color");
+            if(selectedTab.equals(detailsTab)) {
+                tabs.setSelectedTab(generalInfoTab);
+            } else if(selectedTab.equals(costsInfoTab)) {
+                tabs.setSelectedTab(detailsTab);
+            } else if(selectedTab.equals(descriptionNMediaTab)) {
+                tabs.setSelectedTab(costsInfoTab);
+            } else {
+                Notification.show("You're at the beginning of the form")
+                        .addThemeVariants(NotificationVariant.LUMO_CONTRAST);
             }
         });
 

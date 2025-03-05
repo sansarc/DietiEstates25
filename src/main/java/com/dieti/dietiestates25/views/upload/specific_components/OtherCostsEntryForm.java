@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.upload.specific_components;
 
-import com.dieti.dietiestates25.utils.FormFieldFactory;
+import com.dieti.dietiestates25.views.upload.forms.UploadForm;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -50,7 +50,7 @@ public class OtherCostsEntryForm extends VerticalLayout {
             descriptionField = new TextArea("Additional cost", "Description");
             descriptionField.setWidth("75%");
 
-            priceField = FormFieldFactory.createPriceInEuroNumberField("", false);
+            priceField = priceInEuroNumberField("", false);
             priceField.setPlaceholder("Price");
             priceField.setWidth("25%");
 

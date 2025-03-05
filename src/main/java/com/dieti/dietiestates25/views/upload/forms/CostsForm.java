@@ -1,7 +1,6 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
 import com.dieti.dietiestates25.views.upload.specific_components.OtherCostsEntryForm;
-import com.dieti.dietiestates25.utils.FormFieldFactory;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.textfield.NumberField;
 
@@ -18,7 +17,6 @@ public class CostsForm extends UploadForm {
         addComponents();
     }
 
-    @Override
     protected void configureLayout() {
         setWidth("40%");
         setResponsiveSteps(
@@ -27,15 +25,13 @@ public class CostsForm extends UploadForm {
         );
     }
 
-    @Override
     protected void createComponents() {
-        price = FormFieldFactory.createPriceInEuroNumberField("Price", true);
+        price = priceInEuroNumberField("Price", true);
         hidePrice = new Checkbox("Hide Price");
-        condominiumFees = FormFieldFactory.createPriceInEuroNumberField("Condominium Fees", false);
+        condominiumFees = priceInEuroNumberField("Condominium Fees", false);
         otherCostsEntryForm = new OtherCostsEntryForm();
     }
 
-    @Override
     protected void addComponents() {
         add(
                 price,

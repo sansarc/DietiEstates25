@@ -1,7 +1,6 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
 import com.dieti.dietiestates25.ui_components.InfoPopover;
-import com.dieti.dietiestates25.utils.FormFieldFactory;
 import com.dieti.dietiestates25.views.upload.specific_components.RadioButtonGroupCustomFontSize;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -105,7 +104,7 @@ public class DetailsForm extends UploadForm {
     }
 
     private IntegerField createIntegerFieldWithIcon(String label, Component icon) {
-        var field = FormFieldFactory.createIntegerField(label);
+        var field = integerField(label);
         if (icon instanceof Image) {
             ((Image) icon).setHeight("18px");
             ((Image) icon).setWidth("18px");
