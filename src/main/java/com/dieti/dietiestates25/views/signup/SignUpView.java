@@ -9,6 +9,7 @@ import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandlerProvider;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
@@ -28,6 +30,7 @@ import com.vaadin.flow.router.RouterLink;
 public class SignUpView extends VerticalLayout implements AuthenticationHandlerProvider {
 
         H3 title = new H3("Sign Up");
+        FormLayout formLayout;
         TextField firstName = new TextField("First name");
         TextField lastName = new TextField("Last name");
         EmailField email = new EmailField("Email");
@@ -46,11 +49,13 @@ public class SignUpView extends VerticalLayout implements AuthenticationHandlerP
         }
 
         private void configureComponents() {
+            formLayout = createFormLayout();
+
             signupDiv.add(
                     title,
                     new TextWithLink("Already have an account?", new RouterLink("Log in", LoginView.class), "14px"),
                     new TextWithLink("Looking to register your agency? Do it ", new RouterLink("here", RegisterAgencyView.class), "12px"),
-                    createFormLayout(),
+                    formLayout,
                     createSignUpButton(),
                     createDisclaimer(),
                     new Hr(),
@@ -77,15 +82,15 @@ public class SignUpView extends VerticalLayout implements AuthenticationHandlerP
             setAlignSelf(Alignment.CENTER, signUpButton);
 
             signUpButton.addClickListener(event -> {
-                if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                boolean allFieldsValid = formLayout.getChildren()
+                        .filter(TextFieldBase.class::isInstance)
+                        .map(TextFieldBase.class::cast)
+                        .noneMatch(AbstractField::isEmpty);
+
+                if (allFieldsValid)
+                    authHandler.signup(firstName.getValue(), lastName.getValue(), email.getValue(), password.getValue());
+                else
                     NotificationFactory.error("Please fill all the required fields.");
-                }
-                else if (!password.getValue().equals(confirmPassword.getValue())) {
-                    password.setInvalid(true);
-                    confirmPassword.setInvalid(true);
-                    confirmPassword.setErrorMessage("Passwords do not match.");
-                }
-                else authHandler.signup(firstName.getValue(), lastName.getValue(), email.getValue(), password.getValue());
             });
 
             return signUpButton;

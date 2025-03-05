@@ -1,11 +1,16 @@
 package com.dieti.dietiestates25.views.registerAgency;
 
 import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
-import com.dieti.dietiestates25.dto.RegisterAgencyRequest;
+import com.dieti.dietiestates25.services.agency_management.AgencyManagementHandler;
+import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
+import com.dieti.dietiestates25.services.authentication.AuthenticationHandlerProvider;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.utils.NotificationFactory;
+import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -16,25 +21,25 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldBase;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 @ForwardLoggedUser
 @Route("register-agency")
 public class RegisterAgencyView extends VerticalLayout {
 
-    FormLayout formLayout;
+    AgencyManagementHandler agencyHandler = new AgencyManagementHandler();
 
-    TextField agencyName = new TextField("Agency Name");
-    TextField vatNumber = new TextField("VAT Number");
-    TextField firstName = new TextField("First Name");
-    TextField lastName = new TextField("Last Name");
-    EmailField email = new EmailField("Email");
-    PasswordField password = new PasswordField("Password");
-    TextField confirmPassword = new TextField("Confirm Password");
+    FormLayout formLayout;
+    TextField agencyName;
+    TextField vatNumber;
+    TextField firstName;
+    TextField lastName;
+    EmailField email;
+    PasswordField password;
+    PasswordField confirmPassword;
 
     public RegisterAgencyView() {
         configureLayout();
@@ -78,12 +83,25 @@ public class RegisterAgencyView extends VerticalLayout {
         setAlignSelf(Alignment.CENTER, register);
         register.setWidth("35%");
 
+
+
         register.addClickListener(event -> {
-            if (agencyName.isEmpty()|| vatNumber.isEmpty()|| firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                NotificationFactory.error("Please fill all required fields");
-            } else {
-                NotificationFactory.success("Registered Agency");
-            }
+            boolean allFieldsValid = formLayout.getChildren()
+                    .filter(TextFieldBase.class::isInstance)
+                    .map(TextFieldBase.class::cast)
+                    .noneMatch(AbstractField::isEmpty);
+
+            if (allFieldsValid)
+                agencyHandler.createAgency(
+                        agencyName.getValue(),
+                        vatNumber.getValue(),
+                        firstName.getValue(),
+                        lastName.getValue(),
+                        email.getValue(),
+                        password.getValue()
+                );
+            else
+                 NotificationFactory.error("Please fill all required fields");
         });
 
         registerAgencyDiv.add(
@@ -95,15 +113,15 @@ public class RegisterAgencyView extends VerticalLayout {
         add(logo, registerAgencyDiv);
     }
 
-    private static FormLayout getFormLayout() {
+    private FormLayout getFormLayout() {
 
-        var agencyName = new TextField("Agency Name");
-        var vatNumber = new TextField("VAT Number");
-        var firstName = new TextField("First Name");
-        var lastName = new TextField("Last Name");
-        var email = new EmailField("Email");
-        var password = new PasswordField("Password");
-        var confirmPassword = new PasswordField("Confirm Password");
+        agencyName = new TextField("Agency Name");
+        vatNumber = new TextField("VAT Number");
+        firstName = new TextField("First Name");
+        lastName = new TextField("Last Name");
+        email = new EmailField("Email");
+        password = new PasswordField("Password");
+        confirmPassword = new PasswordField("Confirm Password");
 
         var secondTitle =  new H4("Fill in your personal information");
         secondTitle.getStyle().setPaddingTop("20px");
@@ -121,6 +139,22 @@ public class RegisterAgencyView extends VerticalLayout {
         formLayout.getChildren()
                 .filter(TextFieldBase.class::isInstance)
                 .forEach(field -> ((TextFieldBase<?, ?>) field).setRequired(true));
+
+        HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<PasswordField, String>> listener = event -> {
+            String passwordValue = password.getValue();
+            String confirmPasswordValue = confirmPassword.getValue();
+            if (!passwordValue.isEmpty() && !confirmPasswordValue.isEmpty()) {
+                boolean valid = passwordValue.equals(confirmPasswordValue);
+                confirmPassword.setInvalid(!valid);
+                confirmPassword.setErrorMessage(valid ? null : "Passwords don't match");
+            } else {
+                confirmPassword.setInvalid(false);
+                confirmPassword.setErrorMessage(null);
+            }
+        };
+
+        password.addValueChangeListener(listener);
+        confirmPassword.addValueChangeListener(listener);
 
         return formLayout;
     }

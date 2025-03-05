@@ -76,7 +76,7 @@ public class AuthenticationHandler {
             }
             else {
                 NotificationFactory.error(signed.getMessage());
-                logger.warn("User attempted to sign with email : {}", email);
+                logger.warn("User attempted to sign with email: {}", email);
             }
         } catch (RuntimeException e) {
             logger.error("Critical error while signing up.", e);

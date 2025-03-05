@@ -11,6 +11,7 @@ public final class Constants {
         public static final String LOGIN = BASE_URL + "/login";
         public static final String SIGNUP = BASE_URL + "/createUser";
         public static final String OTP_CONFIRMATION = BASE_URL + "/confirmUser";
+        public static final String CREATE_AGENCY = BASE_URL + "/insertAgency";
     }
 
     public static final class Codes {
