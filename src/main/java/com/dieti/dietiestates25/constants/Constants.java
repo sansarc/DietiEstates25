@@ -6,8 +6,8 @@ public final class Constants {
     public static final class ApiEndpoints {
         private ApiEndpoints() {}
 
-        private static final String PORT = "8082";
-        private static final String BASE_URL = "http://localhost:" + PORT;
+        public static final String PORT = "8082";
+        public static final String BASE_URL = "http://localhost:" + PORT;
         public static final String LOGIN = BASE_URL + "/login";
         public static final String SIGNUP = BASE_URL + "/createUser";
         public static final String OTP_CONFIRMATION = BASE_URL + "/confirmUser";

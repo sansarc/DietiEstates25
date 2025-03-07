@@ -1,14 +1,24 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
+import com.dieti.dietiestates25.constants.Constants;
+import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.utils.FloorUtils;
-import com.dieti.dietiestates25.views.upload.specific_components.RadioButtonGroupCustomFontSize;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
-public class GeneralInfoForm extends UploadForm {
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+public class GeneralInfoForm extends Form {
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public GeneralInfoForm() {
         configureLayout();
@@ -16,25 +26,62 @@ public class GeneralInfoForm extends UploadForm {
     }
 
     protected void createComponents() {
-        var saleType = createSaleTypeRadioGroup();
+        var saleType =  radioButtonGroup("Sale Type", "For Sale", " For Rent");
+
+        var nation = new ComboBox<>("Nation");
+        var region = new ComboBox<>("Region");
         var city = new ComboBox<>("City");
+
+        nation.setItems(
+                Arrays.stream(Locale.getISOCountries())
+                        .map(code -> new Locale("", code).getDisplayCountry())
+                        .sorted()
+                        .collect(Collectors.toList())
+        );
+
+        nation.addValueChangeListener(event -> {
+            String country = event.getValue().toString().toLowerCase();
+            String countryCode = "";
+            for (String code : Locale.getISOCountries()) {
+                if (new Locale(code).getDisplayCountry().toLowerCase().equals(country))
+                    countryCode = code;
+                System.out.println(countryCode);
+            }
+
+            List<String> regions = getRegions(countryCode);
+            region.setItems(regions);
+            region.clear();
+            city.clear();
+        });
+
+        city.addValueChangeListener(event -> {
+        });
+
         var address = new TextField("Address");
-        var streetNumber = createStreetNumberField();
-        var surfaceArea = createSurfaceAreaField();
-        var floor = createFloorsComboBox();
-        var numberOfFloors = createNumberOfFloorsField();
+        var zipcode = new NumberField("Zip Code");
+        zipcode.setAllowedCharPattern("[0-9]");
+        zipcode.setMin(5);
+        zipcode.setMax(10);
+
+        var surfaceArea = new NumberField("Surface area");
+        surfaceArea.setSuffixComponent(new Div("m²"));
+        surfaceArea.setPlaceholder("example: 110");
+
+        var floor = new ComboBox<String>("Floor number");
+        floor.setItems(FloorUtils.generateFloorsList());
 
         add(
                 saleType,
+                nation,
                 city,
+                region,
                 address,
-                streetNumber,
+                zipcode,
                 surfaceArea,
-                floor,
-                numberOfFloors
+                floor
         );
 
-        setRequiredTrue(saleType, city, address, streetNumber, surfaceArea, floor);
+        setRequiredTrue(saleType, nation, region, city, address, zipcode, surfaceArea, floor);
     }
 
     protected void configureLayout() {
@@ -45,42 +92,26 @@ public class GeneralInfoForm extends UploadForm {
         );
     }
 
-    private ComboBox<String> createPropertyTypeComboBox() {
-        var comboBox = new ComboBox<String>("Property Type");
-        comboBox.setItems("Villa", "Apartment", "Attic", "Single room");
-        return comboBox;
+    private List<String> getCities(String countryCode, String regionCode) {
+        String url = String.format("%s/countries/%s/regions/%s/cities", Constants.ApiEndpoints.BASE_URL, countryCode, regionCode);
+        ResponseEntity<List<String>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<String>>() {}
+        );
+        return response.getBody();
     }
 
-    private RadioButtonGroupCustomFontSize<String> createSaleTypeRadioGroup() {
-        var radioGroup = new RadioButtonGroupCustomFontSize<String>("Sale Type");
-        radioGroup.setItems("For Sale", "Rent");
-        radioGroup.setValue("For Sale");
-        radioGroup.resize("14px");
-        return radioGroup;
+    private List<String> getRegions(String countryCode) {
+        String url = String.format("%s/countries/%s/regions", Constants.ApiEndpoints.BASE_URL, countryCode);
+        ResponseEntity<List<String>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<String>>() {}
+        );
+        return response.getBody();
     }
 
-    private NumberField createStreetNumberField() {
-        var field = new NumberField("Street Number");
-        field.setErrorMessage("This is clearly not a number.");
-        return field;
-    }
-
-    private NumberField createSurfaceAreaField() {
-        var field = new NumberField("Surface area");
-        field.setSuffixComponent(new Div("m²"));
-        field.setPlaceholder("example: 110");
-        return field;
-    }
-
-    private ComboBox<String> createFloorsComboBox() {
-        var comboBox = new ComboBox<String>("Floor number");
-        comboBox.setItems(FloorUtils.generateFloorsList());
-        return comboBox;
-    }
-
-    private IntegerField createNumberOfFloorsField() {
-        var field = integerField("Total number of floors");
-        field.setHelperText("In case of a single building, type the same number twice.");
-        return field;
-    }
 }

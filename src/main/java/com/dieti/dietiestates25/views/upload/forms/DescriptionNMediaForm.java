@@ -1,12 +1,10 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
+import com.dieti.dietiestates25.ui_components.Form;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextAreaVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -14,7 +12,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class DescriptionNMediaForm extends UploadForm {
+public class DescriptionNMediaForm extends Form {
     public static final int DESCRIPTION_TEXTAREA_CHAR_LIMIT = 50;
     public static final int UPLOAD_LIMIT = 20;
     public static int CURRENT_UPLOADS = 0;
@@ -32,7 +30,6 @@ public class DescriptionNMediaForm extends UploadForm {
         addComponents();
     }
 
-    @Override
     protected void configureLayout() {
         setWidth("80%");
         setResponsiveSteps(
@@ -41,7 +38,6 @@ public class DescriptionNMediaForm extends UploadForm {
         );
     }
 
-    @Override
     protected void createComponents() {
         description = getTextArea();
         buffer = new MultiFileMemoryBuffer();
