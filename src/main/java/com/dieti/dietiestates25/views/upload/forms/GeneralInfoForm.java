@@ -5,6 +5,7 @@ import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.utils.FloorUtils;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import org.springframework.core.ParameterizedTypeReference;
@@ -63,11 +64,12 @@ public class GeneralInfoForm extends Form {
         zipcode.setMin(5);
         zipcode.setMax(10);
 
-        var surfaceArea = new NumberField("Surface area");
-        surfaceArea.setSuffixComponent(new Div("m²"));
-        surfaceArea.setPlaceholder("example: 110");
+        var dimension = new NumberField("Surface area");
+        dimension.setSuffixComponent(new Div("m²"));
+        dimension.setPlaceholder("example: 110");
 
-        var floor = new ComboBox<String>("Floor number");
+        var floor = new Select<String>();
+        floor.setLabel("Floor");
         floor.setItems(FloorUtils.generateFloorsList());
 
         add(
@@ -77,11 +79,11 @@ public class GeneralInfoForm extends Form {
                 region,
                 address,
                 zipcode,
-                surfaceArea,
+                dimension,
                 floor
         );
 
-        setRequiredTrue(saleType, nation, region, city, address, zipcode, surfaceArea, floor);
+        setRequiredTrue(saleType, nation, region, city, address, zipcode, dimension, floor);
     }
 
     protected void configureLayout() {

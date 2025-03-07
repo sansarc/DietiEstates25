@@ -1,10 +1,13 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
+import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.ui_components.Form;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -24,10 +27,9 @@ public class DescriptionNMediaForm extends Form {
     Paragraph uploadParagraph;
     Paragraph filesFormatParagraph;
 
-    public DescriptionNMediaForm() {
+    public  DescriptionNMediaForm() {
         configureLayout();
         createComponents();
-        addComponents();
     }
 
     protected void configureLayout() {
@@ -36,66 +38,59 @@ public class DescriptionNMediaForm extends Form {
                 new ResponsiveStep("0", 1),
                 new ResponsiveStep("500px", 2)
         );
-    }
 
-    protected void createComponents() {
-        description = getTextArea();
-        buffer = new MultiFileMemoryBuffer();
-        upload = getUploadComponent();
-        uploadParagraph = getUploadParagraph();
-        filesFormatParagraph = getFilesFormatParagraph();
-        uploadLayout = getUploadLayout();
-    }
-
-    private VerticalLayout getUploadLayout() {
-        var uploadLayout = new VerticalLayout(uploadParagraph, filesFormatParagraph, upload);
+        uploadLayout = new VerticalLayout();
         uploadLayout.setSpacing(false);
         uploadLayout.setPadding(false);
         uploadLayout.setMargin(false);
         uploadLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         uploadLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        return uploadLayout;
     }
 
-    private static Paragraph getUploadParagraph() {
-        var paragraph = new Paragraph(CURRENT_UPLOADS + " pictures over " + UPLOAD_LIMIT + " uploaded.");
-        paragraph.getStyle().set("margin-bottom", "var(--lumo-space-xxs)");
+    protected void createComponents() {
+        createDescription();
 
-        return paragraph;
+        uploadParagraph = new Paragraph(CURRENT_UPLOADS + " pictures uploaded " + "(max " + UPLOAD_LIMIT + ")");
+        uploadParagraph.getStyle().setMarginBottom("var(--lumo-space-xxs)");
+
+        filesFormatParagraph = new Paragraph("(Accepted file formats: JPG, PNG, GIF)");
+        filesFormatParagraph.getStyle()
+                .setMarginTop("var(--lumo-space-xxs)")
+                .setFontSize("12px")
+                .setColor(Constants.Colors.SECONDARY_GRAY);
+
+        createUploadComponent();
+
+        var price = priceInEuroNumberField("Price", true);
+        price.setWidthFull();
+        price.setHelperText("Type the full price without dots or commas, we'll take care of that.");
+        var leftLayout = new VerticalLayout(price, description);
+        leftLayout.setSpacing(false);
+        leftLayout.setPadding(false);
+
+        uploadLayout.add(uploadParagraph, upload, filesFormatParagraph);
+        add(leftLayout, uploadLayout);
     }
 
-    private static Paragraph getFilesFormatParagraph() {
-        var paragraph = new Paragraph("(Accepted file formats: JPG, PNG, GIF)");
-        paragraph.getStyle()
-                .set("margin-top", "var(--lumo-space-xxs)")
-                .set("font-size", "12px")
-                .set("color", "var(--lumo-secondary-text-color)");
+    private void createDescription() {
+        description = new TextArea("Enter a description of at least 50 characters.");
+        description.setWidthFull();
+        description.setMinHeight("350px");
+        description.setValueChangeMode(ValueChangeMode.EAGER);
+        description.setRequired(true);
 
-        return paragraph;
-    }
-
-    private static TextArea getTextArea() {
-        var textArea = new TextArea("Enter a description of at least 50 characters.");
-        textArea.setSizeFull();
-        textArea.setMinHeight("350px");
-        textArea.setValueChangeMode(ValueChangeMode.EAGER);
-        textArea.setRequired(true);
-
-        textArea.addValueChangeListener(event -> {
+        description.addValueChangeListener(event -> {
             int charsToType = DESCRIPTION_TEXTAREA_CHAR_LIMIT - event.getValue().length();
             if (charsToType > 0)
                 event.getSource().setHelperText(charsToType + " more characters still to type.");
             else
                 event.getSource().setHelperText("You can type more, but that's already okay!");
         });
-
-        return textArea;
     }
 
-    private Upload getUploadComponent() {
-        var upload = new Upload(buffer);
-        upload.setMaxFiles(20);
+    private void createUploadComponent() {
+        buffer = new MultiFileMemoryBuffer();
+        upload = new Upload(buffer);
         upload.setAcceptedFileTypes("image/jpeg", "image/png", "image/gif");
         upload.setMaxFiles(UPLOAD_LIMIT);
         CURRENT_UPLOADS = 0;
@@ -103,23 +98,15 @@ public class DescriptionNMediaForm extends Form {
         upload.addSucceededListener(event -> {
             String filename = event.getFileName();
             try (InputStream inputStream = buffer.getInputStream(filename)) {
-                // Process the input stream here
             } catch (IOException e) {
-                // Handle exception
             }
 
             CURRENT_UPLOADS++;
             if (CURRENT_UPLOADS == UPLOAD_LIMIT)
                 uploadParagraph.setText("You're all set!");
             else
-                uploadParagraph.setText(CURRENT_UPLOADS + " pictures over " + UPLOAD_LIMIT + " uploaded.");
+                uploadParagraph.setText(CURRENT_UPLOADS + " pictures uploaded " + "(max " + UPLOAD_LIMIT + ")");
         });
-
-        return upload;
-    }
-
-    protected void addComponents() {
-        add(description, uploadLayout);
     }
 
 }

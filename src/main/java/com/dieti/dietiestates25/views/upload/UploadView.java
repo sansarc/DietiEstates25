@@ -1,5 +1,6 @@
 package com.dieti.dietiestates25.views.upload;
 
+import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.upload.forms.*;
 import com.vaadin.flow.component.Component;
@@ -25,12 +26,13 @@ public class UploadView extends VerticalLayout {
     private Div tabsContent;
     private Tab generalInfoTab;
     private Tab detailsTab;
-    private Tab costsInfoTab;
     private Tab descriptionNMediaTab;
     private Div generalInfoContent;
     private Div detailsContent;
-    private Div costsInfoContent;
     private Div descriptionNMediaContent;
+    Form generalInfoForm = new GeneralInfoForm();
+    Form detailsForm = new DetailsForm();
+    Form descriptionNMediaForm = new DescriptionNMediaForm();
 
     public UploadView() {
         configureLayout();
@@ -40,13 +42,11 @@ public class UploadView extends VerticalLayout {
     private void configureComponents() {
         generalInfoTab = new Tab("General Information");
         detailsTab = new Tab("Details");
-        costsInfoTab = new Tab("Costs Information");
         descriptionNMediaTab = new Tab("Description & Media");
 
-        generalInfoContent = createTabContent(new GeneralInfoForm());
-        detailsContent = createTabContent(new DetailsForm());
-        costsInfoContent = createTabContent(new CostsForm());
-        descriptionNMediaContent = createTabContent(new DescriptionNMediaForm());
+        generalInfoContent = createTabContent(generalInfoForm);
+        detailsContent = createTabContent(detailsForm);
+        descriptionNMediaContent = createTabContent(descriptionNMediaForm);
 
         tabs = createTabs();
         tabsContent = createTabsContent();
@@ -54,7 +54,7 @@ public class UploadView extends VerticalLayout {
         setupTabVisibility();
 
         var stepsLayout = createStepsLayout();
-        add(new H2("Upload"), stepsLayout);
+        add(new H2("Upload a new house"), stepsLayout);
     }
 
     private void configureLayout() {
@@ -64,7 +64,7 @@ public class UploadView extends VerticalLayout {
     }
 
     private Tabs createTabs() {
-        var tabs = new Tabs(generalInfoTab, detailsTab, costsInfoTab, descriptionNMediaTab);
+        var tabs = new Tabs(generalInfoTab, detailsTab, descriptionNMediaTab);
         tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
         tabs.addThemeVariants(TabsVariant.LUMO_CENTERED);
         tabs.setWidthFull();
@@ -72,7 +72,7 @@ public class UploadView extends VerticalLayout {
     }
 
     private Div createTabsContent() {
-        var content = new Div(generalInfoContent, detailsContent, costsInfoContent, descriptionNMediaContent);
+        var content = new Div(generalInfoContent, detailsContent, descriptionNMediaContent);
         content.setSizeFull();
         return content;
     }
@@ -81,15 +81,12 @@ public class UploadView extends VerticalLayout {
         tabs.addSelectedChangeListener(event -> {
             generalInfoContent.setVisible(false);
             detailsContent.setVisible(false);
-            costsInfoContent.setVisible(false);
             descriptionNMediaContent.setVisible(false);
 
             if (event.getSelectedTab().equals(generalInfoTab)) {
                 generalInfoContent.setVisible(true);
             } else if (event.getSelectedTab().equals(detailsTab)) {
                 detailsContent.setVisible(true);
-            } else if (event.getSelectedTab().equals(costsInfoTab)) {
-                costsInfoContent.setVisible(true);
             } else if (event.getSelectedTab().equals(descriptionNMediaTab)) {
                 descriptionNMediaContent.setVisible(true);
             }
@@ -97,7 +94,6 @@ public class UploadView extends VerticalLayout {
 
         generalInfoContent.setVisible(true);
         detailsContent.setVisible(false);
-        costsInfoContent.setVisible(false);
         descriptionNMediaContent.setVisible(false);
     }
 
@@ -125,7 +121,6 @@ public class UploadView extends VerticalLayout {
         buttonLayout.setWidth("80%");
         buttonLayout.setJustifyContentMode(JustifyContentMode.END);
 
-
         continueButton.addClickListener(event -> {
             Tab selectedTab = tabs.getSelectedTab();
             if (selectedTab.equals(generalInfoTab) /* && generalInfoForm.areRequiredFieldsValid() */ ) {
@@ -133,10 +128,10 @@ public class UploadView extends VerticalLayout {
                 tabs.setSelectedTab(detailsTab);
             } else if (selectedTab.equals(detailsTab)) {
                 detailsTab.getStyle().setColor("green");
-                tabs.setSelectedTab(costsInfoTab);
-            } else if (selectedTab.equals(costsInfoTab)) {
-                costsInfoTab.getStyle().setColor("green");
                 tabs.setSelectedTab(descriptionNMediaTab);
+            } else if (selectedTab.equals(descriptionNMediaTab)) {
+                descriptionNMediaTab.getStyle().setColor("green");
+                Notification.show("Form completed successfully").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             } else {
                 Notification.show("Fill all the required fields to continue.").addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
@@ -145,17 +140,16 @@ public class UploadView extends VerticalLayout {
         backButton.addClickListener(event -> {
             Tab selectedTab = tabs.getSelectedTab();
             selectedTab.getStyle().remove("color");
-            if(selectedTab.equals(detailsTab)) {
-                tabs.setSelectedTab(generalInfoTab);
-            } else if(selectedTab.equals(costsInfoTab)) {
+            if (selectedTab.equals(descriptionNMediaTab)) {
                 tabs.setSelectedTab(detailsTab);
-            } else if(selectedTab.equals(descriptionNMediaTab)) {
-                tabs.setSelectedTab(costsInfoTab);
+            } else if (selectedTab.equals(detailsTab)) {
+                tabs.setSelectedTab(generalInfoTab);
             } else {
                 Notification.show("You're at the beginning of the form")
                         .addThemeVariants(NotificationVariant.LUMO_CONTRAST);
             }
         });
+
 
         var contentContainer = new HorizontalLayout(content);
         contentContainer.setSizeFull();

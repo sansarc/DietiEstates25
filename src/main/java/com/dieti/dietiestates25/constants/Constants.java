@@ -33,6 +33,7 @@ public final class Constants {
         private Colors() {}
 
         public static final String PRIMARY_BLUE = "var(--lumo-primary-color)";
+        public static final String SECONDARY_GRAY = "var(--lumo-secondary-color)";
         public static final String GRAY_OVER_WHITEMODE = "#F5F5F5";
             public static final String GRAY_OVER_DARKMODE = "#2D2F31";
     }

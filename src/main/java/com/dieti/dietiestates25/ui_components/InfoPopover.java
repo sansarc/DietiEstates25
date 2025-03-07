@@ -24,9 +24,9 @@ public class InfoPopover extends Popover {
     private void setContent(String POPOVER_TEXT) {
         var content = new Div(new Text(POPOVER_TEXT));
         content.getStyle()
-                .set("max-width", "200px")
-                .set("font-size", "12px")
-                .set("color", "var(--lumo-secondary-text-color)");
+                .setMaxWidth("200px")
+                .setFontSize("12px")
+                .setColor("var(--lumo-secondary-text-color)");
         add(content);
     }
 }
