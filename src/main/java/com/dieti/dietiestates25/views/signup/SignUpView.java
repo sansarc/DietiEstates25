@@ -1,12 +1,12 @@
 package com.dieti.dietiestates25.views.signup;
 
 import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
+import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.ui_components.TextWithLink;
 import com.dieti.dietiestates25.ui_components.ThirdPartyLoginButton;
 import com.dieti.dietiestates25.utils.NotificationFactory;
-import com.dieti.dietiestates25.services.authentication.AuthenticationHandlerProvider;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.vaadin.flow.component.AbstractField;
@@ -27,7 +27,7 @@ import com.vaadin.flow.router.RouterLink;
 @ForwardLoggedUser
 @Route("signup")
 @PageTitle("Sign Up")
-public class SignUpView extends VerticalLayout implements AuthenticationHandlerProvider {
+public class SignUpView extends VerticalLayout {
 
         H3 title = new H3("Sign Up");
         FormLayout formLayout;
@@ -41,6 +41,7 @@ public class SignUpView extends VerticalLayout implements AuthenticationHandlerP
         ThirdPartyLoginButton facebookButton = new ThirdPartyLoginButton("Facebook", "50%", "/images/facebook_logo.png", "");
         DivContainer signupDiv = new DivContainer("600px", "auto");
 
+        private final AuthenticationHandler authHandler = new AuthenticationHandler();
 
         SignUpView() {
             configureLayout();

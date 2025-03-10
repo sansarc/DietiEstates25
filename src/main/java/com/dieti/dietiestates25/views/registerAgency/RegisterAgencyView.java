@@ -2,15 +2,12 @@ package com.dieti.dietiestates25.views.registerAgency;
 
 import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
 import com.dieti.dietiestates25.services.agency_management.AgencyManagementHandler;
-import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
-import com.dieti.dietiestates25.services.authentication.AuthenticationHandlerProvider;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -22,9 +19,6 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.router.Route;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 @ForwardLoggedUser
 @Route("register-agency")

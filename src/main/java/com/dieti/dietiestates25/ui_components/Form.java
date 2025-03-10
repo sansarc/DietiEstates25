@@ -40,7 +40,7 @@ public class Form extends FormLayout {
         return checkboxGroup;
     }
 
-    protected IntegerField integerField(String label, Component icon) {
+    public static IntegerField integerField(String label, Component icon) {
         var field = integerField(label);
         if (icon instanceof Image) {
             ((Image) icon).setHeight("18px");
@@ -50,7 +50,7 @@ public class Form extends FormLayout {
         return field;
     }
 
-    protected IntegerField integerField(String label) {
+    public static IntegerField integerField(String label) {
         var field = new IntegerField(label);
         field.setMin(0);
         field.setValue(0);
@@ -58,7 +58,7 @@ public class Form extends FormLayout {
         return field;
     }
 
-    protected NumberField priceInEuroNumberField(String label, boolean isRequired) {
+    public static NumberField priceInEuroNumberField(String label, boolean isRequired) {
         var numberField = new NumberField(label);
         numberField.setPrefixComponent(new Icon(VaadinIcon.EURO));
         numberField.setErrorMessage("That's clearly not a positive number.");

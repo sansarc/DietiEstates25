@@ -5,15 +5,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
-public class OtpRequest {
-
+public class User {
     private String email;
-    private String otp;
+    private String pwd;
 
-    public OtpRequest(String email, String otp) {
+    public User(String email, String pwd) {
         this.email = email;
-        this.otp = otp;
+        this.pwd = pwd;
     }
 
 }
+

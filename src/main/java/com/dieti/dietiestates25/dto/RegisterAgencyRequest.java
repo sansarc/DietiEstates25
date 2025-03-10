@@ -1,6 +1,5 @@
 package com.dieti.dietiestates25.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,9 +8,9 @@ import lombok.Setter;
 public class RegisterAgencyRequest {
     private String agencyName;
     private String vatNumber;
-    private SignupRequest signupRequest;
+    private Signup signupRequest;
 
-    public RegisterAgencyRequest(String agencyName, String vatNumber, SignupRequest signupRequest) {
+    public RegisterAgencyRequest(String agencyName, String vatNumber, Signup signupRequest) {
         this.agencyName = agencyName;
         this.vatNumber = vatNumber;
         this.signupRequest = signupRequest;

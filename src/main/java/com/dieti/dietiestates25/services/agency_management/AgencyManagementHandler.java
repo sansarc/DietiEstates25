@@ -3,9 +3,8 @@ package com.dieti.dietiestates25.services.agency_management;
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.RegisterAgencyRequest;
 import com.dieti.dietiestates25.dto.Response;
-import com.dieti.dietiestates25.dto.SignupRequest;
+import com.dieti.dietiestates25.dto.Signup;
 import com.dieti.dietiestates25.utils.NotificationFactory;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ public class AgencyManagementHandler {
         Response response = agencyManagementService.createAgency(
                 new RegisterAgencyRequest(
                         agency, vatNumber,
-                        new SignupRequest(firstName, lastName, email, password)
+                        new Signup(firstName, lastName, email, password)
                 )
         );
 

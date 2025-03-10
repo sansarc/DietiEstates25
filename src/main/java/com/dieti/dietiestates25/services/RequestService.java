@@ -1,18 +1,13 @@
 package com.dieti.dietiestates25.services;
 
 import com.dieti.dietiestates25.dto.Response;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.*;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.net.ssl.SSLContext;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Map;
 
 public class RequestService {
@@ -20,80 +15,55 @@ public class RequestService {
     private RequestService() {}
 
     private static final Logger logger = LoggerFactory.getLogger(RequestService.class);
+    private static final RestTemplate restTemplate = new RestTemplate();
 
-    public static Response POST(String endpoint, String json) {
 
+    public static Response POST(String endpoint, String jsonPayload) {
         try {
-            HttpClient client = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofSeconds(15))
-                    .sslContext(SSLContext.getDefault())
-                    .build();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(endpoint))
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(30))
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
+            HttpEntity<String> entity = new HttpEntity<>(jsonPayload, headers);
 
-            logger.info("Sending POST request to {} with payload: {}", endpoint, json);
-
-            HttpResponse<String> response = client.send(
-                    request, HttpResponse.BodyHandlers.ofString()
-            );
+            ResponseEntity<String> response = restTemplate.postForEntity(endpoint, entity, String.class);
 
             logResponse(response);
+            return new Response(response.getStatusCode().value(), response.getBody());
 
-            return new Response(response.statusCode(), response.body());
-
-        } catch (Exception ex) {
+        } catch (RestClientException ex) {
             logger.error("Failed to POST to {}: {}", endpoint, ex.getMessage(), ex);
             throw new RuntimeException("Failed to POST to " + endpoint + ": " + ex.getMessage(), ex);
         }
     }
 
-    public static Response GET(String endpoint, JsonObject json) {
+    public static Response GET(String endpoint, Map<String, String> params) {
         try {
-            HttpClient client = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofSeconds(15))
-                    .sslContext(SSLContext.getDefault())
-                    .build();
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endpoint);
+            params.forEach(builder::queryParam);
+            String urlWithParams = builder.toUriString();
 
-            if (json != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-                var parameters = new ArrayList<String>();
+            HttpEntity<?> entity = new HttpEntity<>(headers);
 
-                for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-                    String key = entry.getKey().replaceAll("\"", "");
-                    JsonElement value = entry.getValue();
-                    parameters.add(String.format("%s=%s", key, value.toString().replaceAll("\"", "")));
-                }
-
-                endpoint = endpoint + "?" + String.join("&", parameters);
-                logger.info("Sending GET request to {} with payload: {}", endpoint, json);
-            }
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(endpoint))
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(30))
-                    .build();
-
-            HttpResponse<String> response = client.send(
-                    request, HttpResponse.BodyHandlers.ofString()
+            ResponseEntity<String> response = restTemplate.exchange(
+                    urlWithParams,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
             );
 
             logResponse(response);
+            return new Response(response.getStatusCode().value(), response.getBody());
 
-            return new Response(response.statusCode(), response.body());
-
-        } catch (Exception ex) {
+        } catch (RestClientException ex) {
             logger.error("Failed to GET to {}: {}", endpoint, ex.getMessage(), ex);
-            throw new RuntimeException("Failed to GET to " + endpoint + ": " + ex.getMessage(), ex);
+            throw new RuntimeException("Failed to GET from " + endpoint + ": " + ex.getMessage(), ex);
         }
     }
 
-    private static void logResponse(HttpResponse<String> response) {
-        logger.info("Received response {}: {}", response.statusCode(), response.body());
+    private static void logResponse(ResponseEntity<String> response) {
+        logger.info("Received response {}: {}", response.getStatusCode().value(), response.getBody());
     }
 }

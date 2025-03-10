@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.signup;
 
-import com.dieti.dietiestates25.services.authentication.AuthenticationHandlerProvider;
+import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.vaadin.flow.component.Key;
@@ -19,7 +19,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 
 @Route("confirm-account")
-public class OtpView extends VerticalLayout implements BeforeEnterObserver, AuthenticationHandlerProvider {
+public class OtpView extends VerticalLayout implements BeforeEnterObserver {
 
     DietiEstatesLogo logo = new DietiEstatesLogo("600px", "auto");
     DivContainer otpViewDiv = new DivContainer("600px", "200px");
@@ -29,6 +29,7 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver, Auth
     Button confirmButton = createButton();
     HorizontalLayout inputLayout = new HorizontalLayout(otpTextField, confirmButton);
 
+    private AuthenticationHandler authHandler = new AuthenticationHandler();
     private String email;
 
     public OtpView() {

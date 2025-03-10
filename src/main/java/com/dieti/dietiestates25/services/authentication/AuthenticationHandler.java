@@ -8,8 +8,6 @@ import com.dieti.dietiestates25.views.home.HomeView;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.signup.OtpView;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 import org.slf4j.Logger;

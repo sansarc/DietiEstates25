@@ -1,31 +1,37 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
 import com.dieti.dietiestates25.constants.Constants;
+import com.dieti.dietiestates25.dto.ad.AdRequest;
+import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.ui_components.Form;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DescriptionNMediaForm extends Form {
-    public static final int DESCRIPTION_TEXTAREA_CHAR_LIMIT = 50;
-    public static final int UPLOAD_LIMIT = 20;
-    public static int CURRENT_UPLOADS = 0;
+    public final int DESCRIPTION_TEXTAREA_CHAR_LIMIT = 50;
+    public final int UPLOAD_LIMIT = 20;
+    public int CURRENT_UPLOADS = 0;
 
     TextArea description;
     MultiFileMemoryBuffer buffer;
     Upload upload;
     VerticalLayout uploadLayout;
-    Paragraph uploadParagraph;
-    Paragraph filesFormatParagraph;
+    Paragraph uploadParagraph, filesFormatParagraph;
+    NumberField price;
+    List<Photo> uploadedPhotos;
+
 
     public  DescriptionNMediaForm() {
         configureLayout();
@@ -61,7 +67,7 @@ public class DescriptionNMediaForm extends Form {
 
         createUploadComponent();
 
-        var price = priceInEuroNumberField("Price", true);
+        price = priceInEuroNumberField("Price", true);
         price.setWidthFull();
         price.setHelperText("Type the full price without dots or commas, we'll take care of that.");
         var leftLayout = new VerticalLayout(price, description);
@@ -90,15 +96,19 @@ public class DescriptionNMediaForm extends Form {
 
     private void createUploadComponent() {
         buffer = new MultiFileMemoryBuffer();
+        uploadedPhotos = new ArrayList<>();
         upload = new Upload(buffer);
         upload.setAcceptedFileTypes("image/jpeg", "image/png", "image/gif");
         upload.setMaxFiles(UPLOAD_LIMIT);
-        CURRENT_UPLOADS = 0;
 
         upload.addSucceededListener(event -> {
             String filename = event.getFileName();
-            try (InputStream inputStream = buffer.getInputStream(filename)) {
+
+            try {
+                uploadedPhotos.add(new Photo(filename, buffer.getInputStream(filename).readAllBytes()));
             } catch (IOException e) {
+                Notification.show("Error while uploading " + filename + ": " + e.getMessage()).addThemeVariants(NotificationVariant.LUMO_ERROR);
+                throw new RuntimeException(e);
             }
 
             CURRENT_UPLOADS++;
@@ -107,6 +117,12 @@ public class DescriptionNMediaForm extends Form {
             else
                 uploadParagraph.setText(CURRENT_UPLOADS + " pictures uploaded " + "(max " + UPLOAD_LIMIT + ")");
         });
+    }
+
+    public void addValues(AdRequest ad) {
+        ad.setPrice(price.getValue());
+        ad.setDescription(description.getValue());
+        ad.setPhotos(uploadedPhotos);
     }
 
 }

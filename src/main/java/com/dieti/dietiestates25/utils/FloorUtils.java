@@ -8,9 +8,8 @@ import java.util.stream.IntStream;
 
 public class FloorUtils {
     public static List<String> generateFloorsList() {
-        List<String> floors = new ArrayList<>();
-        floors.addAll(getNumberCollectionToString(-5, -1));
-        floors.addAll(Arrays.asList("basement", "ground floor", "raised floor"));
+        List<String> floors = new ArrayList<>(getNumberCollectionToString(-5, -1));
+        floors.add("ground floor");
         floors.addAll(getNumberCollectionToString(1, 60));
         return floors;
     }
@@ -19,5 +18,11 @@ public class FloorUtils {
         return IntStream.rangeClosed(start, end)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.toList());
+    }
+
+    public static int parseFloor(String floor) {
+        if (floor.equals("ground floor"))
+            return 0;
+        return Integer.parseInt(floor);
     }
 }

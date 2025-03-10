@@ -1,7 +1,7 @@
 package com.dieti.dietiestates25.views.login;
 
 import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
-import com.dieti.dietiestates25.services.authentication.AuthenticationHandlerProvider;
+import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.ui_components.TextWithLink;
@@ -23,7 +23,7 @@ import com.vaadin.flow.router.*;
 @ForwardLoggedUser()
 @PageTitle("Login")
 @Route("login")
-public class LoginView extends VerticalLayout implements AuthenticationHandlerProvider {
+public class LoginView extends VerticalLayout {
 
     H3 title = new H3("Login");
     EmailField emailField = new EmailField("Email");
@@ -34,6 +34,8 @@ public class LoginView extends VerticalLayout implements AuthenticationHandlerPr
     ThirdPartyLoginButton googleButton = new ThirdPartyLoginButton("Google", "75%", "/images/google_logo.png", "/oauth2/authorization/google");
     ThirdPartyLoginButton linkedinButton = new ThirdPartyLoginButton("Linkedin", "75%", "/images/linkedin_logo.png", "");
     ThirdPartyLoginButton facebookButton = new ThirdPartyLoginButton("Facebook", "75%", "/images/facebook_logo.png", "");
+
+    private final AuthenticationHandler authHandler = new AuthenticationHandler();
 
     public LoginView() {
         configureLayout();

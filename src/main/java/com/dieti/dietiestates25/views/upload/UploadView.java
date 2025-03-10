@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.upload;
 
-import com.dieti.dietiestates25.ui_components.Form;
+import com.dieti.dietiestates25.dto.ad.AdRequest;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.upload.forms.*;
 import com.vaadin.flow.component.Component;
@@ -30,9 +30,11 @@ public class UploadView extends VerticalLayout {
     private Div generalInfoContent;
     private Div detailsContent;
     private Div descriptionNMediaContent;
-    Form generalInfoForm = new GeneralInfoForm();
-    Form detailsForm = new DetailsForm();
-    Form descriptionNMediaForm = new DescriptionNMediaForm();
+    GeneralInfoForm generalInfoForm;
+    DetailsForm detailsForm;
+    DescriptionNMediaForm descriptionNMediaForm;
+
+    AdRequest ad;
 
     public UploadView() {
         configureLayout();
@@ -43,6 +45,10 @@ public class UploadView extends VerticalLayout {
         generalInfoTab = new Tab("General Information");
         detailsTab = new Tab("Details");
         descriptionNMediaTab = new Tab("Description & Media");
+
+        generalInfoForm = new GeneralInfoForm();
+        detailsForm = new DetailsForm();
+        descriptionNMediaForm = new DescriptionNMediaForm();
 
         generalInfoContent = createTabContent(generalInfoForm);
         detailsContent = createTabContent(detailsForm);
@@ -120,17 +126,22 @@ public class UploadView extends VerticalLayout {
         var buttonLayout = new HorizontalLayout(backButton, continueButton);
         buttonLayout.setWidth("80%");
         buttonLayout.setJustifyContentMode(JustifyContentMode.END);
+        if (content instanceof DescriptionNMediaForm)
+            buttonLayout.getStyle().setTransform("translateY(-230%)");
 
         continueButton.addClickListener(event -> {
             Tab selectedTab = tabs.getSelectedTab();
             if (selectedTab.equals(generalInfoTab) /* && generalInfoForm.areRequiredFieldsValid() */ ) {
                 generalInfoTab.getStyle().setColor("green");
                 tabs.setSelectedTab(detailsTab);
+                generalInfoForm.addFormValues(ad);
             } else if (selectedTab.equals(detailsTab)) {
                 detailsTab.getStyle().setColor("green");
                 tabs.setSelectedTab(descriptionNMediaTab);
+                detailsForm.addFormValues(ad);
             } else if (selectedTab.equals(descriptionNMediaTab)) {
                 descriptionNMediaTab.getStyle().setColor("green");
+                descriptionNMediaForm.addValues(ad);
                 Notification.show("Form completed successfully").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             } else {
                 Notification.show("Fill all the required fields to continue.").addThemeVariants(NotificationVariant.LUMO_ERROR);
