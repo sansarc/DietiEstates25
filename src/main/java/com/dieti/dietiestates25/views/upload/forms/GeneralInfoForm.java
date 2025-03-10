@@ -9,11 +9,8 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import org.springframework.web.client.RestTemplate;
 
 public class GeneralInfoForm extends Form {
-
-    private final RestTemplate restTemplate = new RestTemplate();
 
     RadioButtonGroup<String> saleType;
     ComboBox<String> region, city;
@@ -28,22 +25,19 @@ public class GeneralInfoForm extends Form {
 
     protected void createComponents() {
         saleType =  radioButtonGroup("Sale Type", "For Sale", " For Rent");
-
         region = new ComboBox<>("Region");
         city = new ComboBox<>("City");
         address = new TextField("Address");
         zipcode = new NumberField("Zip Code");
         zipcode.setAllowedCharPattern("[0-9]");
         zipcode.setMin(5);
-        zipcode.setMax(10);
+        zipcode.setMax(5);
 
         dimension = new NumberField("Surface area");
         dimension.setSuffixComponent(new Div("m²"));
         dimension.setPlaceholder("example: 110");
 
-        floor = new Select<>();
-        floor.setLabel("Floor");
-        floor.setItems(FloorUtils.generateFloorsList());
+        floor = select("Floor", FloorUtils.generateFloorsList().toArray(new String[0]));
 
         add(
                 saleType,
@@ -60,10 +54,10 @@ public class GeneralInfoForm extends Form {
 
     public void addFormValues(AdRequest ad) {
         ad.setSaleType(saleType.getValue());
-        ad.getLocation().setRegion(region.getValue());
-        ad.getLocation().setCity(city.getValue());
-        ad.getLocation().setAddress(address.getValue());
-        ad.getLocation().setZipcode(zipcode.getValue().toString());
+        ad.setRegion(region.getValue());
+        ad.setCity(city.getValue());
+        ad.setAddress(address.getValue());
+        ad.setZipcode(zipcode.getValue().toString());
         ad.setDimension(dimension.getValue().intValue());
         ad.setFloor(FloorUtils.parseFloor(floor.getValue()));
     }

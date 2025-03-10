@@ -1,6 +1,5 @@
 package com.dieti.dietiestates25.dto.ad;
 
-import com.dieti.dietiestates25.dto.User;
 import lombok.Data;
 
 import java.util.List;
@@ -11,16 +10,19 @@ public class AdRequest {
     double price;
     String agent;
 
-    Location location;
+    String region;
+    String city;
+    String address;
+    String zipcode;
+    String coordinates;
+
     int dimension;
     int floor;
 
     boolean elevator;
-    int nBedrooms;
-    int nRoomsGeneral;
+    int nRooms;
     int nBathrooms;
     int garageSpots;
-    boolean disabledAmenities;
     char energyClass;
     String description;
 
@@ -29,6 +31,4 @@ public class AdRequest {
     private boolean leisurePark350m;
 
     List<Photo> photos;
-
-
 }

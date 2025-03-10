@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DescriptionNMediaForm extends Form {
-    public final int DESCRIPTION_TEXTAREA_CHAR_LIMIT = 50;
-    public final int UPLOAD_LIMIT = 20;
-    public int CURRENT_UPLOADS = 0;
+    final int DESCRIPTION_CHAR_MIN = 50;
+    final int DESCRIPTION_CHAR_MAX = 1000;
+    final int UPLOAD_LIMIT = 20;
+    int CURRENT_UPLOADS = 0;
 
     TextArea description;
     MultiFileMemoryBuffer buffer;
@@ -84,13 +85,14 @@ public class DescriptionNMediaForm extends Form {
         description.setMinHeight("350px");
         description.setValueChangeMode(ValueChangeMode.EAGER);
         description.setRequired(true);
+        description.setMaxLength(DESCRIPTION_CHAR_MAX);
 
         description.addValueChangeListener(event -> {
-            int charsToType = DESCRIPTION_TEXTAREA_CHAR_LIMIT - event.getValue().length();
+            int charsToType = DESCRIPTION_CHAR_MIN - event.getValue().length();
             if (charsToType > 0)
                 event.getSource().setHelperText(charsToType + " more characters still to type.");
             else
-                event.getSource().setHelperText("You can type more, but that's already okay!");
+                event.getSource().setHelperText(String.format("You can type more, but that's already okay! (%s/%s)", event.getValue().length(), DESCRIPTION_CHAR_MAX));
         });
     }
 

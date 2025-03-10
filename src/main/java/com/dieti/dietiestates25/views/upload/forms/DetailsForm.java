@@ -14,8 +14,8 @@
 
     public class DetailsForm extends Form {
 
-        Checkbox elevator, disabledAmenities;
-        IntegerField bedrooms, roomsGeneral, nBathrooms, garageSpots;
+        Checkbox elevator;
+        IntegerField nRooms, nBathrooms, garageSpots;
         Select<String> energyClass;
 
         public DetailsForm() {
@@ -25,41 +25,36 @@
 
         protected void createComponents() {
             elevator = new Checkbox("Elevator");
-            bedrooms = integerField("Bedrooms", new Icon(VaadinIcon.BED));
-            roomsGeneral = integerField("Other rooms", new Image("/images/sofa-512.png", "sofa_icon"));
+            nRooms = integerField("Number of rooms", new Image("/images/sofa-512.png", "sofa_icon"));
             nBathrooms = integerField("Bathrooms", new Image("/images/shower-512.png", "shower_icon"));
             garageSpots = integerField("Parking spots in a garage", new Icon(VaadinIcon.CAR));
-            disabledAmenities = new Checkbox("Disabled amenities");
 
-            energyClass = new Select<>();
-            energyClass.setLabel("Energy class");
-            energyClass.setItems("A", "B", "C", "D", "E", "F");
+            energyClass = select("Energy class", "A", "B", "C", "D", "E", "F", "Unknown");
+            energyClass.setValue("Unknown");
             EnergyClassUtils.setRenderer(energyClass);
 
-            var parkingInfo = new InfoPopover(garageSpots, "In this category are considered ONLY the parking spots within the property. You can add more inx`    the description field.");
+            nRooms.setHelperText("All rooms of the building.");
+            nBathrooms.setHelperText("All kind of bathrooms.");
 
-            var checkBoxes = new HorizontalLayout(elevator, disabledAmenities);
-            checkBoxes.setPadding(false);
-            checkBoxes.setSpacing(false);
+            new InfoPopover(garageSpots, "Parking spots within the property only. You can add more later.");
+            new InfoPopover(nRooms, "You can specify the rooms division and possible usages in the description field.");
+            new InfoPopover(nBathrooms, "You can provide additional info later on in the description field.");
+
+            setRequiredTrue(energyClass);
 
             add(
-                    bedrooms,
-                    roomsGeneral,
+                    nRooms,
                     nBathrooms,
                     garageSpots,
                     energyClass,
-                    checkBoxes,
-                    parkingInfo
+                    elevator
             );
         }
 
         public void addFormValues(AdRequest ad) {
-            ad.setnBedrooms(bedrooms.getValue());
-            ad.setnRoomsGeneral(roomsGeneral.getValue());
             ad.setNBathrooms(nBathrooms.getValue());
             ad.setGarageSpots(garageSpots.getValue());
             ad.setElevator(elevator.getValue());
-            ad.setDisabledAmenities(disabledAmenities.getValue());
             ad.setEnergyClass(energyClass.getValue().charAt(0));
         }
 

@@ -1,6 +1,5 @@
 package com.dieti.dietiestates25.utils;
 
-import com.dieti.dietiestates25.views.upload.forms.DetailsForm;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -20,11 +19,10 @@ public class EnergyClassUtils {
                     .setBorderRadius("4px")
                     .setFontWeight(Style.FontWeight.BOLD);
 
-            if (item.equals("E") || item.equals("F") || item.equals("G")) {
+            if (item.equals("E") || item.equals("F") || item.equals("G"))
                 span.getStyle().setColor("white");
-            } else {
+            else
                 span.getStyle().setColor("black");
-            }
 
             return span;
         }));

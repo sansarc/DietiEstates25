@@ -131,7 +131,7 @@ public class UploadView extends VerticalLayout {
 
         continueButton.addClickListener(event -> {
             Tab selectedTab = tabs.getSelectedTab();
-            if (selectedTab.equals(generalInfoTab) /* && generalInfoForm.areRequiredFieldsValid() */ ) {
+            if (selectedTab.equals(generalInfoTab) && generalInfoForm.areRequiredFieldsValid() ) {
                 generalInfoTab.getStyle().setColor("green");
                 tabs.setSelectedTab(detailsTab);
                 generalInfoForm.addFormValues(ad);
