@@ -14,7 +14,9 @@ import java.util.Map;
 
 public class AuthenticationService {
 
-    public SessionResponse authenticate(String email, String pwd) {
+    protected AuthenticationService() {}
+
+    public SessionResponse login(String email, String pwd) {
         User user = new User(email, pwd);
         String json = new Gson().toJson(user);
 

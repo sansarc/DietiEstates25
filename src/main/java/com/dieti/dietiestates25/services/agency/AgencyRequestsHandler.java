@@ -1,4 +1,4 @@
-package com.dieti.dietiestates25.services.agency_management;
+package com.dieti.dietiestates25.services.agency;
 
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.RegisterAgencyRequest;
@@ -10,16 +10,16 @@ import com.vaadin.flow.server.VaadinSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AgencyManagementHandler {
-    private final AgencyManagementService agencyManagementService;
-    private final static Logger logger = LoggerFactory.getLogger(AgencyManagementHandler.class);
+public class AgencyRequestsHandler {
+    private final AgencyRequestsService agencyRequestsService;
+    private final static Logger logger = LoggerFactory.getLogger(AgencyRequestsHandler.class);
 
-    public AgencyManagementHandler() {
-        agencyManagementService = new AgencyManagementService();
+    public AgencyRequestsHandler() {
+        agencyRequestsService = new AgencyRequestsService();
     }
 
     public void createAgency(String agency, String vatNumber, String firstName, String lastName, String email, String password) {
-        Response response = agencyManagementService.createAgency(
+        Response response = agencyRequestsService.createAgency(
                 new RegisterAgencyRequest(
                         agency, vatNumber,
                         new Signup(firstName, lastName, email, password)

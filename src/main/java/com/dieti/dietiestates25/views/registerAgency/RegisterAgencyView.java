@@ -1,7 +1,7 @@
 package com.dieti.dietiestates25.views.registerAgency;
 
 import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
-import com.dieti.dietiestates25.services.agency_management.AgencyManagementHandler;
+import com.dieti.dietiestates25.services.agency.AgencyRequestsHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.utils.NotificationFactory;
@@ -24,7 +24,7 @@ import com.vaadin.flow.router.Route;
 @Route("register-agency")
 public class RegisterAgencyView extends VerticalLayout {
 
-    AgencyManagementHandler agencyHandler = new AgencyManagementHandler();
+    AgencyRequestsHandler agencyHandler = new AgencyRequestsHandler();
 
     FormLayout formLayout;
     TextField agencyName;

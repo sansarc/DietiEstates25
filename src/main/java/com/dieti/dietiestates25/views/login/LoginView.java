@@ -104,7 +104,7 @@ public class LoginView extends VerticalLayout {
                 passwordField.setInvalid(true);
             }
             else
-                authHandler.login(emailField.getValue(), passwordField.getValue());
+                authHandler._login(emailField.getValue(), passwordField.getValue());
         });
 
         return button;

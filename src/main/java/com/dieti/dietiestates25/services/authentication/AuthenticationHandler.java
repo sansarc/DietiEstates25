@@ -40,8 +40,8 @@ public class AuthenticationHandler {
         }
     }
 
-    public void login(String email, String password) {
-        SessionResponse authenticated = authenticationService.authenticate(email, password);
+    public void _login(String email, String password) {
+        SessionResponse authenticated = authenticationService.login(email, password);
         try {
             if (authenticated.ok()) {
                 NotificationFactory.success("Welcome Back!");
