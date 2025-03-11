@@ -1,20 +1,23 @@
 package com.dieti.dietiestates25.ui_components;
 
-import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.AbstractNumberField;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.component.select.Select;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Form extends FormLayout {
 
@@ -97,14 +100,28 @@ public class Form extends FormLayout {
         boolean textFieldsValid = getChildren()
                 .filter(TextFieldBase.class::isInstance)
                 .map(TextFieldBase.class::cast)
+                .filter(TextFieldBase::isRequiredIndicatorVisible)
                 .noneMatch(AbstractField::isEmpty);
+
+        if (!textFieldsValid) {
+            Notification.show("Please fill in all required text fields to continue.");
+            return false;
+        }
 
         boolean numberFieldsValid = getChildren()
                 .filter(AbstractNumberField.class::isInstance)
                 .map(AbstractNumberField.class::cast)
-                .allMatch(field -> field.getValue().intValue() > 0);
+                .filter(TextFieldBase::isRequiredIndicatorVisible)
+                .allMatch(field -> field.getValue() != null && field.getValue().intValue() > 0);
 
-        return textFieldsValid && numberFieldsValid;
+        if (!numberFieldsValid) {
+           Notification.show("All required numeric fields must have values greater than 0");
+           return false;
+        }
+
+        // All required fields are valid
+        return true;
     }
+
 
 }

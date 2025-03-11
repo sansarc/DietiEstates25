@@ -11,29 +11,27 @@ public class EnergyClassUtils {
     public static void setRenderer(Select<String> energyClass) {
         energyClass.setRenderer(new ComponentRenderer<>(item -> {
             Span span = new Span(item);
-            String bgColor = getEnergyClassColor(item);
 
-            span.getStyle()
-                    .setBackground(bgColor)
-                    .setPadding("4px 8px")
-                    .setBorderRadius("4px")
-                    .setFontWeight(Style.FontWeight.BOLD);
+            try {
+                // Only apply styling for valid enum values
+                EnergyClass ec = EnergyClass.valueOf(item);
 
-            if (item.equals("E") || item.equals("F") || item.equals("G"))
-                span.getStyle().setColor("white");
-            else
-                span.getStyle().setColor("black");
+                span.getStyle()
+                        .setBackground(ec.getColor())
+                        .setPadding("4px 8px")
+                        .setBorderRadius("4px")
+                        .setFontWeight(Style.FontWeight.BOLD);
+
+                if (item.equals("E") || item.equals("F") || item.equals("G"))
+                    span.getStyle().setColor("white");
+                else
+                    span.getStyle().setColor("black");
+            } catch (IllegalArgumentException e) {
+                // Do nothing for non-enum values - no styling applied
+            }
 
             return span;
         }));
-    }
-
-    private static String getEnergyClassColor(String item) {
-        try {
-            return EnergyClass.valueOf(item).getColor();
-        } catch (IllegalArgumentException e) {
-            return "black";
-        }
     }
 
     @Getter
@@ -45,8 +43,5 @@ public class EnergyClassUtils {
         EnergyClass(String color) {
             this.color = color;
         }
-
     }
 }
-
-

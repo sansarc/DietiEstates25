@@ -34,6 +34,7 @@ public class UploadView extends VerticalLayout {
     DetailsForm detailsForm;
     DescriptionNMediaForm descriptionNMediaForm;
 
+
     AdRequest ad;
 
     public UploadView() {
@@ -135,16 +136,14 @@ public class UploadView extends VerticalLayout {
                 generalInfoTab.getStyle().setColor("green");
                 tabs.setSelectedTab(detailsTab);
                 generalInfoForm.addFormValues(ad);
-            } else if (selectedTab.equals(detailsTab)) {
+            } else if (selectedTab.equals(detailsTab) && detailsForm.areRequiredFieldsValid()) {
                 detailsTab.getStyle().setColor("green");
                 tabs.setSelectedTab(descriptionNMediaTab);
                 detailsForm.addFormValues(ad);
-            } else if (selectedTab.equals(descriptionNMediaTab)) {
+            } else if (selectedTab.equals(descriptionNMediaTab) && descriptionNMediaForm.areRequiredFieldsValid()) {
                 descriptionNMediaTab.getStyle().setColor("green");
                 descriptionNMediaForm.addValues(ad);
-                Notification.show("Form completed successfully").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            } else {
-                Notification.show("Fill all the required fields to continue.").addThemeVariants(NotificationVariant.LUMO_ERROR);
+                adHandler.insertAd(ad);
             }
         });
 

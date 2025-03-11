@@ -75,6 +75,8 @@ public class DescriptionNMediaForm extends Form {
         leftLayout.setSpacing(false);
         leftLayout.setPadding(false);
 
+
+        setRequiredTrue(price, description);
         uploadLayout.add(uploadParagraph, upload, filesFormatParagraph);
         add(leftLayout, uploadLayout);
     }

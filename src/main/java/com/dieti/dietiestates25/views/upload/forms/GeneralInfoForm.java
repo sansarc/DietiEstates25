@@ -25,6 +25,7 @@ public class GeneralInfoForm extends Form {
 
     protected void createComponents() {
         saleType =  radioButtonGroup("Sale Type", "For Sale", " For Rent");
+        saleType.setValue("For Sale");
         region = new ComboBox<>("Region");
         city = new ComboBox<>("City");
         address = new TextField("Address");
