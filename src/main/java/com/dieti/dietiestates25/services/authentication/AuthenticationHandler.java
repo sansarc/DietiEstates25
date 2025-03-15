@@ -31,12 +31,12 @@ public class AuthenticationHandler {
                 UI.getCurrent().navigate(LoginView.class);
                 logger.info("User confirmed OTP with email: {}", email);
             } else {
-                NotificationFactory.error(confirmed.getMessage());
+                NotificationFactory.backendError(confirmed.getMessage());
                 logger.warn("User wasn't confirmed with email: {}", email);
             }
         } catch (RuntimeException e) {
             logger.error("Critical error while confirming user.", e);
-            NotificationFactory.critical();
+            NotificationFactory.criticalError();
         }
     }
 
@@ -49,12 +49,12 @@ public class AuthenticationHandler {
                 logger.info("User logged in with email: {}", email);
             } else {
                 logger.warn("User was unable to log in with email: {}", email);
-                NotificationFactory.error(authenticated.getMessage());
+                NotificationFactory.backendError(authenticated.getMessage());
             }
 
         } catch (RuntimeException e) {
             logger.error("Critical error while logging in.", e);
-            NotificationFactory.critical();
+            NotificationFactory.criticalError();
         }
     }
 
@@ -73,12 +73,12 @@ public class AuthenticationHandler {
                 logger.info("User signed with email: {}", email);
             }
             else {
-                NotificationFactory.error(signed.getMessage());
+                NotificationFactory.backendError(signed.getMessage());
                 logger.warn("User attempted to sign with email: {}", email);
             }
         } catch (RuntimeException e) {
             logger.error("Critical error while signing up.", e);
-            NotificationFactory.critical();
+            NotificationFactory.criticalError();
         }
     }
 }

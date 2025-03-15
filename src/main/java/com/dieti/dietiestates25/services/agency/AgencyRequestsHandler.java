@@ -38,7 +38,7 @@ public class AgencyRequestsHandler {
                 logger.info("User with email {} new agency: {}", email, agency);
             }
             else {
-                NotificationFactory.error(response.getMessage());
+                NotificationFactory.backendError(response.getMessage());
                 logger.warn("User attempted to create agency {} with email: {}", agency, email);
             }
         } catch (RuntimeException e) {

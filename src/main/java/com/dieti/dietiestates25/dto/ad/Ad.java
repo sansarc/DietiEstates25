@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AdRequest {
+public class Ad {
     String saleType;
     double price;
     String agent;

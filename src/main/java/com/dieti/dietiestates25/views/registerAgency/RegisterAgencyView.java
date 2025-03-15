@@ -95,7 +95,7 @@ public class RegisterAgencyView extends VerticalLayout {
                         password.getValue()
                 );
             else
-                 NotificationFactory.error("Please fill all required fields");
+                 NotificationFactory.backendError("Please fill all required fields");
         });
 
         registerAgencyDiv.add(

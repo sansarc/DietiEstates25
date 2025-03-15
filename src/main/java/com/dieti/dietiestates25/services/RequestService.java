@@ -1,5 +1,6 @@
 package com.dieti.dietiestates25.services;
 
+import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,15 +25,13 @@ public class RequestService {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<String> entity = new HttpEntity<>(jsonPayload, headers);
-
             ResponseEntity<String> response = restTemplate.postForEntity(endpoint, entity, String.class);
 
             logResponse(response);
             return new Response(response.getStatusCode().value(), response.getBody());
-
         } catch (RestClientException ex) {
-            logger.error("Failed to POST to {}: {}", endpoint, ex.getMessage(), ex);
-            throw new RuntimeException("Failed to POST to " + endpoint + ": " + ex.getMessage(), ex);
+            logger.error(ex.getMessage());
+            return new Response(Constants.Codes.SERVER_ERROR, "");
         }
     }
 
@@ -58,10 +57,11 @@ public class RequestService {
             return new Response(response.getStatusCode().value(), response.getBody());
 
         } catch (RestClientException ex) {
-            logger.error("Failed to GET to {}: {}", endpoint, ex.getMessage(), ex);
-            throw new RuntimeException("Failed to GET from " + endpoint + ": " + ex.getMessage(), ex);
+            logger.error(ex.getMessage());
+            return new Response(Constants.Codes.SERVER_ERROR, "");
         }
     }
+
 
     private static void logResponse(ResponseEntity<String> response) {
         logger.info("Received response {}: {}", response.getStatusCode().value(), response.getBody());

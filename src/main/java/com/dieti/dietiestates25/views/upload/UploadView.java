@@ -1,11 +1,13 @@
 package com.dieti.dietiestates25.views.upload;
 
-import com.dieti.dietiestates25.dto.ad.AdRequest;
+import com.dieti.dietiestates25.dto.ad.Ad;
+import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.upload.forms.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
@@ -34,8 +36,8 @@ public class UploadView extends VerticalLayout {
     DetailsForm detailsForm;
     DescriptionNMediaForm descriptionNMediaForm;
 
-
-    AdRequest ad;
+    AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+    Ad ad = new Ad();
 
     public UploadView() {
         configureLayout();
@@ -75,6 +77,7 @@ public class UploadView extends VerticalLayout {
         tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
         tabs.addThemeVariants(TabsVariant.LUMO_CENTERED);
         tabs.setWidthFull();
+        tabs.getElement().getStyle().set("pointer-events", "none");
         return tabs;
     }
 
@@ -143,8 +146,19 @@ public class UploadView extends VerticalLayout {
             } else if (selectedTab.equals(descriptionNMediaTab) && descriptionNMediaForm.areRequiredFieldsValid()) {
                 descriptionNMediaTab.getStyle().setColor("green");
                 descriptionNMediaForm.addValues(ad);
-                adHandler.insertAd(ad);
+
+                ConfirmDialog dialog = new ConfirmDialog();
+                dialog.setHeader("Confirm");
+                dialog.setText("Are you sure you want to continue?");
+                dialog.setCancelable(true);
+                dialog.setConfirmText("Next");
+                dialog.setCancelText("Cancel");
+
+                dialog.addConfirmListener(confirm -> adRequestsHandler.insertAd(ad));
+
+                dialog.open();
             }
+
         });
 
         backButton.addClickListener(event -> {

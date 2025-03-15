@@ -91,7 +91,7 @@ public class SignUpView extends VerticalLayout {
                 if (allFieldsValid)
                     authHandler.signup(firstName.getValue(), lastName.getValue(), email.getValue(), password.getValue());
                 else
-                    NotificationFactory.error("Please fill all the required fields.");
+                    NotificationFactory.backendError("Please fill all the required fields.");
             });
 
             return signUpButton;

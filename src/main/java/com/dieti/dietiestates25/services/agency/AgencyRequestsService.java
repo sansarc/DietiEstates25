@@ -1,7 +1,6 @@
 package com.dieti.dietiestates25.services.agency;
 
 import com.dieti.dietiestates25.constants.Constants;
-import com.dieti.dietiestates25.dto.ad.AdRequest;
 import com.dieti.dietiestates25.dto.RegisterAgencyRequest;
 import com.dieti.dietiestates25.dto.Response;
 import com.dieti.dietiestates25.services.RequestService;
