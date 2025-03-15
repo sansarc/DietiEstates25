@@ -8,6 +8,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.AbstractNumberField;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.select.Select;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Form extends FormLayout {
 
@@ -90,6 +92,14 @@ public class Form extends FormLayout {
         getStyle().setMarginBottom("var(--lumo-space-l)");
     }
 
+    private Stream<Component> getAllComponents(Component parent) {
+        return Stream.concat(
+                parent.getChildren(),
+                parent.getChildren().flatMap(this::getAllComponents)
+        );
+    }
+
+
     protected final void setRequiredTrue(HasValue<?,?>...fields) {
         for (HasValue<?,?> field : fields) {
             field.setRequiredIndicatorVisible(true);
@@ -97,31 +107,33 @@ public class Form extends FormLayout {
     }
 
     public boolean areRequiredFieldsValid() {
-        boolean textFieldsValid = getChildren()
+        boolean textFieldsValid = getAllComponents(this)
                 .filter(TextFieldBase.class::isInstance)
                 .map(TextFieldBase.class::cast)
                 .filter(TextFieldBase::isRequiredIndicatorVisible)
                 .noneMatch(AbstractField::isEmpty);
 
         if (!textFieldsValid) {
-            Notification.show("Please fill in all required text fields to continue.");
+            Notification.show("Please fill in all required text fields to continue.")
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
             return false;
         }
 
-        boolean numberFieldsValid = getChildren()
+        boolean numberFieldsValid = getAllComponents(this)
                 .filter(AbstractNumberField.class::isInstance)
                 .map(AbstractNumberField.class::cast)
                 .filter(TextFieldBase::isRequiredIndicatorVisible)
                 .allMatch(field -> field.getValue() != null && field.getValue().intValue() > 0);
 
         if (!numberFieldsValid) {
-           Notification.show("All required numeric fields must have values greater than 0");
-           return false;
+            Notification.show("All required numeric fields must have values greater than 0")
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            return false;
         }
 
-        // All required fields are valid
         return true;
     }
+
 
 
 }

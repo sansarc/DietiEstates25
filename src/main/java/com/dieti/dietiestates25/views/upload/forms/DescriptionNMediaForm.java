@@ -1,7 +1,7 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
 import com.dieti.dietiestates25.constants.Constants;
-import com.dieti.dietiestates25.dto.ad.AdRequest;
+import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.ui_components.Form;
 import com.vaadin.flow.component.html.Paragraph;
@@ -123,7 +123,7 @@ public class DescriptionNMediaForm extends Form {
         });
     }
 
-    public void addValues(AdRequest ad) {
+    public void addValues(Ad ad) {
         ad.setPrice(price.getValue());
         ad.setDescription(description.getValue());
         ad.setPhotos(uploadedPhotos);

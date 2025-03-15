@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
-import com.dieti.dietiestates25.dto.ad.AdRequest;
+import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.utils.FloorUtils;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -30,9 +30,6 @@ public class GeneralInfoForm extends Form {
         city = new ComboBox<>("City");
         address = new TextField("Address");
         zipcode = new NumberField("Zip Code");
-        zipcode.setAllowedCharPattern("[0-9]");
-        zipcode.setMin(5);
-        zipcode.setMax(5);
 
         dimension = new NumberField("Surface area");
         dimension.setSuffixComponent(new Div("m²"));
@@ -51,16 +48,20 @@ public class GeneralInfoForm extends Form {
         );
 
         setRequiredTrue(saleType, region, city, address, zipcode, dimension, floor);
+
+        floor.setValue("ground floor");
+        region.setItems("TEST");
+        city.setItems("TEST");
     }
 
-    public void addFormValues(AdRequest ad) {
+    public void addFormValues(Ad ad) {
         ad.setSaleType(saleType.getValue());
         ad.setRegion(region.getValue());
         ad.setCity(city.getValue());
         ad.setAddress(address.getValue());
         ad.setZipcode(zipcode.getValue().toString());
         ad.setDimension(dimension.getValue().intValue());
-        ad.setFloor(FloorUtils.parseFloor(floor.getValue()));
+        ad.setFloor(FloorUtils.parseFloorToInt(floor.getValue()));
     }
 
     protected void configureLayout() {

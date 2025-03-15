@@ -1,6 +1,6 @@
     package com.dieti.dietiestates25.views.upload.forms;
 
-    import com.dieti.dietiestates25.dto.ad.AdRequest;
+    import com.dieti.dietiestates25.dto.ad.Ad;
     import com.dieti.dietiestates25.ui_components.Form;
     import com.dieti.dietiestates25.ui_components.InfoPopover;
     import com.dieti.dietiestates25.utils.EnergyClassUtils;
@@ -8,7 +8,6 @@
     import com.vaadin.flow.component.html.Image;
     import com.vaadin.flow.component.icon.Icon;
     import com.vaadin.flow.component.icon.VaadinIcon;
-    import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
     import com.vaadin.flow.component.select.Select;
     import com.vaadin.flow.component.textfield.IntegerField;
 
@@ -40,7 +39,7 @@
             new InfoPopover(nRooms, "You can specify the rooms division and possible usages in the description field.");
             new InfoPopover(nBathrooms, "You can provide additional info later on in the description field.");
 
-            setRequiredTrue(energyClass);
+            setRequiredTrue(nRooms, nBathrooms);
 
             add(
                     nRooms,
@@ -51,7 +50,7 @@
             );
         }
 
-        public void addFormValues(AdRequest ad) {
+        public void addFormValues(Ad ad) {
             ad.setNBathrooms(nBathrooms.getValue());
             ad.setGarageSpots(garageSpots.getValue());
             ad.setElevator(elevator.getValue());

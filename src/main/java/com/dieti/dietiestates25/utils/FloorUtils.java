@@ -1,7 +1,6 @@
 package com.dieti.dietiestates25.utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,7 +19,7 @@ public class FloorUtils {
                 .collect(Collectors.toList());
     }
 
-    public static int parseFloor(String floor) {
+    public static int parseFloorToInt(String floor) {
         if (floor.equals("ground floor"))
             return 0;
         return Integer.parseInt(floor);
