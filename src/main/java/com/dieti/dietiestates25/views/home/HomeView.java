@@ -47,7 +47,6 @@ public class HomeView extends VerticalLayout {
             cards.add(new DivCard(
                     "https://picsum.photos/2670/1780",
                     400000,
-                    Constants.StaticPaths.FAVICON,
                     "DietiEstates",
                     "2 baths | 3 bedrooms"
             ));

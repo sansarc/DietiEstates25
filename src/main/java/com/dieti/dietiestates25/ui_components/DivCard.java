@@ -13,7 +13,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 public class DivCard extends Div implements ThemeChangeListener {
 
-    public DivCard(String imageUrl, int price, String agencyImageUrl, String agencyName, String descriptionText) {
+    public DivCard(String imageUrl, int price, String agencyName, String descriptionText) {
 
         ThemeChangeNotifier.addListener(this);
         addDetachListener(event -> ThemeChangeNotifier.removeListener(this)); // memory leaks
@@ -21,10 +21,10 @@ public class DivCard extends Div implements ThemeChangeListener {
         applyTheme(darkTheme != null ? darkTheme : false);
 
         configureStyle();
-        configureComponents(imageUrl, price, agencyImageUrl, agencyName, descriptionText);
+        configureComponents(imageUrl, price, agencyName, descriptionText);
     }
 
-    private void configureComponents(String imageUrl, int price, String agencyImageUrl, String agencyName, String descriptionText) {
+    private void configureComponents(String imageUrl, int price, String agencyName, String descriptionText) {
         var image = new Image(imageUrl, "Photo");
         image.setWidth("100%");
         image.getStyle().setBorderRadius("8px 8px 0 0");
@@ -32,7 +32,7 @@ public class DivCard extends Div implements ThemeChangeListener {
         var priceTitle = new Span("€ " + String.format("%,d", price));
         priceTitle.getStyle().setFontSize("20px").setFontWeight(Style.FontWeight.BOLD);
 
-        var agency = new Span(BadgeFactory.createAgencyBadge(agencyImageUrl), new Span(agencyName));
+        var agency = new Span(agencyName);
         agency.getElement().getThemeList().add("badge contrast");
 
         var cardDescription = new Span(descriptionText);

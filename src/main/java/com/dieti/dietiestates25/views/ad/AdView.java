@@ -1,26 +1,28 @@
 package com.dieti.dietiestates25.views.ad;
 
 import com.dieti.dietiestates25.constants.Constants;
+import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.ui_components.Map;
+import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.avatar.AvatarVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
-@Route(value = "ad", layout = MainLayout.class)
-public class AdView extends VerticalLayout {
+@Route(value = "ad/:adId", layout = MainLayout.class)
+@PageTitle("Ad Details")
+public class AdView extends VerticalLayout implements HasUrlParameter<String> {
 
     public static final String SCROLLER_CONTENT_WIDTH = "90%";
     HorizontalLayout picturesLayout = new HorizontalLayout();
@@ -28,6 +30,30 @@ public class AdView extends VerticalLayout {
     HorizontalLayout layout = new HorizontalLayout();
     Scroller scroller = new Scroller(scrollerContent);
     Div bidDiv = new DivContainer("30%", "400px");
+
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String adId) {
+        if (adId != null)
+            loadAdData(adId);
+        else
+            NotificationFactory.criticalError();
+    }
+
+    public void loadAdData(String adId) {
+        Ad ad = new Ad();
+
+        if (ad == null) {
+            NotificationFactory.criticalError();
+            return;
+        }
+
+        updateView();
+    }
+
+    public void updateView() {
+        
+    }
+
 
     public AdView() {
         configureLayout();

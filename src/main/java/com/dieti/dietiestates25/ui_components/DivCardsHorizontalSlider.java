@@ -54,7 +54,6 @@ public class DivCardsHorizontalSlider extends Div {
         nextButton.getStyle().setMarginLeft("8px");
         nextButton.addClickShortcut(Key.ARROW_RIGHT);
 
-        // Add components to the main container
         add(wrapper, new HorizontalLayout(prevButton, nextButton));
     }
 
