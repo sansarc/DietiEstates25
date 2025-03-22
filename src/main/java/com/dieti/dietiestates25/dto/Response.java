@@ -1,11 +1,11 @@
 package com.dieti.dietiestates25.dto;
 
 import com.dieti.dietiestates25.constants.Constants;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
-@Getter
+@Data
 public class Response {
 
     private int statusCode;

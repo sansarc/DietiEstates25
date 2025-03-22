@@ -4,58 +4,67 @@ package com.dieti.dietiestates25.services.authentication;
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.*;
 import com.dieti.dietiestates25.dto.Response;
-import com.dieti.dietiestates25.dto.SessionResponse;
 import com.dieti.dietiestates25.services.RequestService;
 import com.google.gson.*;
 import com.vaadin.flow.server.VaadinSession;
 
 import java.util.HashMap;
-import java.util.Map;
+
+import static com.dieti.dietiestates25.services.RequestService.extractMessage;
 
 public class AuthenticationService {
 
     protected AuthenticationService() {}
 
-    public SessionResponse login(String email, String pwd) {
-        User user = new User(email, pwd);
-        String json = new Gson().toJson(user);
+    public Response login(String email, String pwd) {
+        LoginRequest loginRequest = new LoginRequest(email, pwd);
+        String json = new Gson().toJson(loginRequest);
 
         Response response = RequestService.POST(Constants.ApiEndpoints.LOGIN, json);
 
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(SessionResponse.class, (JsonDeserializer<SessionResponse>) (jsonElement, typeOfT, context) -> {
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
+        if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
+            return null;
+        if (response.getStatusCode() == Constants.Codes.UNAUTHORIZED)
+            return new Response(response.getStatusCode(), null);
 
-            int statusCode = response.getStatusCode();
-            String message = "";
-            if (jsonObject.has("message") && !jsonObject.get("message").isJsonNull())
-                message = jsonObject.get("message").getAsString();
-            String sessionId = (jsonObject.has("sessionid") && !jsonObject.get("sessionid").isJsonNull())
-                    ? jsonObject.get("sessionid").getAsString()
-                    : null;
+        response.setMessage(extractMessage(response.getMessage()));
 
-            return new SessionResponse(statusCode, message, sessionId);
-        });
-
-        var sessionResponse = gsonBuilder.create().fromJson(response.getMessage(), SessionResponse.class);
-        VaadinSession.getCurrent().setAttribute("session_id", sessionResponse.getSessionId());
+        VaadinSession.getCurrent().setAttribute("session_id", response.getMessage());
         VaadinSession.getCurrent().setAttribute("email", email);
+        VaadinSession.getCurrent().setAttribute("first_name", "Test");
+        VaadinSession.getCurrent().setAttribute("last_name", "TEST");
+        VaadinSession.getCurrent().setAttribute("role", "U");
 
-        return sessionResponse;
+        return response;
     }
 
-    public Response createUser(String firstName, String lastName, String email, String password) {
-        Signup signupRequest = new Signup(firstName, lastName, email, password);
-        String json = new Gson().toJson(signupRequest);
 
-        return RequestService.POST(Constants.ApiEndpoints.SIGNUP, json);
+    public Response createUser(Signup user) {
+        String json = new Gson().toJson(user);
+        var response = RequestService.POST(Constants.ApiEndpoints.SIGNUP, json);
+
+        if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
+            return null;
+
+        response.setMessage(extractMessage(response.getMessage()));
+
+        VaadinSession.getCurrent().setAttribute("email", user.getEmail());
+
+        return response;
     }
 
-    public Response confirmUser(String email, String otp) {
-        Map<String, String> params = new HashMap<>();
-        params.put("email", email);
-        params.put("otp", otp);
-        return RequestService.GET(Constants.ApiEndpoints.OTP_CONFIRMATION, params);
+    public Response confirmUser(String email, String otp, boolean isManagerOrAgent) {
+        var params = new HashMap<String, String>();
+        params.put("isManagerOrAgent", String.valueOf(isManagerOrAgent));
+        var json = new Gson().toJson(new Otp(email, otp));
+
+        var response = RequestService.POST(Constants.ApiEndpoints.OTP_CONFIRMATION, params, json);
+
+        if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
+            return null;
+
+        response.setMessage(extractMessage(response.getMessage()));
+        return response;
     }
 
 }

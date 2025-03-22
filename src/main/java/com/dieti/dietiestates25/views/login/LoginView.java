@@ -20,7 +20,7 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.*;
 
-@ForwardLoggedUser()
+@ForwardLoggedUser
 @PageTitle("Login")
 @Route("login")
 public class LoginView extends VerticalLayout {
@@ -104,7 +104,7 @@ public class LoginView extends VerticalLayout {
                 passwordField.setInvalid(true);
             }
             else
-                authHandler._login(emailField.getValue(), passwordField.getValue());
+                authHandler.login(emailField.getValue(), passwordField.getValue());
         });
 
         return button;

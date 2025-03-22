@@ -5,11 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class User {
+public class LoginRequest {
     private String email;
     private String pwd;
 
-    public User(String email, String pwd) {
+    public LoginRequest(String email, String pwd) {
         this.email = email;
         this.pwd = pwd;
     }
