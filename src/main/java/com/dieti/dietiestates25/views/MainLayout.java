@@ -1,8 +1,9 @@
 package com.dieti.dietiestates25.views;
 
 import com.dieti.dietiestates25.constants.Constants;
+import com.dieti.dietiestates25.dto.UserSession;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
-import com.dieti.dietiestates25.views.home.HomeView;
+import com.dieti.dietiestates25.ui_components.NotificationBell;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.dieti.dietiestates25.views.signup.SignUpView;
@@ -23,8 +24,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.dom.Style;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -69,16 +68,20 @@ public class MainLayout extends AppLayout {
         // not sure if this is the best way
         if (VaadinSession.getCurrent().getAttribute("session_id") != null) {
             createAvatarBadge();
-            variablePartNavigationBar.add(avatar);
+            var notificationButton = new NotificationBell();
+            variablePartNavigationBar.add(notificationButton, avatar);
         }
         else {
-            var loginButton = createButton("Login", LoginView.class);
-            var signupButton = createButton("Sign up", SignUpView.class);
+            var loginButton = new Button("Login", event -> UI.getCurrent().navigate(LoginView.class));
+            var signupButton = new Button("Sign up", event -> UI.getCurrent().navigate(SignUpView.class));
             signupButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             variablePartNavigationBar.add(loginButton, signupButton);
         }
 
         createThemeModeMenu();
+
+        variablePartNavigationBar.getChildren()
+                .forEach(component -> component.getStyle().setMarginRight("var(--lumo-space-xs)").setMarginLeft("var(--lumo-space-xs)"));
 
         variablePartNavigationBar.add(themeMode);
         variablePartNavigationBar.setAlignSelf(HorizontalLayout.Alignment.CENTER, themeMode);
@@ -92,11 +95,10 @@ public class MainLayout extends AppLayout {
 
         themeMode.setRenderer(new ComponentRenderer<>(mode -> {
             Icon icon;
-            if ("light".equals(mode)) {
+            if ("light".equals(mode))
                 icon = VaadinIcon.SUN_O.create();
-            } else {
+            else
                 icon = VaadinIcon.MOON_O.create();
-            }
             String iconSize = "16px";
             icon.getStyle().setWidth(iconSize).setHeight(iconSize);
             return icon;
@@ -123,12 +125,10 @@ public class MainLayout extends AppLayout {
 
 
     private void createAvatarBadge() {
-        String email = (String) VaadinSession.getCurrent().getAttribute("email");
-        String username = email.replace("@gmail.com", "");
+        String name = UserSession.getFirstName() + " " + UserSession.getLastName();
 
-        avatar = new Avatar(username);
+        avatar = new Avatar(name);
         avatar.addThemeVariants(AvatarVariant.LUMO_LARGE);
-        avatar.setAbbreviation(username.substring(0, 1).toUpperCase());
         avatar.getStyle()
                 .setColor(Constants.Colors.PRIMARY_BLUE)
                 .setFontWeight(Style.FontWeight.BOLDER)
@@ -140,14 +140,15 @@ public class MainLayout extends AppLayout {
         userMenu.setOpenOnClick(true);
         var icon = LumoIcon.COG.create();
 
-        var preferences = new HorizontalLayout(icon, new Text("Preferences"));
-        preferences.setAlignItems(FlexComponent.Alignment.START);
-        preferences.setAlignSelf(FlexComponent.Alignment.BASELINE, icon);
-        preferences.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        preferences.setSpacing(false);
+        var account = new HorizontalLayout(icon, new Text("Account"));
+        account.setAlignItems(FlexComponent.Alignment.START);
+        account.setAlignSelf(FlexComponent.Alignment.BASELINE, icon);
+        account.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        account.setSpacing(false);
 
-        userMenu.addItem(preferences);
+        userMenu.addItem(account);
         userMenu.addItem("Logout").getStyle().setColor("red");
+
         for (Component item : userMenu.getItems()) item.getStyle().setCursor("pointer");
     }
 
@@ -157,10 +158,6 @@ public class MainLayout extends AppLayout {
                 .setMarginRight("-5%")
                 .setPaddingTop("10px")
                 .setPaddingLeft("10px");
-    }
-
-    private Button createButton(String label, Class<? extends Component> linkClass) {
-        return new Button(label, event -> UI.getCurrent().navigate(linkClass));
     }
 
     private void createNavigationBar() {

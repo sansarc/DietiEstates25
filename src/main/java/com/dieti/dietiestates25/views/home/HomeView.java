@@ -1,10 +1,11 @@
 package com.dieti.dietiestates25.views.home;
 
-import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.ui_components.DivCard;
 import com.dieti.dietiestates25.ui_components.DivCardsHorizontalSlider;
 import com.dieti.dietiestates25.views.MainLayout;
+import com.dieti.dietiestates25.views.ad.AdView;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.*;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 
 
 @Route(value = "", layout = MainLayout.class)
+@PageTitle("Dieti Estates | Home")
 public class HomeView extends VerticalLayout {
 
     Div titleContainer;
@@ -50,6 +53,7 @@ public class HomeView extends VerticalLayout {
                     "DietiEstates",
                     "2 baths | 3 bedrooms"
             ));
+        cards.get(0).addClickListener(event -> UI.getCurrent().navigate(AdView.class, "1"));
         cardSlider = new DivCardsHorizontalSlider(cards);
 
         createSecondTitle();
