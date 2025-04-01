@@ -14,7 +14,7 @@ public class ForwardLoggedUserAnnotationInit implements VaadinServiceInitListene
         event.getSource().addUIInitListener(uiInitEvent -> {
             UI ui = uiInitEvent.getUI();
             ui.addBeforeEnterListener(beforeEnterEvent -> {
-                Class<?> classTarget = beforeEnterEvent.getNavigationTarget();
+                Class<? extends Component> classTarget = (Class<? extends Component>) beforeEnterEvent.getNavigationTarget();
                 if (classTarget.isAnnotationPresent(ForwardLoggedUser.class)) {
                     if (VaadinSession.getCurrent().getAttribute("session_id") != null) {
                         ForwardLoggedUser annotation = classTarget.getAnnotation(ForwardLoggedUser.class);
