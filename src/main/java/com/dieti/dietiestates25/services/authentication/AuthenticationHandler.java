@@ -1,14 +1,13 @@
 package com.dieti.dietiestates25.services.authentication;
 
-import com.dieti.dietiestates25.constants.Constants;
-import com.dieti.dietiestates25.dto.Response;
-import com.dieti.dietiestates25.dto.Signup;
+import com.dieti.dietiestates25.dto.SimpleResponse;
+import com.dieti.dietiestates25.dto.User;
+import com.dieti.dietiestates25.dto.UserSession;
 import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.home.HomeView;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.signup.OtpView;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.server.VaadinSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,7 @@ public class AuthenticationHandler {
     }
 
     public void confirmUser(String email, String otp, boolean isManagerOrAgent) {
-        Response confirmed = authenticationService.confirmUser(email, otp, isManagerOrAgent);
+        SimpleResponse confirmed = authenticationService.confirmUser(email, otp, isManagerOrAgent);
 
         if (confirmed == null) {
             NotificationFactory.criticalError();
@@ -33,13 +32,13 @@ public class AuthenticationHandler {
             UI.getCurrent().navigate(LoginView.class);
             logger.info("User confirmed OTP with email: {}", email);
         } else {
-            NotificationFactory.error(confirmed.getMessage());
+            NotificationFactory.error(confirmed.getRawBody());
             logger.warn("User wasn't confirmed with email: {}", email);
         }
     }
 
     public void login(String email, String password) {
-        Response authenticated = authenticationService.login(email, password);
+        SimpleResponse authenticated = authenticationService.login(email, password);
 
             if (authenticated == null) {
                 NotificationFactory.criticalError();
@@ -47,19 +46,18 @@ public class AuthenticationHandler {
             }
 
             if (authenticated.ok()) {
-                NotificationFactory.success(String.format("Welcome Back, %s!", VaadinSession.getCurrent().getAttribute("first_name")));
+                NotificationFactory.success(String.format("Welcome Back, %s!", UserSession.getFirstName()));
                 UI.getCurrent().navigate(HomeView.class);
                 logger.info("User logged in with email: {}", email);
             } else {
                 logger.warn("User was unable to log in with email: {}", email);
-                NotificationFactory.error(authenticated.getMessage());
+                NotificationFactory.error("Invalid credentials.");
             }
-
     }
 
     public void createUser(String firstName, String lastName, String email, String password) {
-        Response signed = authenticationService.createUser(
-                new Signup(firstName, lastName, email, password)
+        SimpleResponse signed = authenticationService.createUser(
+                new User(firstName, lastName, email, password)
         );
 
         if (signed == null) {
@@ -72,8 +70,18 @@ public class AuthenticationHandler {
             UI.getCurrent().navigate(OtpView.class);
         }
         else {
-            NotificationFactory.error(signed.getMessage());
+            NotificationFactory.error(signed.getRawBody());
             logger.warn("User attempted to sign with email: {}", email);
         }
+    }
+
+    public void recreateUser(String firstName, String lastName, String email, String password) {
+        SimpleResponse signed = authenticationService.createUser(
+                new User(firstName, lastName, email, password)
+        );
+
+        if (signed == null)
+            NotificationFactory.criticalError();
+
     }
 }
