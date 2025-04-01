@@ -24,14 +24,15 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Upload")
 public class UploadView extends VerticalLayout {
 
-    private Tabs tabs;
-    private Div tabsContent;
-    private Tab generalInfoTab;
-    private Tab detailsTab;
-    private Tab descriptionNMediaTab;
-    private Div generalInfoContent;
-    private Div detailsContent;
-    private Div descriptionNMediaContent;
+    Tabs tabs;
+    Div tabsContent;
+    Tab generalInfoTab;
+    Tab detailsTab;
+    Tab descriptionNMediaTab;
+    Div generalInfoContent;
+    Div detailsContent;
+    Div descriptionNMediaContent;
+
     GeneralInfoForm generalInfoForm;
     DetailsForm detailsForm;
     DescriptionNMediaForm descriptionNMediaForm;

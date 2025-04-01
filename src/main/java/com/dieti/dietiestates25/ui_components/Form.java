@@ -10,24 +10,47 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.component.textfield.AbstractNumberField;
-import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.TextFieldBase;
+import com.vaadin.flow.component.textfield.*;
 import com.vaadin.flow.component.select.Select;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Form extends FormLayout {
 
-    protected Form() {
-        configureBase();
+    public Form() {
+        getStyle().setMarginBottom("var(--lumo-space-l)");
     }
 
-    protected RadioButtonGroup<String> radioButtonGroup(String label, String...fields) {
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+
+        getChildren()
+                .filter(TextFieldBase.class::isInstance)
+                .forEach(field ->
+                        ((TextFieldBase<?, ?>) field).addValueChangeListener(event -> {
+                            if (((TextFieldBase<?, ?>) field).getValue().toString().isEmpty())
+                                getElement().executeJs("window.unsavedChanges = false;");
+                            else
+                                getElement().executeJs("window.unsavedChanges = true;");
+                        })
+                );
+
+        attachEvent.getUI().getPage().executeJs(
+                "console.log('beforeunload listener attached');" +
+                        "window.unsavedChanges = false;" +
+                        "window.addEventListener('beforeunload', function(e) {" +
+                        "  console.log('beforeunload event fired, unsavedChanges:', window.unsavedChanges);" +
+                        "  if(window.unsavedChanges) {" +
+                        "    e.preventDefault();" +
+                        "    e.returnValue = '';" +
+                        "  }" +
+                        "});"
+        );
+    }
+
+
+    public static RadioButtonGroup<String> radioButtonGroup(String label, String...fields) {
         var radioGroup = new RadioButtonGroup<String>(label);
         radioGroup.setItems(fields);
         radioGroup.getChildren()
@@ -38,14 +61,14 @@ public class Form extends FormLayout {
         return radioGroup;
     }
 
-    protected Select<String> select(String label, String...fields) {
+    public static Select<String> select(String label, String...fields) {
         var select = new Select<String>();
         select.setLabel(label);
         select.setItems(fields);
         return select;
     }
 
-    protected CheckboxGroup<String> checkboxGroup(String label, String...fields) {
+    public static CheckboxGroup<String> checkboxGroup(String label, String...fields) {
         var checkboxGroup = new CheckboxGroup<String>(label);
         checkboxGroup.setItems(fields);
         checkboxGroup.getChildren()
@@ -55,7 +78,7 @@ public class Form extends FormLayout {
         return checkboxGroup;
     }
 
-    protected ComboBox<String> comboBox(String label, String...fields) {
+    public static ComboBox<String> comboBox(String label, String...fields) {
         var comboBox = new ComboBox<String>(label);
         comboBox.setItems(fields);
         return comboBox;
@@ -82,14 +105,12 @@ public class Form extends FormLayout {
     public static NumberField priceInEuroNumberField(String label, boolean isRequired) {
         var numberField = new NumberField(label);
         numberField.setPrefixComponent(new Icon(VaadinIcon.EURO));
-        numberField.setErrorMessage("That's clearly not a positive number.");
+        numberField.setPlaceholder("0.00");
         numberField.setRequiredIndicatorVisible(isRequired);
         numberField.setMin(0);
-        return numberField;
-    }
 
-    private void configureBase() {
-        getStyle().setMarginBottom("var(--lumo-space-l)");
+        numberField.setAllowedCharPattern("[0-9\\.]");
+        return numberField;
     }
 
     private Stream<Component> getAllComponents(Component parent) {
@@ -100,7 +121,7 @@ public class Form extends FormLayout {
     }
 
 
-    protected final void setRequiredTrue(HasValue<?,?>...fields) {
+    public void setRequiredTrue(HasValue<?,?>...fields) {
         for (HasValue<?,?> field : fields) {
             field.setRequiredIndicatorVisible(true);
         }

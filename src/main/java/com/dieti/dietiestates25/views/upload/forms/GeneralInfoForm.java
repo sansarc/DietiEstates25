@@ -1,6 +1,7 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
 import com.dieti.dietiestates25.dto.ad.Ad;
+import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.utils.FloorUtils;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -13,20 +14,23 @@ import com.vaadin.flow.component.textfield.TextField;
 public class GeneralInfoForm extends Form {
 
     RadioButtonGroup<String> saleType;
-    ComboBox<String> region, city;
+    ComboBox<String> region, province, city;
     TextField address;
     NumberField zipcode, dimension;
     Select<String> floor;
 
+    AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+
     public GeneralInfoForm() {
         configureLayout();
-        createComponents();
+        configureComponents();
     }
 
-    protected void createComponents() {
+    protected void configureComponents() {
         saleType =  radioButtonGroup("Sale Type", "For Sale", " For Rent");
         saleType.setValue("For Sale");
         region = new ComboBox<>("Region");
+        province = new ComboBox<>("Province");
         city = new ComboBox<>("City");
         address = new TextField("Address");
         zipcode = new NumberField("Zip Code");
@@ -40,6 +44,7 @@ public class GeneralInfoForm extends Form {
         add(
                 saleType,
                 region,
+                province,
                 city,
                 address,
                 zipcode,
@@ -47,20 +52,22 @@ public class GeneralInfoForm extends Form {
                 floor
         );
 
-        setRequiredTrue(saleType, region, city, address, zipcode, dimension, floor);
+        setRequiredTrue(saleType, region, province, city, address, zipcode, dimension, floor);
 
         floor.setValue("ground floor");
-        region.setItems("TEST");
-        city.setItems("TEST");
+
+        region.setItems(adRequestsHandler.getRegions());
+        region.addValueChangeListener(event -> province.setItems(adRequestsHandler.getProvinces(region.getValue())));
+        province.addValueChangeListener(event -> city.setItems(adRequestsHandler.getCities(province.getValue())));
     }
 
     public void addFormValues(Ad ad) {
-        ad.setSaleType(saleType.getValue());
+        ad.setType(saleType.getValue());
         ad.setRegion(region.getValue());
         ad.setCity(city.getValue());
         ad.setAddress(address.getValue());
         ad.setZipcode(zipcode.getValue().toString());
-        ad.setDimension(dimension.getValue().intValue());
+        ad.setDimensions(dimension.getValue().intValue());
         ad.setFloor(FloorUtils.parseFloorToInt(floor.getValue()));
     }
 
