@@ -1,8 +1,10 @@
 package com.dieti.dietiestates25.views.signup;
 
+import com.dieti.dietiestates25.dto.User;
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
+import com.dieti.dietiestates25.ui_components.ResendLink;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -26,11 +28,12 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
     H3 title = new H3("Confirm your account");
     Paragraph description = new Paragraph();
     TextField otpTextField = createOtpTextField();
-    Button confirmButton = createButton();
+    Button confirmButton = confirmButton();
     HorizontalLayout inputLayout = new HorizontalLayout(otpTextField, confirmButton);
+    ResendLink resendLink;
 
-    private AuthenticationHandler authHandler = new AuthenticationHandler();
-    private String email;
+    private final AuthenticationHandler authHandler = new AuthenticationHandler();
+    private User user;
 
     public OtpView() {
         configureLayout();
@@ -42,10 +45,13 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
         title.getStyle().setMarginBottom("20px");
         inputLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
+        resendLink = new ResendLink(() -> authHandler.recreateUser(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPwd()));
+
         otpViewDiv.add(
                 title,
                 description,
-                inputLayout
+                inputLayout,
+                resendLink
         );
     }
 
@@ -71,31 +77,33 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private Paragraph createDescription() {
-        var emailText = new Span(email);
+        var emailText = new Span(user.getEmail());
         emailText.getStyle().setFontWeight(Style.FontWeight.BOLDER);
 
         Paragraph paragraph = new Paragraph(new Text("We've sent a confirmation code to "), emailText, new Text(".\nCheck your inbox."));
-        paragraph.getStyle().set("white-space", "pre-line");   // enables \n
+        paragraph.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);   // enables \n
 
         return paragraph;
     }
 
-    private Button createButton() {
+    private Button confirmButton() {
         var button = new Button("Confirm");
         button.setWidth("20%");
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         button.addClickShortcut(Key.ENTER);
 
-        button.addClickListener(event -> {
-            if (otpTextField.isEmpty()) {
-                otpTextField.setErrorMessage("This field cannot be empty.");
-                otpTextField.setInvalid(true);
-            }
-            else
-                authHandler.confirmUser(email, otpTextField.getValue());
-        });
+        button.addClickListener(event -> confirmUser());
 
         return button;
+    }
+
+    private void confirmUser() {
+        if (otpTextField.getValue().isBlank()) {
+            otpTextField.setErrorMessage("This field cannot be empty.");
+            otpTextField.setInvalid(true);
+        }
+        else
+            authHandler.confirmUser(user.getEmail(), otpTextField.getValue(), false);
     }
 
     @Override
@@ -103,7 +111,7 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
         VaadinSession session = VaadinSession.getCurrent();
 
         if (session != null && event.getTrigger() != NavigationTrigger.PAGE_LOAD) {
-            email = (String) session.getAttribute("email");
+            user = (User) session.getAttribute("user");
             description = createDescription();
             configureComponents();
         }

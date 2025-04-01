@@ -1,7 +1,5 @@
 package com.dieti.dietiestates25.utils;
 
-import com.dieti.dietiestates25.constants.Constants;
-import com.dieti.dietiestates25.dto.Response;
 import com.dieti.dietiestates25.ui_components.TextWithLink;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -20,20 +18,21 @@ public class NotificationFactory {
         UI.getCurrent().access(() -> Notification.show(text, 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS));
     }
 
-
-    public static void error(Response response) {
-        if (response.getStatusCode() == Constants.Codes.SERVER_ERROR)
-            criticalError();
-        else
-            backendError(response.getMessage());
-    }
-
-    public static void backendError(String text) {
+    public static void error(String text) {
         UI.getCurrent().access(() -> Notification.show(text, 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR));
     }
 
     public static void criticalError() {
         var notificationText = new TextWithLink("Error while reaching the server.", new Anchor("mailto:sansevieroarcangelo@gmail.com", "Contact us!"));
+        StyleNotification(notificationText);
+    }
+
+    public static void criticalError(String exceptionText) {
+        var notificationText = new TextWithLink("Error while reaching the server: " + exceptionText, new Anchor("mailto:sansevieroarcangelo@gmail.com", "Contact us!"));
+        StyleNotification(notificationText);
+    }
+
+    private static void StyleNotification(TextWithLink notificationText) {
         notificationText.textSpan.getStyle().setFontWeight(Style.FontWeight.BOLD);
 
         var notification = new Notification();
