@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.views.signup;
 
-import com.dieti.dietiestates25.annotations.ForwardLoggedUser;
+import com.dieti.dietiestates25.annotations.forward_logged_user.ForwardLoggedUser;
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.*;

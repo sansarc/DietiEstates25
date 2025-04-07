@@ -9,7 +9,7 @@ public class ResendLink extends Span {
 
     Span resendLink;
     Span countdownText;
-    int COUNTDOWN = 30;
+    int COUNTDOWN = 60;
     Registration clickListenerRegistration;
     Registration pollListenerRegistration = () -> {}; // prevents NPE
     UI ui;

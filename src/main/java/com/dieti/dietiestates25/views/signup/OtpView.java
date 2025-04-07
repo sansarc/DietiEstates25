@@ -1,6 +1,7 @@
 package com.dieti.dietiestates25.views.signup;
 
-import com.dieti.dietiestates25.dto.User;
+import com.dieti.dietiestates25.annotations.forward_guest.ForwardGuest;
+import com.dieti.dietiestates25.dto.UserSession;
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
@@ -17,35 +18,41 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.VaadinSession;
 
-
+@ForwardGuest
 @Route("confirm-account")
-public class OtpView extends VerticalLayout implements BeforeEnterObserver {
+@PageTitle("Confirm Your Account")
+public class OtpView extends VerticalLayout {
 
-    DietiEstatesLogo logo = new DietiEstatesLogo("600px", "auto");
-    DivContainer otpViewDiv = new DivContainer("600px", "200px");
+    DivContainer otpViewDiv = new DivContainer("600px", "250px");
     H3 title = new H3("Confirm your account");
-    Paragraph description = new Paragraph();
-    TextField otpTextField = createOtpTextField();
-    Button confirmButton = confirmButton();
-    HorizontalLayout inputLayout = new HorizontalLayout(otpTextField, confirmButton);
-    ResendLink resendLink;
+    Button confirmButton;
+    TextField otpTextField;
+    HorizontalLayout inputLayout;
 
-    private final AuthenticationHandler authHandler = new AuthenticationHandler();
-    private User user;
+    final AuthenticationHandler authHandler = new AuthenticationHandler();
 
     public OtpView() {
+        configureComponents();
         configureLayout();
-        add(logo, otpViewDiv);
     }
 
     private void configureComponents() {
-        logo.getStyle().setMarginBottom("80px");
-        title.getStyle().setMarginBottom("20px");
-        inputLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+        var logo = new DietiEstatesLogo("600px", "auto");
 
-        resendLink = new ResendLink(() -> authHandler.recreateUser(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPwd()));
+        logo.getStyle().setMarginBottom("70px");
+        title.getStyle().setMarginBottom("10px");
+
+        var emailText = new Span(UserSession.getEmail());
+        emailText.getStyle().setFontWeight(Style.FontWeight.BOLDER);
+        var description = new Paragraph(new Text("We've sent an OTP code to "), emailText, new Text(".\nCheck your inbox."));
+        description.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);   // enables \n
+
+        createOtpTextField();
+        createConfirmButton();
+        inputLayout = new HorizontalLayout(otpTextField, confirmButton);
+
+        var resendLink = new ResendLink(() -> authHandler.recreateUser(UserSession.getFirstName(), UserSession.getLastName(), UserSession.getEmail(), UserSession.getPwd()));
 
         otpViewDiv.add(
                 title,
@@ -53,69 +60,46 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
                 inputLayout,
                 resendLink
         );
+
+        add(logo, otpViewDiv);
     }
 
-    private TextField createOtpTextField() {
-        var otpTextField = new TextField();
-        otpTextField.setPlaceholder("Enter your OTP");
-        otpTextField.setMaxLength(6);
+    private void createOtpTextField() {
+        otpTextField = new TextField("Enter your OTP");
         otpTextField.setMinLength(6);
+        otpTextField.setMaxLength(6);
         otpTextField.setWidth("40%");
         otpTextField.setAllowedCharPattern("[0-9]*");
         otpTextField.getStyle().setTextAlign(Style.TextAlign.CENTER);
         otpTextField.getStyle().setFontWeight(Style.FontWeight.BOLD);
         otpTextField.getStyle().setFontSize("18px");
-        return otpTextField;
     }
 
     private void configureLayout() {
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.START);
+
         setAlignSelf(Alignment.CENTER, title, otpTextField, confirmButton);
         setAlignSelf(Alignment.END, confirmButton);
+
+        inputLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+
     }
 
-    private Paragraph createDescription() {
-        var emailText = new Span(user.getEmail());
-        emailText.getStyle().setFontWeight(Style.FontWeight.BOLDER);
+    private void createConfirmButton() {
+        confirmButton = new Button("Confirm");
+        confirmButton.setWidth("20%");
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        confirmButton.addClickShortcut(Key.ENTER);
 
-        Paragraph paragraph = new Paragraph(new Text("We've sent a confirmation code to "), emailText, new Text(".\nCheck your inbox."));
-        paragraph.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);   // enables \n
-
-        return paragraph;
-    }
-
-    private Button confirmButton() {
-        var button = new Button("Confirm");
-        button.setWidth("20%");
-        button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        button.addClickShortcut(Key.ENTER);
-
-        button.addClickListener(event -> confirmUser());
-
-        return button;
-    }
-
-    private void confirmUser() {
-        if (otpTextField.getValue().isBlank()) {
-            otpTextField.setErrorMessage("This field cannot be empty.");
-            otpTextField.setInvalid(true);
-        }
-        else
-            authHandler.confirmUser(user.getEmail(), otpTextField.getValue(), false);
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        VaadinSession session = VaadinSession.getCurrent();
-
-        if (session != null && event.getTrigger() != NavigationTrigger.PAGE_LOAD) {
-            user = (User) session.getAttribute("user");
-            description = createDescription();
-            configureComponents();
-        }
-        else
-            event.rerouteToError(NotFoundException.class);
+        confirmButton.addClickListener(event -> {
+            if (otpTextField.getValue().isBlank()) {
+                otpTextField.setErrorMessage("This field cannot be empty.");
+                otpTextField.setInvalid(true);
+            }
+            else
+                authHandler.confirmUser(UserSession.getEmail(), otpTextField.getValue());
+        });
     }
 }
