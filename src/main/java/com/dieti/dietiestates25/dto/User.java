@@ -11,9 +11,10 @@ public class User {
     private String lastName;
     private String email;
     private String pwd;
+    private Boolean confirmed;
 
-    @SerializedName("company")
-    private String agency;
+    @SerializedName("company") private String agency;
+    @SerializedName("userType") private String role;
 
     protected User() {}
 
@@ -23,20 +24,30 @@ public class User {
         this.pwd = pwd;
     }
 
-    // signup
+    // manager signup
     public User(String firstName, String lastName, String email, String pwd, String agency) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.pwd = pwd;
         this.agency = agency;
     }
 
-    // session constructor
+    // standard user signup
     public User(String firstName, String lastName, String email, String pwd) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.pwd = pwd;
+    }
+
+    // session constructor
+    public User(String firstName, String lastName, String email, String pwd, String agency, String role, boolean confirmed) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.pwd = pwd;
+        this.agency = agency;
+        this.role = role;
+        this.confirmed = confirmed;
     }
 }
