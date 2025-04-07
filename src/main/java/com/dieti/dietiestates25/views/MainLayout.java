@@ -145,9 +145,14 @@ public class MainLayout extends AppLayout {
         account.setAlignSelf(FlexComponent.Alignment.BASELINE, icon);
         account.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         account.setSpacing(false);
+        account.addClickListener(event -> UI.getCurrent().navigate(Account.class));
 
         userMenu.addItem(account);
         userMenu.addItem("Logout").getStyle().setColor("red");
+
+        if (UserSession.isManagerOrAgent()) {
+            userMenu.addItem(UserSession.getAgency()).getStyle().setFontWeight(Style.FontWeight.BOLD);
+        }
 
         for (Component item : userMenu.getItems()) item.getStyle().setCursor("pointer");
     }

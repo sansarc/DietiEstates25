@@ -12,6 +12,7 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.Autocomplete;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
@@ -179,6 +180,7 @@ public class HomeView extends VerticalLayout {
 
     private void createSearchText() {
         searchText = new TextField("", "Enter a City.");
+        searchText.setAutocomplete(Autocomplete.OFF);
         searchText.setWidth("35%");
         searchText.getStyle()
                 .setBackgroundColor("transparent")

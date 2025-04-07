@@ -5,9 +5,6 @@ import com.dieti.dietiestates25.dto.RegisterAgencyRequest;
 import com.dieti.dietiestates25.dto.SimpleResponse;
 import com.dieti.dietiestates25.services.RequestService;
 import com.google.gson.Gson;
-import com.vaadin.flow.server.VaadinSession;
-
-import static com.dieti.dietiestates25.services.RequestService.extractMessage;
 
 public class AgencyRequestsService {
 
@@ -17,10 +14,6 @@ public class AgencyRequestsService {
 
         if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
             return null;
-
-        response.setRawBody(extractMessage(response.getRawBody()));
-
-        VaadinSession.getCurrent().setAttribute("email", agency.getManager().getEmail());
 
         return response;
     }

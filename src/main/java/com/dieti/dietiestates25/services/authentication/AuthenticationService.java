@@ -6,7 +6,6 @@ import com.dieti.dietiestates25.dto.*;
 import com.dieti.dietiestates25.dto.SimpleResponse;
 import com.dieti.dietiestates25.services.RequestService;
 import com.google.gson.*;
-import com.vaadin.flow.server.VaadinSession;
 
 import java.util.HashMap;
 
@@ -28,12 +27,14 @@ public class AuthenticationService {
         var entityResponse = response.parse(User.class);
 
         if (entityResponse != null) {
-            VaadinSession.getCurrent().setAttribute("session_id", entityResponse.getMessage());
-
             User user = entityResponse.getFirstEntity();
-
+            
             if (user != null) {
                 new UserSession(user);
+                UserSession.setSessionId(entityResponse.getMessage());
+
+                if (UserSession.isManagerOrAgent())
+                    UserSession.setPwd(pwd);
             }
         }
 
@@ -48,17 +49,31 @@ public class AuthenticationService {
         if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
             return null;
 
-        VaadinSession.getCurrent().setAttribute("user", user);
+        new UserSession(user);
+        UserSession.setSessionId("temp session");
 
         return response;
     }
 
-    public SimpleResponse confirmUser(String email, String otp, boolean isManagerOrAgent) {
+    public SimpleResponse confirmUser(String email, String otp) {
         var params = new HashMap<String, String>();
-        params.put("isManagerOrAgent", String.valueOf(isManagerOrAgent));
+        params.put("isManagerOrAgent", String.valueOf(false));
         var json = new Gson().toJson(new Otp(email, otp));
 
-        var response = RequestService.POST(Constants.ApiEndpoints.OTP_CONFIRMATION, params, json);
+        var response = RequestService.POST(Constants.ApiEndpoints.CONFIRM_USER, params, json);
+
+        if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
+            return null;
+
+        return response;
+    }
+
+    public SimpleResponse confirmUser(String email, String oldPwd, String newPwd) {
+        var params = new HashMap<String, String>();
+        params.put("isManagerOrAgent", String.valueOf(true));
+        var json = new Gson().toJson(new Otp.NewPassword(email, oldPwd, newPwd));
+
+        var response = RequestService.POST(Constants.ApiEndpoints.CONFIRM_USER, params, json);
 
         if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
             return null;
