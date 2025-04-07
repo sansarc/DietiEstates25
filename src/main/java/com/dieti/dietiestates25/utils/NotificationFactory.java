@@ -40,11 +40,25 @@ public class NotificationFactory {
         notification.setDuration(0);
         notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
 
+        notification.add(notificationText, getCloseButtonFor(notification));
+        UI.getCurrent().access(notification::open);
+    }
+
+    private static Button getCloseButtonFor(Notification notification) {
         var closeButton = new Button(LumoIcon.CROSS.create(), event -> notification.close());
         closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         closeButton.getStyle().setCursor("pointer");
+        return closeButton;
+    }
 
-        notification.add(notificationText, closeButton);
+    public static void primary(String text) {
+        var notification = new Notification();
+        notification.setText(text);
+        notification.setPosition(Notification.Position.TOP_CENTER);
+        notification.setDuration(8);
+        notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+        notification.add(getCloseButtonFor(notification));
+
         UI.getCurrent().access(notification::open);
     }
 }
