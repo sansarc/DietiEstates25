@@ -1,2 +1,4 @@
-com.dieti.dietiestates25.annotations.ForwardLoggedUserAnnotationInit
-com.dieti.dietiestates25.annotations.ForwardGuestAnnotationInit
+com.dieti.dietiestates25.annotations.forward_logged_user.ForwardLoggedUserAnnotationInit
+com.dieti.dietiestates25.annotations.forward_guest.ForwardGuestAnnotationInit
+com.dieti.dietiestates25.annotations.roles_only.ManagerOnlyAnnotationInit
+com.dieti.dietiestates25.annotations.roles_only.ManagerOrAgentOnlyAnnotationInit

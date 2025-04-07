@@ -1,10 +1,10 @@
-package com.dieti.dietiestates25.annotations;
+package com.dieti.dietiestates25.annotations.forward_guest;
 
+import com.dieti.dietiestates25.dto.UserSession;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
-import com.vaadin.flow.server.VaadinSession;
 
 public class ForwardGuestAnnotationInit implements VaadinServiceInitListener {
 
@@ -14,8 +14,10 @@ public class ForwardGuestAnnotationInit implements VaadinServiceInitListener {
            UI ui = uiInitEvent.getUI();
            ui.addBeforeEnterListener(beforeEnterEvent -> {
                Class<? extends Component> classTarget = (Class<? extends Component>) beforeEnterEvent.getNavigationTarget();
+
                if (classTarget.isAnnotationPresent(ForwardGuest.class)) {
-                   if (VaadinSession.getCurrent().getAttribute("session_id") == null) {
+                   System.out.println("SESSION ID WHEN ANNOTATION IS CALLED: " + UserSession.getSessionId());
+                   if (UserSession.getSessionId() == null) {
                        ForwardGuest annotation = classTarget.getAnnotation(ForwardGuest.class);
                        Class<? extends Component> destination = annotation.value();
                        beforeEnterEvent.forwardTo(destination);

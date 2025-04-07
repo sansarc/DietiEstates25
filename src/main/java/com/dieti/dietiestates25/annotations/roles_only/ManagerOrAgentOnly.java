@@ -1,4 +1,4 @@
-package com.dieti.dietiestates25.annotations;
+package com.dieti.dietiestates25.annotations.roles_only;
 
 import com.dieti.dietiestates25.views.home.HomeView;
 import com.vaadin.flow.component.Component;
@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ForwardGuest {
+public @interface ManagerOrAgentOnly {
     Class<? extends Component> value() default HomeView.class;
 }

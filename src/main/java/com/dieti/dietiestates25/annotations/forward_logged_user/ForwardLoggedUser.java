@@ -1,4 +1,4 @@
-package com.dieti.dietiestates25.annotations;
+package com.dieti.dietiestates25.annotations.forward_logged_user;
 
 import com.dieti.dietiestates25.views.home.HomeView;
 import com.vaadin.flow.component.Component;
