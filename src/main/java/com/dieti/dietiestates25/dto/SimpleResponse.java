@@ -6,13 +6,12 @@ import com.google.gson.*;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Data
 public class SimpleResponse {
 
-    private int statusCode;
-    private String rawBody;
+    protected int statusCode;
+    protected String rawBody;
 
     public SimpleResponse() {}
 
@@ -21,40 +20,44 @@ public class SimpleResponse {
         this.rawBody = rawBody;
     }
 
-    public SimpleResponse(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    public SimpleResponse checkNullityBeforeReturning() {
-        if (getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
-            return null;
-        if (getStatusCode() == Codes.UNAUTHORIZED)
-            return new SimpleResponse(getStatusCode(), null);
-
-        return this;
-    }
-
     public boolean ok() {
         return statusCode == Codes.OK;
     }
 
     public <T> EntityResponse<T> parse(Class<T> entityType) {
         try {
-
-            JsonObject jsonObject = JsonParser.parseString(rawBody).getAsJsonObject();
-            EntityResponse<T> response = new EntityResponse<>();
-
-            if (jsonObject.has("message")) {
-                response.setMessage(jsonObject.get("message").getAsString());
+            if (this.rawBody == null || this.rawBody.isEmpty()) {
+                Log.error(SimpleResponse.class, "Raw response body is null or empty");
+                return null;
             }
 
-            List<T> entities = new ArrayList<>();
+            var jsonElement = JsonParser.parseString(this.rawBody);
+            var response = new EntityResponse<T>();
 
-            if (jsonObject.has("entities") && jsonObject.get("entities").isJsonArray()) {
-                JsonArray entitiesArray = jsonObject.getAsJsonArray("entities");
+            response.setStatusCode(this.statusCode);  // Copy status code from original response
+            response.setRawBody(this.rawBody);       // Copy raw body from original response
 
-                Gson gson = new Gson();
-                for (JsonElement element : entitiesArray) {
+            var entities = new ArrayList<T>();
+            var gson = new Gson();
+
+            if (jsonElement.isJsonObject()) {    // case where response is a JSON object
+                JsonObject jsonObject = jsonElement.getAsJsonObject();
+
+                if (jsonObject.has("message"))
+                    response.setMessage(jsonObject.get("message").getAsString());
+
+                if (jsonObject.has("entities") && jsonObject.get("entities").isJsonArray()) {
+                    JsonArray entitiesArray = jsonObject.getAsJsonArray("entities");
+                    for (JsonElement element : entitiesArray) {
+                        T entity = gson.fromJson(element, entityType);
+                        entities.add(entity);
+                    }
+                }
+            }
+
+            else if (jsonElement.isJsonArray()) {       // case where response is directly a JSON array
+                JsonArray jsonArray = jsonElement.getAsJsonArray();
+                for (JsonElement element : jsonArray) {
                     T entity = gson.fromJson(element, entityType);
                     entities.add(entity);
                 }
@@ -64,9 +67,8 @@ public class SimpleResponse {
             return response;
 
         } catch (Exception e) {
-            Log.error("Unexpected error in parsing the response: " + e.getMessage());
+            Log.error(SimpleResponse.class, "Unexpected error while parsing the response: " + e.getMessage());
             return null;
         }
     }
-
 }

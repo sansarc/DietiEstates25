@@ -9,7 +9,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 public class UserSession {
 
-    public UserSession(User user) {
+    public static void init(User user) {
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setEmail(user.getEmail());

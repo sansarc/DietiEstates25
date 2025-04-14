@@ -3,7 +3,7 @@ package com.dieti.dietiestates25.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -13,12 +13,9 @@ public class EntityResponse<T> extends SimpleResponse {
     private String message;
     private List<T> entities;
 
-    public EntityResponse() {}
-
-    public EntityResponse(int statusCode, String message, T entity) {
-        super(statusCode);
-        this.message = message;
-        this.entities = Collections.singletonList(entity);
+    public EntityResponse() {
+        super();
+        this.entities = new ArrayList<>();
     }
 
     public T getFirstEntity() {
@@ -27,4 +24,8 @@ public class EntityResponse<T> extends SimpleResponse {
                 : null;
     }
 
+    @Override
+    public boolean ok() {
+        return super.ok() && entities != null;
+    }
 }
