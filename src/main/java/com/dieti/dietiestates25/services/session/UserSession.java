@@ -180,8 +180,6 @@ public class UserSession {
         });
 
         if (isSessionExpired)
-            Log.info(UserSession.class, email + " session expired, logging out...");
-        else
-            Log.info(UserSession.class, email + " logged out successfully.");
+            Log.info(UserSession.class, email + " session expired.");
     }
 }

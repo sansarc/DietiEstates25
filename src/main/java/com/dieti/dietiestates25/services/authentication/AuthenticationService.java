@@ -69,4 +69,15 @@ public class AuthenticationService {
         return response;
     }
 
+    public SimpleResponse logout (String sessionId) {
+        var params = new HashMap<String, String>();
+        params.put("sessionId", sessionId);
+        var response = RequestService.GET(Constants.ApiEndpoints.LOGOUT, params);
+
+        if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
+            return null;
+
+        return response;
+    }
+
 }

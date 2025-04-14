@@ -2,6 +2,7 @@ package com.dieti.dietiestates25.services.authentication;
 
 import com.dieti.dietiestates25.dto.SimpleResponse;
 import com.dieti.dietiestates25.dto.User;
+import com.dieti.dietiestates25.services.logging.Log;
 import com.dieti.dietiestates25.services.session.SessionManager;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.utils.NotificationFactory;
@@ -64,10 +65,9 @@ public class AuthenticationHandler {
         var user = new User(firstName, lastName, email, password);
         SimpleResponse signed = authenticationService.createUser(user);
 
-        if (signed == null) {
-            
+        if (signed == null)
             return;
-        }
+
 
         if (signed.ok()) {
             UI.getCurrent().navigate(OtpView.class);
@@ -83,5 +83,17 @@ public class AuthenticationHandler {
         authenticationService.createUser(
                 new User(firstName, lastName, email, password)
         );
+    }
+
+    public void logout(String sessionId) {
+        var response = authenticationService.logout(sessionId);
+
+        if (response == null)
+            return;
+
+        if (response.ok())
+            Log.info(UserSession.class, "Logged out successfully.");
+        else
+            Log.warn(UserSession.class, "Failed to log out server-side.");
     }
 }

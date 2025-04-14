@@ -9,14 +9,17 @@ public final class Constants {
         public static final String PORT = "8082";
         public static final String BASE_URL = "http://localhost:" + PORT;
         public static final String LOGIN = BASE_URL + "/login";
+        public static final String LOGOUT = BASE_URL + "/logout";
         public static final String SIGNUP = BASE_URL + "/createUser";
         public static final String CONFIRM_USER = BASE_URL + "/confirmUser";
         public static final String CREATE_AGENCY = BASE_URL + "/insertCompany";
+        public static final String CREATE_AGENT = BASE_URL + "/createAgent";
         public static final String INSERT_AD = BASE_URL + "/insertAd";
         public static final String SEND_BID = BASE_URL + "/insertBid";
         public static final String GET_REGIONS = BASE_URL + "/getRegions";
         public static final String GET_PROVINCES = BASE_URL + "/getProvinces";
         public static final String GET_CITIES = BASE_URL + "/getCities";
+        public static final String GET_AGENTS = BASE_URL + "/getAgentsByCompany";
     }
 
     public static final class Codes {

@@ -1,6 +1,6 @@
 package com.dieti.dietiestates25.annotations.roles_only;
 
-import com.dieti.dietiestates25.dto.UserSession;
+import com.dieti.dietiestates25.services.session.UserSession;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.ServiceInitEvent;
