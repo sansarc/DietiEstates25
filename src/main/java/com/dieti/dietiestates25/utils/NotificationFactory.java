@@ -1,12 +1,15 @@
 package com.dieti.dietiestates25.utils;
 
-import com.dieti.dietiestates25.ui_components.TextWithLink;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 
@@ -22,25 +25,25 @@ public class NotificationFactory {
         UI.getCurrent().access(() -> Notification.show(text, 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR));
     }
 
-    public static void criticalError() {
-        var notificationText = new TextWithLink("Error while reaching the server.", new Anchor("mailto:sansevieroarcangelo@gmail.com", "Contact us!"));
-        StyleNotification(notificationText);
-    }
-
     public static void criticalError(String exceptionText) {
-        var notificationText = new TextWithLink("Error while reaching the server: " + exceptionText, new Anchor("mailto:sansevieroarcangelo@gmail.com", "Contact us!"));
-        StyleNotification(notificationText);
+        var errorText = new Span("Critical Error:");
+        errorText.getStyle().setMarginRight("4px").setFontWeight(Style.FontWeight.BOLD);
+        var notificationText = new VerticalLayout(new Span(errorText), new Span(exceptionText), new Anchor("mailto:sansevieroarcangelo@gmail.com", "Let us know!"));
+        StyleNotificationNOpen(notificationText);
     }
 
-    private static void StyleNotification(TextWithLink notificationText) {
-        notificationText.textSpan.getStyle().setFontWeight(Style.FontWeight.BOLD);
-
+    private static void StyleNotificationNOpen(VerticalLayout notificationText) {
         var notification = new Notification();
         notification.setPosition(Notification.Position.TOP_CENTER);
-        notification.setDuration(0);
+        notification.setDuration(0); // persistent
         notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
 
-        notification.add(notificationText, getCloseButtonFor(notification));
+        var layout = new HorizontalLayout(notificationText, getCloseButtonFor(notification));
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setSpacing(true);
+
+        notification.add(layout);
+
         UI.getCurrent().access(notification::open);
     }
 
@@ -52,13 +55,15 @@ public class NotificationFactory {
     }
 
     public static void primary(String text) {
-        var notification = new Notification();
-        notification.setText(text);
-        notification.setPosition(Notification.Position.TOP_CENTER);
-        notification.setDuration(8);
-        notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-        notification.add(getCloseButtonFor(notification));
+        UI.getCurrent().access(() -> {
+            var notification = new Notification();
+            notification.setPosition(Notification.Position.TOP_CENTER);
+            notification.setDuration(8000);
+            notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
 
-        UI.getCurrent().access(notification::open);
+            notification.add(new Span(text), getCloseButtonFor(notification));
+            notification.open();
+        });
     }
+
 }

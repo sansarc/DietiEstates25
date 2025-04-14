@@ -13,11 +13,18 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.*;
 import com.vaadin.flow.component.select.Select;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Form extends FormLayout {
 
     public Form() {
+        getStyle().setMarginBottom("var(--lumo-space-l)");
+    }
+
+    public Form(Component...components) {
+        super(components);
         getStyle().setMarginBottom("var(--lumo-space-l)");
     }
 
@@ -128,6 +135,7 @@ public class Form extends FormLayout {
     }
 
     public boolean areRequiredFieldsValid() {
+
         boolean textFieldsValid = getAllComponents(this)
                 .filter(TextFieldBase.class::isInstance)
                 .map(TextFieldBase.class::cast)
@@ -152,8 +160,39 @@ public class Form extends FormLayout {
             return false;
         }
 
+        // password fields validation
+        List<PasswordField> passwordFields = getAllComponents(this)
+                .filter(PasswordField.class::isInstance)
+                .map(PasswordField.class::cast)
+                .toList();
+
+        if (passwordFields.size() == 2) {
+            var password = passwordFields.get(0);
+            var confirmPassword = passwordFields.get(1);
+
+            if (!Objects.equals(password.getValue(), confirmPassword.getValue())) {
+                password.setInvalid(true);
+                confirmPassword.setInvalid(true);
+                confirmPassword.setErrorMessage("Passwords do not match.");
+                return false;
+            }
+        }
+
+        // email validation
+        var email = getAllComponents(this)
+                .filter(EmailField.class::isInstance)
+                .map(EmailField.class::cast)
+                .findFirst();
+
+        if (email.isPresent() && email.get().isInvalid()) {
+            email.get().setInvalid(true);
+            email.get().setErrorMessage("Invalid email address.");
+            return false;
+        }
+
         return true;
     }
+
 
 
 

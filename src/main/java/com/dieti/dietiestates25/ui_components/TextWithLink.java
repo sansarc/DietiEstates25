@@ -9,23 +9,12 @@ public class TextWithLink extends HorizontalLayout {
 
     public Span textSpan;
 
-    public TextWithLink(String text, RouterLink link, String fontSize) {
+    public TextWithLink(String text, RouterLink link, int fontSizeInPx) {
         this.textSpan = new Span(text);
         link.getStyle().setMarginLeft("4px");
 
         setJustifyContentMode(JustifyContentMode.CENTER);
-        getStyle().setFontSize(fontSize);
-        setSpacing(false);
-
-        add(textSpan, link);
-    }
-
-    public TextWithLink(String text, Anchor link, String fontSize) {
-        this.textSpan = new Span(text);
-        link.getStyle().setMarginLeft("4px");
-
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        getStyle().setFontSize(fontSize);
+        getStyle().setFontSize(fontSizeInPx + "px");
         setSpacing(false);
 
         add(textSpan, link);
@@ -41,14 +30,14 @@ public class TextWithLink extends HorizontalLayout {
         add(textSpan, link);
     }
 
-    public TextWithLink(String text, Anchor link) {
+    public TextWithLink(String text, Anchor link, String following) {
         this.textSpan = new Span(text);
         link.getStyle().setMarginLeft("4px");
 
         setJustifyContentMode(JustifyContentMode.CENTER);
         setSpacing(false);
 
-        add(textSpan, link);
+        add(textSpan, link, new Span(following));
     }
 
 }
