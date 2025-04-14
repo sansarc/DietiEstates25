@@ -1,9 +1,11 @@
 package com.dieti.dietiestates25.views.home;
 
+import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.DivCard;
 import com.dieti.dietiestates25.ui_components.DivCardsHorizontalSlider;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.ad.AdView;
+import com.dieti.dietiestates25.views.registerAgency.ConfirmAccountDialog;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -39,6 +41,8 @@ public class HomeView extends VerticalLayout {
     public HomeView() {
         configureLayout();
         configureComponents();
+        if (UserSession.isManagerOrAgent() && !UserSession.isConfirmed())
+            new ConfirmAccountDialog().open();
     }
 
     private void configureComponents() {

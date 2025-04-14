@@ -1,11 +1,12 @@
 package com.dieti.dietiestates25.views.registerAgency;
 
-import com.dieti.dietiestates25.dto.UserSession;
-import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
+import com.dieti.dietiestates25.services.session.UserSession;
+import com.dieti.dietiestates25.services.agency.AgencyRequestsHandler;
 import com.dieti.dietiestates25.ui_components.Form;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -15,7 +16,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 public class ConfirmAccountDialog extends Dialog {
 
     VerticalLayout layout;
-    final AuthenticationHandler authHandler = new AuthenticationHandler();
+    final AgencyRequestsHandler agencyRequestsHandler = new AgencyRequestsHandler();
 
     public ConfirmAccountDialog() {
         setCloseOnEsc(false);
@@ -34,7 +35,7 @@ public class ConfirmAccountDialog extends Dialog {
     }
 
     private void initializeComponents() {
-        layout.removeAll();  // preventing duplication
+        layout.removeAll();  // prevents duplication
         setHeaderTitle("Create a new password");
 
         var password = new PasswordField("New password");
@@ -49,8 +50,9 @@ public class ConfirmAccountDialog extends Dialog {
         var confirmButton = new Button("Confirm");
         confirmButton.addClickListener(event -> {
             if (form.areRequiredFieldsValid())
-                authHandler.confirmUser(UserSession.getEmail(), UserSession.getPwd(), password.getValue());
+                agencyRequestsHandler.confirmManagerOrAgentAccount(UserSession.getEmail(), UserSession.getPwd(), password.getValue());
         });
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         confirmButton.addClickShortcut(Key.ENTER);
 
         layout.setPadding(false);
