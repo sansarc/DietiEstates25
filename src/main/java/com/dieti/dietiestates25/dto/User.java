@@ -13,10 +13,9 @@ public class User {
     private String pwd;
     private Boolean confirmed;
 
-    @SerializedName("company") private String agency;
+    @SerializedName("company") private String agencyVAT;
     @SerializedName("userType") private String role;
-
-    protected User() {}
+    @SerializedName("companyName") private String agency;
 
     // login
     public User(String email, String pwd) {
@@ -29,7 +28,15 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.pwd = pwd;
         this.agency = agency;
+    }
+
+    // agent creation
+    public User(String firstName, String lastName, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
     }
 
     // standard user signup
