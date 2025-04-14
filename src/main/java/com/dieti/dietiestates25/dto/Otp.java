@@ -25,7 +25,7 @@ public class Otp {
         @SerializedName("pwd")
         private String oldPwd;
 
-        @SerializedName("otp")
+        @SerializedName("temporaryPwd")
         private String newPwd;
 
         public NewPassword(String email, String oldPwd, String newPwd) {

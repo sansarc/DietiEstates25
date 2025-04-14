@@ -1,13 +1,15 @@
 package com.dieti.dietiestates25.views.notfound;
 
+import com.dieti.dietiestates25.services.logging.Log;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
+import com.dieti.dietiestates25.views.MainLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
 import jakarta.servlet.http.HttpServletResponse;
 
-@Route(value = "404")
+@Route(value = "404", layout = MainLayout.class)
 public class PageNotFoundView extends VerticalLayout implements HasErrorParameter<NotFoundException> {
 
     DietiEstatesLogo logo = new DietiEstatesLogo("600px", "auto");
@@ -32,6 +34,9 @@ public class PageNotFoundView extends VerticalLayout implements HasErrorParamete
 
     @Override
     public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<NotFoundException> errorParameter) {
+        if (errorParameter.hasCustomMessage())
+            Log.error(PageNotFoundView.class, errorParameter.getCaughtException().getMessage());  // in case a code exception causes the 404
+
         return HttpServletResponse.SC_NOT_FOUND;
     }
 

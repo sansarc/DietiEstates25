@@ -6,7 +6,7 @@ import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.ui_components.TextWithLink;
 import com.dieti.dietiestates25.ui_components.ThirdPartyLoginButton;
-import com.dieti.dietiestates25.views.login.specific_components.ForgotPasswordDialog;
+import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.dieti.dietiestates25.views.signup.SignUpView;
 import com.vaadin.flow.component.Key;
@@ -22,7 +22,7 @@ import com.vaadin.flow.router.*;
 
 @ForwardLoggedUser
 @PageTitle("Login")
-@Route("login")
+@Route(value = "login", layout = MainLayout.class)
 public class LoginView extends VerticalLayout {
 
     H3 title = new H3("Login");

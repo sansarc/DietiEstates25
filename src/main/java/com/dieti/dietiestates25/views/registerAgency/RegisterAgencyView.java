@@ -5,6 +5,7 @@ import com.dieti.dietiestates25.services.agency.AgencyRequestsHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.ui_components.Form;
+import com.dieti.dietiestates25.views.MainLayout;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -19,7 +20,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @ForwardLoggedUser
-@Route("register-agency")
+@Route(value = "register-agency", layout = MainLayout.class)
 @PageTitle("Register Your Agency")
 public class RegisterAgencyView extends VerticalLayout {
 
@@ -77,7 +78,7 @@ public class RegisterAgencyView extends VerticalLayout {
             if (form.areRequiredFieldsValid())
                 agencyHandler.createAgency(
                         agencyName.getValue(),
-                        vatNumber.getValue(),           // VAT for testing: LU26375245
+                        vatNumber.getValue(),
                         firstName.getValue(),
                         lastName.getValue(),
                         email.getValue()

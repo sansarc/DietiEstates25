@@ -1,7 +1,7 @@
 package com.dieti.dietiestates25.views.signup;
 
 import com.dieti.dietiestates25.annotations.forward_guest.ForwardGuest;
-import com.dieti.dietiestates25.dto.UserSession;
+import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;

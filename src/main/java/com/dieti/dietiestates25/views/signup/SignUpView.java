@@ -4,6 +4,7 @@ import com.dieti.dietiestates25.annotations.forward_logged_user.ForwardLoggedUse
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.*;
+import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.vaadin.flow.component.Key;
@@ -20,7 +21,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
 @ForwardLoggedUser
-@Route("signup")
+@Route(value = "signup", layout = MainLayout.class)
 @PageTitle("Sign Up")
 public class SignUpView extends VerticalLayout {
 
@@ -53,8 +54,8 @@ public class SignUpView extends VerticalLayout {
 
             signupDiv.add(
                     title,
-                    new TextWithLink("Already have an account?", new RouterLink("Log in", LoginView.class), "14px"),
-                    new TextWithLink("Looking to register your agency? Do it ", new RouterLink("here", RegisterAgencyView.class), "12px"),
+                    new TextWithLink("Already have an account?", new RouterLink("Log in", LoginView.class), 14),
+                    new TextWithLink("Looking to register your agency? Do it ", new RouterLink("here", RegisterAgencyView.class), 12),
                     form,
                     signup,
                     disclaimer,
