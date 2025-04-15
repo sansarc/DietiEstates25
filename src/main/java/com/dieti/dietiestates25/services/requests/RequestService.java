@@ -184,6 +184,35 @@ public class RequestService {
         }
     }
 
+    public static SimpleResponse PUT(String endpoint, String jsonPayload) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<String> entity = new HttpEntity<>(jsonPayload, headers);
+            logger.info("Requesting {} with payload {}", endpoint, jsonPayload);
+
+            response = restTemplate.exchange(
+                    endpoint,
+                    HttpMethod.PUT,
+                    entity,
+                    String.class
+            );
+
+            logResponse(response);
+            return new SimpleResponse(response.getStatusCode().value(), response.getBody());
+
+        } catch (HttpClientErrorException ex) {
+            logger.warn("Received response {}: {}", ex.getStatusCode().value(), ex.getResponseBodyAsString());
+            return new SimpleResponse(ex.getStatusCode().value(), ex.getResponseBodyAsString());
+
+        } catch (RuntimeException ex) {
+            logger.error("Unexpected error: {}", ex.getMessage());
+            NotificationFactory.criticalError(ex.getMessage());
+            return new SimpleResponse(Constants.Codes.INTERNAL_SERVER_ERROR, "");
+        }
+    }
+
     private static void logResponse(ResponseEntity<String> response) {
         logger.info("Received response {}: {}", response.getStatusCode().value(), response.getBody());
     }

@@ -20,6 +20,8 @@ public final class Constants {
         public static final String GET_PROVINCES = BASE_URL + "/getProvinces";
         public static final String GET_CITIES = BASE_URL + "/getCities";
         public static final String GET_AGENTS = BASE_URL + "/getAgentsByCompany";
+        public static final String GENERATE_OTP = BASE_URL + "/generateOtp";
+        public static final String CHANGE_PWD = BASE_URL + "/changePwd";
     }
 
     public static final class Codes {

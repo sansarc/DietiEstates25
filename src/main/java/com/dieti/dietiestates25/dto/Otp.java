@@ -9,7 +9,7 @@ import lombok.Setter;
 public class Otp {
 
     private String email;
-    private String otp;
+    @SerializedName("temporaryPwd") private String otp;
 
     public Otp(String email, String otp) {
         this.email = email;

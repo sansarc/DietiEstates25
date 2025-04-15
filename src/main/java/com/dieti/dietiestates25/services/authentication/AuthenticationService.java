@@ -1,7 +1,8 @@
 package com.dieti.dietiestates25.services.authentication;
 
 
-import com.dieti.dietiestates25.constants.Constants;
+import com.dieti.dietiestates25.constants.Constants.ApiEndpoints;
+import com.dieti.dietiestates25.constants.Constants.Codes;
 import com.dieti.dietiestates25.dto.*;
 import com.dieti.dietiestates25.dto.SimpleResponse;
 import com.dieti.dietiestates25.services.requests.RequestService;
@@ -18,9 +19,9 @@ public class AuthenticationService {
         User loginRequest = new User(email, pwd);
         String json = new Gson().toJson(loginRequest);
 
-        var response = RequestService.POST(Constants.ApiEndpoints.LOGIN, json);
+        var response = RequestService.POST(ApiEndpoints.LOGIN, json);
 
-        if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
+        if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
             return null;
 
         if (response.ok()) {
@@ -45,9 +46,9 @@ public class AuthenticationService {
 
     public SimpleResponse createUser(User user) {
         String json = new Gson().toJson(user);
-        var response = RequestService.POST(Constants.ApiEndpoints.SIGNUP, json);
+        var response = RequestService.POST(ApiEndpoints.SIGNUP, json);
 
-        if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
+        if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
             return null;
 
         UserSession.init(user);
@@ -61,9 +62,9 @@ public class AuthenticationService {
         params.put("isManagerOrAgent", String.valueOf(false));
         var json = new Gson().toJson(new Otp(email, otp));
 
-        var response = RequestService.POST(Constants.ApiEndpoints.CONFIRM_USER, params, json);
+        var response = RequestService.POST(ApiEndpoints.CONFIRM_USER, params, json);
 
-        if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
+        if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
             return null;
 
         return response;
@@ -72,12 +73,33 @@ public class AuthenticationService {
     public SimpleResponse logout (String sessionId) {
         var params = new HashMap<String, String>();
         params.put("sessionId", sessionId);
-        var response = RequestService.GET(Constants.ApiEndpoints.LOGOUT, params);
+        var response = RequestService.GET(ApiEndpoints.LOGOUT, params);
 
-        if (response.getStatusCode() == Constants.Codes.INTERNAL_SERVER_ERROR)
+        if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
             return null;
 
         return response;
     }
 
+    public SimpleResponse sendOTP(String email) {
+        var params = new HashMap<String, String>();
+        params.put("email", email);
+        params.put("key", "ChangePwd");
+        
+        var response = RequestService.GET(ApiEndpoints.GENERATE_OTP, params);
+
+        if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
+            return null;
+
+        return response;
+    }
+
+    public SimpleResponse changePwd(String email, String newPwd, String otp) {
+        String json = new Gson().toJson(new Otp.NewPassword(email, newPwd, otp));
+        var response = RequestService.PUT(ApiEndpoints.CHANGE_PWD, json);
+
+        return response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR
+                ? null
+                : response;
+    }
 }
