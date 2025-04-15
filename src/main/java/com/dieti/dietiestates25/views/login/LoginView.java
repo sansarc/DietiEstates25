@@ -3,7 +3,6 @@ package com.dieti.dietiestates25.views.login;
 import com.dieti.dietiestates25.annotations.forward_logged_user.ForwardLoggedUser;
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
-import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.ui_components.TextWithLink;
 import com.dieti.dietiestates25.ui_components.ThirdPartyLoginButton;
 import com.dieti.dietiestates25.views.MainLayout;
@@ -40,7 +39,7 @@ public class LoginView extends VerticalLayout {
     public LoginView() {
         configureLayout();
         configureComponents();
-        add(new DietiEstatesLogo(true), loginDiv, createFooter());
+        add(loginDiv, createFooter());
     }
 
     private void configureComponents() {

@@ -21,7 +21,7 @@ public class SimpleResponse {
     }
 
     public boolean ok() {
-        return statusCode == Codes.OK;
+        return statusCode == Codes.OK || statusCode == Codes.CREATED;
     }
 
     public <T> EntityResponse<T> parse(Class<T> entityType) {

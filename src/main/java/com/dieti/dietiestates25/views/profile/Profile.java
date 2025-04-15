@@ -37,13 +37,12 @@ public class Profile extends VerticalLayout implements BeforeEnterObserver {
         var emailParam = event.getRouteParameters().get("email");
         User user;
 
-        if (emailParam.isPresent()) {
+        if (emailParam.isPresent() && !emailParam.get().equals(UserSession.getEmail())) {  // practically, if the user's clicking on its own profile, send them to /profile
             var email = emailParam.get();
 
             if (TEMP_USER_CACHE.containsKey(email)) {
                 user = TEMP_USER_CACHE.get(email);
                 configureComponents(user, false);
-                configureLayout();
             }
             else {
                 event.forwardTo(PageNotFoundView.class);
@@ -62,9 +61,7 @@ public class Profile extends VerticalLayout implements BeforeEnterObserver {
         );
     }
 
-    public Profile() {
-
-    }
+    public Profile() {}
 
     private void configureComponents(User user, boolean isPersonalProfile) {
 

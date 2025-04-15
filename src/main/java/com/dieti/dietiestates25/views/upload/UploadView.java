@@ -1,6 +1,7 @@
 package com.dieti.dietiestates25.views.upload;
 
-import com.dieti.dietiestates25.dto.ad.Ad;
+import com.dieti.dietiestates25.annotations.roles_only.ManagerOrAgentOnly;
+import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.upload.forms.*;
@@ -20,6 +21,7 @@ import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+@ManagerOrAgentOnly
 @Route(value = "upload", layout = MainLayout.class)
 @PageTitle("Upload")
 public class UploadView extends VerticalLayout {
@@ -38,7 +40,7 @@ public class UploadView extends VerticalLayout {
     DescriptionNMediaForm descriptionNMediaForm;
 
     AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
-    Ad ad = new Ad();
+    AdInsert ad = new AdInsert();
 
     public UploadView() {
         configureLayout();
@@ -146,9 +148,9 @@ public class UploadView extends VerticalLayout {
                 detailsForm.addFormValues(ad);
             } else if (selectedTab.equals(descriptionNMediaTab) && descriptionNMediaForm.areRequiredFieldsValid()) {
                 descriptionNMediaTab.getStyle().setColor("green");
-                descriptionNMediaForm.addValues(ad);
+                descriptionNMediaForm.addFormValues(ad);
 
-                ConfirmDialog dialog = new ConfirmDialog();
+                var dialog = new ConfirmDialog();
                 dialog.setHeader("Confirm");
                 dialog.setText("Are you sure you want to continue?");
                 dialog.setCancelable(true);

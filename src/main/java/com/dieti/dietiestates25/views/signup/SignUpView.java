@@ -65,7 +65,7 @@ public class SignUpView extends VerticalLayout {
                     facebookButton
             );
 
-            add(new DietiEstatesLogo(true), signupDiv);
+            add(signupDiv);
         }
 
         private void configureLayout() {
