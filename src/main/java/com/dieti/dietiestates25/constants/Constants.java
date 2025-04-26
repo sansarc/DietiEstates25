@@ -22,6 +22,13 @@ public final class Constants {
         public static final String GET_AGENTS = BASE_URL + "/getAgentsByCompany";
         public static final String GENERATE_OTP = BASE_URL + "/generateOtp";
         public static final String CHANGE_PWD = BASE_URL + "/changePwd";
+        public static final String UPLOAD_IMAGE = BASE_URL + "/uploadImage";
+        public static final String GET_IMAGES = BASE_URL + "/getImagesByAd";
+        public static final String SEARCH_AD = BASE_URL + "/searchAd";
+        public static final String GET_BIDS = BASE_URL + "/getBids";
+        public static final String CANCEL_BID = BASE_URL + "/cancelBid";
+        public static final String ACCEPT_OR_REFUSE_BID = BASE_URL + "/acceptOrRefuseBid";
+        public static final String ACCEPT_OR_REFUSE_COUNTEROFFER = BASE_URL + "/acceptOrRefuseCounteroffer";
     }
 
     public static final class Codes {
