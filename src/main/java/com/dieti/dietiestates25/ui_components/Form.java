@@ -109,11 +109,10 @@ public class Form extends FormLayout {
         return field;
     }
 
-    public static NumberField priceInEuroNumberField(String label, boolean isRequired) {
+    public static NumberField priceInEuroNumberField(String label) {
         var numberField = new NumberField(label);
         numberField.setPrefixComponent(new Icon(VaadinIcon.EURO));
         numberField.setPlaceholder("0.00");
-        numberField.setRequiredIndicatorVisible(isRequired);
         numberField.setMin(0);
 
         numberField.setAllowedCharPattern("[0-9\\.]");

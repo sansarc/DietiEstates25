@@ -2,6 +2,7 @@ package com.dieti.dietiestates25.views.upload;
 
 import com.dieti.dietiestates25.annotations.roles_only.ManagerOrAgentOnly;
 import com.dieti.dietiestates25.dto.ad.AdInsert;
+import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.upload.forms.*;
@@ -20,6 +21,9 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @ManagerOrAgentOnly
 @Route(value = "upload", layout = MainLayout.class)
@@ -41,6 +45,7 @@ public class UploadView extends VerticalLayout {
 
     AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
     AdInsert ad = new AdInsert();
+    List<Photo> photos = new ArrayList<>();
 
     public UploadView() {
         configureLayout();
@@ -148,7 +153,7 @@ public class UploadView extends VerticalLayout {
                 detailsForm.addFormValues(ad);
             } else if (selectedTab.equals(descriptionNMediaTab) && descriptionNMediaForm.areRequiredFieldsValid()) {
                 descriptionNMediaTab.getStyle().setColor("green");
-                descriptionNMediaForm.addFormValues(ad);
+                descriptionNMediaForm.addFormValuesNPhotos(ad, photos);
 
                 var dialog = new ConfirmDialog();
                 dialog.setHeader("Confirm");
@@ -157,7 +162,7 @@ public class UploadView extends VerticalLayout {
                 dialog.setConfirmText("Next");
                 dialog.setCancelText("Cancel");
 
-                dialog.addConfirmListener(confirm -> adRequestsHandler.insertAd(ad));
+                dialog.addConfirmListener(confirm -> adRequestsHandler.insertAd(ad, photos));
 
                 dialog.open();
             }

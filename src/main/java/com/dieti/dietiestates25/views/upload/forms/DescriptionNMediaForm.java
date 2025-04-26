@@ -1,12 +1,11 @@
 package com.dieti.dietiestates25.views.upload.forms;
 
 import com.dieti.dietiestates25.constants.Constants;
-import com.dieti.dietiestates25.dto.ad.Ad;
+import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.ui_components.Form;
+import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -17,6 +16,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class DescriptionNMediaForm extends Form {
@@ -68,15 +68,15 @@ public class DescriptionNMediaForm extends Form {
 
         createUploadComponent();
 
-        price = priceInEuroNumberField("Price", true);
+        price = priceInEuroNumberField("Price");
         price.setWidthFull();
-        price.setHelperText("Type the full price without dots or commas, we'll take care of that.");
+        price.setHelperText("Price per month if the owner is renting this property.");
         var leftLayout = new VerticalLayout(price, description);
         leftLayout.setSpacing(false);
         leftLayout.setPadding(false);
 
 
-        setRequiredTrue(price, description);
+        setRequiredTrue(price);
         uploadLayout.add(uploadParagraph, upload, filesFormatParagraph);
         add(leftLayout, uploadLayout);
     }
@@ -86,7 +86,6 @@ public class DescriptionNMediaForm extends Form {
         description.setWidthFull();
         description.setMinHeight("350px");
         description.setValueChangeMode(ValueChangeMode.EAGER);
-        description.setRequired(true);
         description.setMaxLength(DESCRIPTION_CHAR_MAX);
 
         description.addValueChangeListener(event -> {
@@ -106,13 +105,14 @@ public class DescriptionNMediaForm extends Form {
         upload.setMaxFiles(UPLOAD_LIMIT);
 
         upload.addSucceededListener(event -> {
-            String filename = event.getFileName();
+            var filename = event.getFileName();
 
             try {
-                uploadedPhotos.add(new Photo(filename, buffer.getInputStream(filename).readAllBytes()));
+                var base64Bytes = buffer.getInputStream(filename).readAllBytes();
+                var base64 = Base64.getEncoder().encodeToString(base64Bytes);
+                uploadedPhotos.add(new Photo(event.getFileName(), base64));
             } catch (IOException e) {
-                Notification.show("Error while uploading " + filename + ": " + e.getMessage()).addThemeVariants(NotificationVariant.LUMO_ERROR);
-                throw new RuntimeException(e);
+                NotificationFactory.error("Error while uploading " + filename + ": " + e.getMessage());
             }
 
             CURRENT_UPLOADS++;
@@ -121,12 +121,18 @@ public class DescriptionNMediaForm extends Form {
             else
                 uploadParagraph.setText(CURRENT_UPLOADS + " pictures uploaded " + "(max " + UPLOAD_LIMIT + ")");
         });
+
+        upload.addFileRemovedListener(event -> {
+           CURRENT_UPLOADS--;
+           uploadParagraph.setText(CURRENT_UPLOADS + " pictures uploaded " + "(max " + UPLOAD_LIMIT + ")");
+        });
     }
 
-    public void addValues(Ad ad) {
+    public void addFormValuesNPhotos(AdInsert ad, List<Photo> photos) {
         ad.setPrice(price.getValue());
-        ad.setDescription(description.getValue());
-        ad.setPhotos(uploadedPhotos);
+        if (!description.getValue().isBlank())
+            ad.setDescription(description.getValue());
+        if (!uploadedPhotos.isEmpty())
+            photos.addAll(uploadedPhotos);
     }
-
 }
