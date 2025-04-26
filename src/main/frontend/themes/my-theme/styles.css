@@ -21,3 +21,14 @@ vaadin-text-field.bordered::part(input-field) {
   --lumo-shade: #202123; /* Optional: Adjusts other shades to match */
 }
 
+/* disable scrollbar in Scroller component */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+}
+
