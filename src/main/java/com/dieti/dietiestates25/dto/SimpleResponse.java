@@ -3,11 +3,13 @@ package com.dieti.dietiestates25.dto;
 import com.dieti.dietiestates25.constants.Constants.*;
 import com.dieti.dietiestates25.services.logging.Log;
 import com.google.gson.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 
-@Data
+@Getter
+@Setter
 public class SimpleResponse {
 
     protected int statusCode;
@@ -27,7 +29,7 @@ public class SimpleResponse {
     public <T> EntityResponse<T> parse(Class<T> entityType) {
         try {
             if (this.rawBody == null || this.rawBody.isEmpty()) {
-                Log.error(SimpleResponse.class, "Raw response body is null or empty");
+                Log.warn(SimpleResponse.class, "Error while parsing: Raw response body is null or empty");
                 return null;
             }
 

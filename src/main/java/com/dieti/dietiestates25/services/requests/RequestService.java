@@ -10,7 +10,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 @SuppressWarnings("LoggingSimilarMessage")
 public class RequestService {
@@ -87,7 +89,7 @@ public class RequestService {
 
         } catch (HttpClientErrorException ex) {
             logger.warn("Received response {}: {}", ex.getStatusCode().value(), ex.getResponseBodyAsString());
-            return new SimpleResponse(ex.getStatusCode().value(), ex.getResponseBodyAsString());
+            return new SimpleResponse(ex.getStatusCode().value(), ex.getResponseBodyAsString().isEmpty() ? "" : ex.getResponseBodyAsString());
 
         } catch (RuntimeException ex) {
             logger.error("Unexpected error: {}", ex.getMessage());
@@ -96,41 +98,13 @@ public class RequestService {
         }
     }
 
-    public static SimpleResponse POST(String endpoint, String headerName, String headerValue, Map<String, String> params, String jsonPayload) {
+    public static SimpleResponse GET(String endpoint, Map<String, Serializable> params) {
         try {
-            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endpoint);
+            var builder = UriComponentsBuilder.fromUriString(endpoint);
             params.forEach(builder::queryParam);
-            String urlWithParams = builder.toUriString();
+            var urlWithParams = builder.toUriString();
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set(headerName, headerValue);
-
-            HttpEntity<String> entity = new HttpEntity<>(jsonPayload, headers);
-            logger.info("Requesting {} with payload {}, parameters {} and header {}:{}", urlWithParams, jsonPayload, params, headerName, headerValue);
-
-            response = restTemplate.postForEntity(urlWithParams, entity, String.class);
-            logResponse(response);
-            return new SimpleResponse(response.getStatusCode().value(), response.getBody());
-
-        } catch (HttpClientErrorException ex) {
-            logger.warn("Received response {}: {}", ex.getStatusCode().value(), ex.getResponseBodyAsString());
-            return new SimpleResponse(ex.getStatusCode().value(), ex.getResponseBodyAsString());
-
-        } catch (RuntimeException ex) {
-            logger.error("Unexpected error: {}", ex.getMessage());
-            NotificationFactory.criticalError(ex.getMessage());
-            return new SimpleResponse(Constants.Codes.INTERNAL_SERVER_ERROR, "");
-        }
-    }
-
-    public static SimpleResponse GET(String endpoint, Map<String, String> params) {
-        try {
-            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endpoint);
-            params.forEach(builder::queryParam);
-            String urlWithParams = builder.toUriString();
-
-            HttpHeaders headers = new HttpHeaders();
+            var headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -186,7 +160,7 @@ public class RequestService {
 
     public static SimpleResponse PUT(String endpoint, String jsonPayload) {
         try {
-            HttpHeaders headers = new HttpHeaders();
+            var headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<String> entity = new HttpEntity<>(jsonPayload, headers);
@@ -213,7 +187,72 @@ public class RequestService {
         }
     }
 
+    public static SimpleResponse PUT(String endpoint, String headerName, String headerValue, Map<String, Serializable> params) {
+        try {
+            var builder = UriComponentsBuilder.fromUriString(endpoint);
+            params.forEach(builder::queryParam);
+            var urlWithParams = builder.toUriString();
+
+            var headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set(headerName, headerValue);
+
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            logger.info("Requesting {} with parameters {}", endpoint, params);
+
+            response = restTemplate.exchange(
+                    urlWithParams,
+                    HttpMethod.PUT,
+                    entity,
+                    String.class
+            );
+
+            logResponse(response);
+            return new SimpleResponse(response.getStatusCode().value(), response.getBody());
+
+        } catch (HttpClientErrorException ex) {
+            logger.warn("Received response {}: {}", ex.getStatusCode().value(), ex.getResponseBodyAsString());
+            return new SimpleResponse(ex.getStatusCode().value(), ex.getResponseBodyAsString());
+
+        } catch (RuntimeException ex) {
+            logger.error("Unexpected error: {}", ex.getMessage());
+            NotificationFactory.criticalError(ex.getMessage());
+            return new SimpleResponse(Constants.Codes.INTERNAL_SERVER_ERROR, "");
+        }
+    }
+
+    public static SimpleResponse PUT(String endpoint, String headerName, String headerValue, String jsonPayload) {
+        try {
+            var headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set(headerName, headerValue);
+
+            HttpEntity<?> entity = new HttpEntity<>(jsonPayload, headers);
+            logger.info("Requesting {} with payload {}", endpoint, jsonPayload);
+
+            response = restTemplate.exchange(
+                    endpoint,
+                    HttpMethod.PUT,
+                    entity,
+                    String.class
+            );
+
+            logResponse(response);
+            return new SimpleResponse(response.getStatusCode().value(), response.getBody());
+
+        } catch (HttpClientErrorException ex) {
+            logger.warn("Received response {}: {}", ex.getStatusCode().value(), ex.getResponseBodyAsString());
+            return new SimpleResponse(ex.getStatusCode().value(), ex.getResponseBodyAsString());
+
+        } catch (RuntimeException ex) {
+            logger.error("Unexpected error: {}", ex.getMessage());
+            NotificationFactory.criticalError(ex.getMessage());
+            return new SimpleResponse(Constants.Codes.INTERNAL_SERVER_ERROR, "");
+        }
+    }
+
     private static void logResponse(ResponseEntity<String> response) {
-        logger.info("Received response {}: {}", response.getStatusCode().value(), response.getBody());
+        // truncating big logs, i.e. base64
+        logger.info("Received response {}: {}", response.getStatusCode().value(), Objects.requireNonNull(response.getBody()).length() > 500 ? response.getBody().substring(0, 200) + "...[truncated]" : response.getBody());
     }
 }
