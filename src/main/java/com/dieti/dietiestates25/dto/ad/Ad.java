@@ -1,34 +1,26 @@
 package com.dieti.dietiestates25.dto.ad;
 
-import lombok.Data;
+import com.dieti.dietiestates25.dto.User;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-@Data
-public class Ad {
-    String saleType;
-    double price;
-    String agent;
+@Getter
+@Setter
+public class Ad extends AdInsert {
+    private int id;
+    private User agent;
+    private String region, province, cityName, coordinates;
+    private boolean publicTransport350m, school350m, leisurePark350m;
+    private List<Photo> photos;
 
-    String region;
-    String city;
-    String address;
-    String zipcode;
-    String coordinates;
+    public static class IdOnly {
+        private int id;
 
-    int dimension;
-    int floor;
-
-    boolean elevator;
-    int nRooms;
-    int nBathrooms;
-    int garageSpots;
-    char energyClass;
-    String description;
-
-    private boolean publicTransport350m;
-    private boolean school350m;
-    private boolean leisurePark350m;
-
-    List<Photo> photos;
+        public IdOnly(int id) {
+            this.id = id;
+        }
+    }
 }
+

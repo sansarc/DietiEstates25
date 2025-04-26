@@ -1,18 +1,15 @@
 package com.dieti.dietiestates25.views.ad;
 
-import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.ad.Ad;
+import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
-import com.dieti.dietiestates25.ui_components.Form;
-import com.dieti.dietiestates25.ui_components.Map;
-import com.dieti.dietiestates25.utils.NotificationFactory;
+import com.dieti.dietiestates25.ui_components.ImagesCarousel;
+import com.dieti.dietiestates25.ui_components.InteractiveMap;
+import com.dieti.dietiestates25.utils.BadgeFactory;
 import com.dieti.dietiestates25.views.MainLayout;
-import com.vaadin.flow.component.avatar.Avatar;
-import com.vaadin.flow.component.avatar.AvatarVariant;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
+import com.dieti.dietiestates25.views.home.HomeView;
+import com.dieti.dietiestates25.views.notfound.PageNotFoundView;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -20,113 +17,118 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
-@Route(value = "ad/:adId", layout = MainLayout.class)
+import java.util.HashMap;
+import java.util.Map;
+
+@Route(value = "ad/:id", layout = MainLayout.class)
 @PageTitle("Ad Details")
-public class AdView extends VerticalLayout implements HasUrlParameter<String> {
+public class AdView extends VerticalLayout implements BeforeEnterObserver {
+
+    AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
     public static final String SCROLLER_CONTENT_WIDTH = "90%";
-    HorizontalLayout picturesLayout = new HorizontalLayout();
+
+    ImagesCarousel imagesCarousel;
     VerticalLayout scrollerContent = new VerticalLayout();
     HorizontalLayout layout = new HorizontalLayout();
     Scroller scroller = new Scroller(scrollerContent);
-    Div bidDiv = new DivContainer("30%", "400px");
+
+    H3 descriptionTitle;
+    Span descriptionText;
+    LDefaultComponentManagementRegistry registry;
+
+    private static final Map<Integer, Ad> TEMP_AD_CACHE = new HashMap<>();
+
+    public static void cacheAd(Ad ad) {
+        TEMP_AD_CACHE.put(ad.getId(), ad);
+    }
 
     @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String adId) {
-        if (adId != null)
-            loadAdData(adId);
-        else
-            NotificationFactory.criticalError();
+    public void beforeEnter(BeforeEnterEvent event) {
+        var idParam = event.getRouteParameters().get("id");
+
+        if (idParam.isPresent()) {
+            var id = Integer.parseInt(idParam.get());
+            var ad = new Ad();
+
+            if (TEMP_AD_CACHE.containsKey(id)) {
+                ad = TEMP_AD_CACHE.get(id);
+                TEMP_AD_CACHE.remove(id);
+            }
+            else
+                ad = adRequestsHandler.getAd(id);
+
+            if (ad != null)
+                configureComponents(ad);
+            else
+                event.forwardTo(HomeView.class);
+        } else
+            event.forwardTo(PageNotFoundView.class);
     }
-
-    public void loadAdData(String adId) {
-        Ad ad = new Ad();
-
-        if (ad == null) {
-            NotificationFactory.criticalError();
-            return;
-        }
-
-        updateView();
-    }
-
-    public void updateView() {
-        
-    }
-
 
     public AdView() {
         configureLayout();
-        configureComponents();
     }
 
-    private void configureComponents() {
-        var photos = new Image("https://picsum.photos/2670/1780", "photo");
-        photos.setWidth("60%");
-        photos.setHeight("80%");
-        var leftButton = new Button(VaadinIcon.ARROW_LEFT.create());
-        var rightButton = new Button(VaadinIcon.ARROW_RIGHT.create());
-        picturesLayout.add(leftButton, photos, rightButton);
+    private void configureComponents(Ad ad) {
+        imagesCarousel = new ImagesCarousel(ad.getPhotos());
 
-        var descriptionDiv = new DivContainer(SCROLLER_CONTENT_WIDTH, "300px");
-        var descriptionTitle = new H3("About this home");
-        descriptionDiv.add(descriptionTitle);
-        var mapDiv = new DivContainer(SCROLLER_CONTENT_WIDTH, "500px");
-        var mapTitle = new H3("What's around this home");
-        final var registry = new LDefaultComponentManagementRegistry(this);
-        final var map = new Map(registry, 52.5200, 13.4050, 12); // Berlin
-        map.addMarker(registry, 52.5200, 13.4050, "Berlin");
-        mapDiv.add(mapTitle, map);
+        createScrollerSide(ad);
+//        createFixedSide(ad);
 
-        var agentTitle = new H3("About the agent");
-        var name = "Agent Smith";
-        var agentAvatar = new Avatar(name);
-        agentAvatar.addThemeVariants(AvatarVariant.LUMO_XLARGE);
-        agentAvatar.getStyle().set("border-color", Constants.Colors.PRIMARY_BLUE);
-        agentAvatar.getStyle().setCursor("pointer");
-        var agentName = new Anchor("example.com", name);
-        agentName.getStyle().setFontWeight(Style.FontWeight.BOLD);
-        var agentLayout = new HorizontalLayout(agentAvatar, agentName);
-        agentLayout.setAlignItems(Alignment.CENTER);
-        agentLayout.getStyle().setMarginTop("20px").setCursor("pointer");
-        var bidTitle = new H4("Make an offer for this listing");
-        bidTitle.getStyle().setMarginBottom("10px");
-        var bidTextField = Form.priceInEuroNumberField("", false);
-        bidTextField.getStyle().setMarginBottom("4px");
-        var bidSend = new Button("Send");
-        bidSend.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        bidDiv.add(agentTitle, agentLayout, new Hr(), bidTitle, bidTextField, bidSend);
-
-        scrollerContent.add(descriptionDiv, mapDiv);
-        layout.add(scroller, bidDiv);
+        layout.add(scroller, new BidsPanel(ad));
         layout.getStyle().setPosition(Style.Position.RELATIVE);
 
-        add(picturesLayout, layout);
+        add(imagesCarousel, layout);
+    }
+
+    public void createScrollerSide(Ad ad) {
+        var descriptionDiv = new DivContainer(SCROLLER_CONTENT_WIDTH, "auto");
+        descriptionTitle = new H3("About this property");
+        descriptionText = ad.getDescription().isEmpty() ? new Span("No description given.") : new Span(ad.getDescription());
+
+        var roomsBadgeLayout = new HorizontalLayout();
+        roomsBadgeLayout.getStyle().setMarginTop("10px").setMarginBottom("10px");
+        roomsBadgeLayout.add(BadgeFactory.rooms(ad.getNRooms()), BadgeFactory.bathrooms(ad.getNBathrooms()));
+
+        descriptionDiv.add(descriptionTitle, new Hr(), new H3(ad.getPriceAsString()), roomsBadgeLayout, descriptionText);
+
+        var mapDiv = new DivContainer(SCROLLER_CONTENT_WIDTH, "500px");
+        var mapTitle = new H3("What's around");
+        registry = new LDefaultComponentManagementRegistry(this);
+
+        InteractiveMap map = null;
+
+        if (ad.getCoordinates() != null)
+            map = new InteractiveMap(registry, ad.getCoordinates());
+
+        var badgeLayout = new HorizontalLayout();
+        badgeLayout.getStyle().setMarginTop("10px").setMarginBottom("10px");
+        if (ad.isSchool350m())
+            badgeLayout.add(BadgeFactory.school());
+        if (ad.isLeisurePark350m())
+            badgeLayout.add(BadgeFactory.park());
+        if (ad.isPublicTransport350m())
+            badgeLayout.add(BadgeFactory.publicTransport());
+
+        mapDiv.add(mapTitle, badgeLayout, map != null ? map : new Span("No coordinates were found for the given address."));
+        scrollerContent.add(descriptionDiv, mapDiv);
     }
 
     private void configureLayout() {
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.START);
-        setSpacing(false);
-        setPadding(false);
 
-        picturesLayout.setWidthFull();
-        picturesLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-        picturesLayout.setAlignItems(Alignment.CENTER);
-
+        scroller.addClassName("no-scrollbar");
         scroller.setHeightFull();
         scroller.setWidth("70%");
-        scroller.getStyle().setMarginTop("-15px");
+        scroller.getStyle()
+                .set("box-sizing", "border-box");
+
         scrollerContent.setWidthFull();
 
-        bidDiv.getStyle()
-                .setPosition(Style.Position.ABSOLUTE)
-                .setRight("0")
-                .setTop("0")
-                .setTransition("transform 0.1s").setTransform("translateX(8%)");
-
-        layout.setWidth("90%");
+        layout.setWidth("100%");
         layout.setHeightFull();
     }
 }
