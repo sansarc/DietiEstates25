@@ -1,7 +1,8 @@
 package com.dieti.dietiestates25.views.agency_dashboard;
 
+import com.dieti.dietiestates25.dto.Agency;
+import com.dieti.dietiestates25.views.notfound.PageNotFoundView;
 import com.dieti.dietiestates25.views.profile.Profile;
-import com.dieti.dietiestates25.annotations.roles_only.ManagerOrAgentOnly;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.services.agency.AgencyRequestsHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
@@ -20,50 +21,78 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
-@ManagerOrAgentOnly
 @Route(value = "agency-dashboard", layout = MainLayout.class)
-public class AgencyDashboardView extends VerticalLayout {
+@RouteAlias(value = "agency-dashboard/:agency", layout = MainLayout.class)
+public class AgencyDashboardView extends VerticalLayout  implements BeforeEnterObserver {
 
     final AgencyRequestsHandler agencyRequestsHandler = new AgencyRequestsHandler();
 
     DivContainer container;
     Details agentsDetails;
 
-    String agencyName = Optional.ofNullable(UserSession.getAgency()).orElse("Agency");
+    private static final Map<String, Agency> TEMP_AGENCY_CACHE = new HashMap<>();
 
-    public AgencyDashboardView() {
-        UI.getCurrent().access(() ->
-                UI.getCurrent().getPage().setTitle(agencyName + " | Dashboard")
-        );
-        configureComponents();
-        configureLayout();
+    public static void cacheAgency(Agency agency) {
+        TEMP_AGENCY_CACHE.put(agency.getName(), agency);
     }
 
-    private void configureComponents() {
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        var agencyParam = event.getRouteParameters().get("agency");
+        Agency agency;
+
+        if (agencyParam.isPresent() && !agencyParam.get().equals(UserSession.getAgencyName())) {
+            var agencyName = agencyParam.get();
+
+            if (TEMP_AGENCY_CACHE.containsKey(agencyName)) {
+                agency = TEMP_AGENCY_CACHE.get(agencyName);
+                configureComponents(agency, false);
+            }
+            else {
+                event.forwardTo(PageNotFoundView.class);
+                return;
+            }
+        }
+        else {
+            agency = new Agency(UserSession.getAgencyName(), UserSession.getAgencyVAT());
+            configureComponents(agency, true);
+        }
+
+        configureLayout();
+
+        UI.getCurrent().access(() ->
+                UI.getCurrent().getPage().setTitle(agency.getName())
+        );
+    }
+
+    public AgencyDashboardView() {}
+
+    private void configureComponents(Agency agency, boolean isPersonalAgency) {
 
         container = new DivContainer("600px", "auto");
-        var agencyTitle = new H1(agencyName);
+        var agencyTitle = new H1(agency.getName());
 
-        var ads = new Span("Looks like " + agencyName + " hasn't uploaded any ad yet.");
+        var ads = new Span("Looks like " + agency.getName() + " hasn't uploaded any ad yet.");
         ads.getStyle().set("color", "#888888").setPaddingTop("var(--lumo-space-s)");
         var adsDetails = new Details(new H3("Ads"), createContent(ads));
         adsDetails.setWidth("80%");
 
-        var bids = new Span("Looks like " + agencyName + " hasn't received any bid yet.");
+        var bids = new Span("Looks like " + agency.getName() + " hasn't received any bid yet.");
         bids.getStyle().set("color", "#888888").setPaddingTop("var(--lumo-space-s)");
         var bidsDetails = new Details(new H3("Bids"), createContent(bids));
         bidsDetails.setWidth("80%");
 
         agentsDetails = new Details();
-        createAgentsDetails();
+        createAgentsDetails(agency, isPersonalAgency);
 
         container.add(agencyTitle);
         add(container, adsDetails, bidsDetails, agentsDetails);
     }
 
-    private void createAgentsDetails() {
+    private void createAgentsDetails(Agency agency, boolean isPersonalAgency) {
         var addAgentButton = new Button(VaadinIcon.PLUS.create(), event -> new AddAgentDialog().open());
         addAgentButton.getStyle().setCursor("pointer");
         new InfoPopover(addAgentButton, "Add a new agent");
@@ -72,10 +101,11 @@ public class AgencyDashboardView extends VerticalLayout {
         title.getStyle().setCursor("pointer");
 
         var titleLayout = new HorizontalLayout(title);
-        if (UserSession.isManager()) titleLayout.add(addAgentButton);
+        if (isPersonalAgency && UserSession.isManager())
+            titleLayout.add(addAgentButton);
         titleLayout.setAlignItems(Alignment.CENTER);
 
-        var agentsList = agencyRequestsHandler.getAgents(UserSession.getAgencyVAT());
+        var agentsList = agencyRequestsHandler.getAgents(agency.getVatNumber());
         if (agentsList != null) {
 
             if (agentsList.isEmpty()) {
@@ -91,7 +121,7 @@ public class AgencyDashboardView extends VerticalLayout {
             }
 
             else {
-                if (UserSession.isManager() && UserSession.getAgency().equals(agencyName))
+                if (isPersonalAgency && UserSession.isManager())
                     agentsList.remove(0); // remove the manager from agents list when user's actually the manager.
 
                 var agentsLayout = new VerticalLayout();

@@ -128,7 +128,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         userMenu.setOpenOnClick(true);
 
         if (UserSession.isManagerOrAgent()) {
-            var agency = new Span(UserSession.getAgency());
+            var agency = new Span(UserSession.getAgencyName());
             agency.getStyle().setFontWeight(Style.FontWeight.BOLD);
             userMenu.addItem(agency)
                     .addClickListener(event -> UI.getCurrent().navigate(AgencyDashboardView.class));

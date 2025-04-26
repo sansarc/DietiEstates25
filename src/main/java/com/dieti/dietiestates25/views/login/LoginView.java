@@ -19,10 +19,13 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.*;
 
+import java.util.List;
+import java.util.Map;
+
 @ForwardLoggedUser
 @PageTitle("Login")
 @Route(value = "login", layout = MainLayout.class)
-public class LoginView extends VerticalLayout {
+public class LoginView extends VerticalLayout implements HasUrlParameter<String> {
 
     H3 title = new H3("Login");
     EmailField emailField = new EmailField("Email");
@@ -36,14 +39,27 @@ public class LoginView extends VerticalLayout {
 
     private final AuthenticationHandler authHandler = new AuthenticationHandler();
 
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        var queryParameters = event.getLocation().getQueryParameters();
+        Map<String, List<String>> parameters = queryParameters.getParameters();
+
+        if (parameters.containsKey("tmpPwd") && !parameters.get("tmpPwd").isEmpty()) {
+            var tmpPwd = parameters.get("tmpPwd").get(0);
+            configureComponents(tmpPwd);
+        }
+        else
+            configureComponents(null);
+    }
+
     public LoginView() {
         configureLayout();
-        configureComponents();
         add(loginDiv, createFooter());
     }
 
-    private void configureComponents() {
-        loginFormSetUp();
+    private void configureComponents(String tmpPwd) {
+        loginFormSetUp(tmpPwd);
+
         loginDiv.add(
                 title,
                 emailField,
@@ -78,11 +94,15 @@ public class LoginView extends VerticalLayout {
         return footer;
     }
 
-    private void loginFormSetUp() {
+    private void loginFormSetUp(String tmpPwd) {
         emailField.setPrefixComponent(new Icon(VaadinIcon.ENVELOPE));
         emailField.setErrorMessage("Please enter a valid email address");
+
         passwordField.setPrefixComponent(new Icon(VaadinIcon.KEY));
         passwordField.setErrorMessage("Please enter a password");
+        if (tmpPwd != null)
+            passwordField.setValue(tmpPwd);
+
         forgotPasswordLink.getElement().getStyle().set("font-size", "12px");
         forgotPasswordLink.getElement().addEventListener("click", event ->
                 new ForgotPasswordDialog().open()
