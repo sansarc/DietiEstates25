@@ -15,7 +15,7 @@ public class User {
 
     @SerializedName("company") private String agencyVAT;
     @SerializedName("userType") private String role;
-    @SerializedName("companyName") private String agency;
+    @SerializedName("companyName") private String agencyName;
 
     // login
     public User(String email, String pwd) {
@@ -24,12 +24,12 @@ public class User {
     }
 
     // manager signup
-    public User(String firstName, String lastName, String email, String pwd, String agency) {
+    public User(String firstName, String lastName, String email, String pwd, String agencyName) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.pwd = pwd;
-        this.agency = agency;
+        this.agencyName = agencyName;
     }
 
     // agent creation
@@ -48,12 +48,13 @@ public class User {
     }
 
     // session constructor
-    public User(String firstName, String lastName, String email, String pwd, String agency, String role, boolean confirmed) {
+    public User(String firstName, String lastName, String email, String pwd, String agencyName, String agencyVAT, String role, boolean confirmed) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.pwd = pwd;
-        this.agency = agency;
+        this.agencyName = agencyName;
+        this.agencyVAT = agencyVAT;
         this.role = role;
         this.confirmed = confirmed;
     }

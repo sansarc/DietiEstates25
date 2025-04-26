@@ -13,6 +13,7 @@ public class UserSession {
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setEmail(user.getEmail());
+        setRole(user.getRole() == null ? "user" : user.getRole());
 
         if (user.getConfirmed() != null)
             setConfirmed(user.getConfirmed());
@@ -20,13 +21,10 @@ public class UserSession {
         if (user.getPwd() != null)
             setPwd(user.getPwd());
 
-        if (user.getAgency() != null) {
-            setAgency(user.getAgency());
+        if (user.getAgencyName() != null) {
+            setAgencyName(user.getAgencyName());
             setAgencyVAT(user.getAgencyVAT());
         }
-
-        if (user.getRole() != null)
-            setRole(user.getRole());
     }
 
     public static void setAgencyVAT(String agencyVAT) {
@@ -82,7 +80,7 @@ public class UserSession {
         VaadinSession.getCurrent().setAttribute("email", email);
     }
 
-    public static void setAgency(String agency) {
+    public static void setAgencyName(String agency) {
         VaadinSession.getCurrent().setAttribute("agency", agency);
     }
 
@@ -102,7 +100,7 @@ public class UserSession {
         return (String) VaadinSession.getCurrent().getAttribute("email");
     }
 
-    public static String getAgency() {
+    public static String getAgencyName() {
         return (String) VaadinSession.getCurrent().getAttribute("agency");
     }
 
@@ -141,7 +139,8 @@ public class UserSession {
                 getLastName(),
                 getEmail(),
                 null,
-                getAgency(),
+                getAgencyName(),
+                getAgencyVAT(),
                 getRole(),
                 isConfirmed()
         );
@@ -156,7 +155,7 @@ public class UserSession {
                 setFirstName(null);
                 setEmail(null);
                 setPwd(null);
-                setAgency(null);
+                setAgencyName(null);
                 setRole(null);
                 setSessionId(null);
                 setSessionStart(null);
