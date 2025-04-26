@@ -9,6 +9,7 @@ import com.dieti.dietiestates25.services.requests.RequestService;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.google.gson.*;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 public class AuthenticationService {
@@ -71,7 +72,7 @@ public class AuthenticationService {
     }
 
     public SimpleResponse logout (String sessionId) {
-        var params = new HashMap<String, String>();
+        var params = new HashMap<String, Serializable>();
         params.put("sessionId", sessionId);
         var response = RequestService.GET(ApiEndpoints.LOGOUT, params);
 
@@ -82,7 +83,7 @@ public class AuthenticationService {
     }
 
     public SimpleResponse sendOTP(String email) {
-        var params = new HashMap<String, String>();
+        var params = new HashMap<String, Serializable>();
         params.put("email", email);
         params.put("key", "ChangePwd");
         

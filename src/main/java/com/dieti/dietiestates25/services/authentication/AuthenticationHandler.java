@@ -1,6 +1,5 @@
 package com.dieti.dietiestates25.services.authentication;
 
-import com.dieti.dietiestates25.dto.SimpleResponse;
 import com.dieti.dietiestates25.dto.User;
 import com.dieti.dietiestates25.services.logging.Log;
 import com.dieti.dietiestates25.services.session.SessionManager;
@@ -14,6 +13,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.RouteParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.springframework.util.StringUtils.capitalize;
 
 public class AuthenticationHandler {
     private final AuthenticationService authenticationService;
@@ -24,10 +24,9 @@ public class AuthenticationHandler {
     }
 
     public void confirmUser(String email, String otp) {
-        SimpleResponse confirmed = authenticationService.confirmUser(email, otp);
+        var confirmed = authenticationService.confirmUser(email, otp);
 
         if (confirmed == null) {
-            
             return;
         }
 
@@ -43,7 +42,7 @@ public class AuthenticationHandler {
     }
 
     public void login(String email, String password) {
-        SimpleResponse authenticated = authenticationService.login(email, password);
+        var authenticated = authenticationService.login(email.toLowerCase(), password);
 
         if (authenticated == null) {
             return;
@@ -64,8 +63,8 @@ public class AuthenticationHandler {
     }
 
     public void createUser(String firstName, String lastName, String email, String password) {
-        var user = new User(firstName, lastName, email, password);
-        SimpleResponse signed = authenticationService.createUser(user);
+        var user = new User(capitalize(firstName), capitalize(lastName), email, password);
+        var signed = authenticationService.createUser(user);
 
         if (signed == null)
             return;
