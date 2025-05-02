@@ -17,6 +17,8 @@ public class User {
     @SerializedName("userType") private String role;
     @SerializedName("companyName") private String agencyName;
 
+    public User() {}
+
     // login
     public User(String email, String pwd) {
         this.email = email;

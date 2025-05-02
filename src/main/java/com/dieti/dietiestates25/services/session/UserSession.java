@@ -27,6 +27,10 @@ public class UserSession {
         }
     }
 
+    public static String getCurrentPath() {
+        return UI.getCurrent().getInternals().getActiveViewLocation().getPath();
+    }
+
     public static void setAgencyVAT(String agencyVAT) {
         VaadinSession.getCurrent().setAttribute("agencyVAT", agencyVAT);
     }
