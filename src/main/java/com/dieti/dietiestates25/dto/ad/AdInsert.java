@@ -15,7 +15,8 @@ public class AdInsert {
     @SerializedName("dimentions") private int dimensions;
     private int floor;
 
-    private boolean AC, privateGarage, condominiumParking, doormanService;
+    @SerializedName("airConditioning") private boolean AC;
+    private boolean privateGarage, condominiumParking, doormanService;
     @SerializedName("lift") private boolean elevator;
     @SerializedName("nrooms") private int nRooms;
     @SerializedName("nbathrooms") private int nBathrooms;

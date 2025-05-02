@@ -19,15 +19,48 @@ public class BadgeFactory {
         return text;
     }
 
-    public static Span rooms(int number) {
-        var badge = new Span(createIcon(LineAwesomeIcon.COUCH_SOLID.create()), createTitle(number + (number > 1 ? " Rooms" : " Room")));
+    public static Span doormanService() {
+        var badge = new Span(createIcon(LineAwesomeIcon.USER_TIE_SOLID.create()), createTitle("Doorman Service"));
         badge.getElement().getThemeList().add("badge contrast");
         return badge;
     }
 
-    public static Span bathrooms(int number) {
-        var badge = new Span(createIcon(LineAwesomeIcon.SHOWER_SOLID.create()), createTitle(number + (number > 1 ? " Bathrooms" : " Bathroom")));
+    public static Span condominiumParking() {
+        var badge = new Span(createIcon(LineAwesomeIcon.PARKING_SOLID.create()), createTitle("Condominium Parking"));
         badge.getElement().getThemeList().add("badge contrast");
+        return badge;
+    }
+
+    public static Span privateParking() {
+        var badge = new Span(createIcon(LineAwesomeIcon.CAR_SOLID.create()), createTitle("Private Parking"));
+        badge.getElement().getThemeList().add("badge contrast");
+        return badge;
+    }
+
+    public static Span AC() {
+        var badge = new Span(createIcon(LineAwesomeIcon.SNOWFLAKE_SOLID.create()), createTitle("Air Conditioning"));
+        badge.getElement().getThemeList().add("badge contrast");
+        return badge;
+    }
+
+    public static Span squareMeters(int number) {
+        var squareMeters = new Span("m²");
+        squareMeters.getStyle().setFontSize("16px").setFontWeight(Style.FontWeight.BOLD);
+        squareMeters.getStyle().setMarginLeft("4px");
+        var badge = new Span(createTitle(String.valueOf(number)), squareMeters);
+        badge.getElement().getThemeList().add("badge contrast");
+        return badge;
+    }
+
+    public static Span rooms(int number) {
+        var badge = new Span(createIcon(LineAwesomeIcon.COUCH_SOLID.create()), createTitle(number + (number > 1 ? " Rooms" : " Room")));
+        badge.getElement().getThemeList().add("badge primary");
+        return badge;
+    }
+
+    public static Span bathrooms(int number) {
+        var badge = new Span(createIcon(LineAwesomeIcon.BATH_SOLID.create()), createTitle(number + (number > 1 ? " Bathrooms" : " Bathroom")));
+        badge.getElement().getThemeList().add("badge primary");
         return badge;
     }
 

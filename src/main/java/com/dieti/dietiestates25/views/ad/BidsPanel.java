@@ -9,8 +9,11 @@ import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.BidMessage;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.Form;
+import com.dieti.dietiestates25.utils.NotificationFactory;
+import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.profile.Profile;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.avatar.AvatarVariant;
 import com.vaadin.flow.component.button.Button;
@@ -27,14 +30,12 @@ import com.vaadin.flow.router.RouterLink;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 public class BidsPanel extends DivContainer implements BidActionListener {
 
     private final AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
     @Getter private static VerticalLayout bidsListLayout;
-    private Scroller scroller = new Scroller();
+    private final Scroller scroller = new Scroller();
 
     @Setter
     @Getter
@@ -114,27 +115,13 @@ public class BidsPanel extends DivContainer implements BidActionListener {
 
     @Override
     public void onRefused(Bid bid) {
-        var refusedBidMessage = find(bid.getId());
+        var refusedBidMessage = BidMessage.find(bidsListLayout, bid.getId());
         refusedBidMessage.setRefused();
     }
 
     @Override
     public void onDeleted(Bid bid) {
-        bidsListLayout.remove(find(bid.getId()));
-    }
-
-    public BidMessage find(int id) {
-        AtomicReference<BidMessage> bidMessage = new AtomicReference<>();
-
-        bidsListLayout.getChildren()
-                .forEach(component -> {
-                    if (component instanceof BidMessage i) {
-                        if (i.getBid().getId() == id)
-                            bidMessage.set(i);
-                    }
-                });
-
-        return bidMessage.get();
+        bidsListLayout.remove(BidMessage.find(bidsListLayout, bid.getId()));
     }
 
     private void createBidForm(Ad ad) {
@@ -147,10 +134,15 @@ public class BidsPanel extends DivContainer implements BidActionListener {
         messageField.getStyle().setMarginBottom("12px");
 
         var sendBtn = new Button("Send", e -> {
-            if (priceField.isEmpty() || priceField.getValue() <= 0) {
-                priceField.setErrorMessage("Please enter a valid value.");
-                priceField.setInvalid(true);
-                return;
+            if (!UserSession.isUserLoggedIn()) {
+                UI.getCurrent().navigate(LoginView.class);
+                NotificationFactory.primary("You need to log in first.");
+
+                if (priceField.isEmpty() || priceField.getValue() <= 0) {
+                    priceField.setErrorMessage("Please enter a valid value.");
+                    priceField.setInvalid(true);
+                    return;
+                }
             }
 
             var bid = adRequestsHandler.sendBid(ad.getId(), priceField.getValue(), messageField.getValue());

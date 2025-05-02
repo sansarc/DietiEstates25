@@ -74,8 +74,6 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
         imagesCarousel = new ImagesCarousel(ad.getPhotos());
 
         createScrollerSide(ad);
-//        createFixedSide(ad);
-
         layout.add(scroller, new BidsPanel(ad));
         layout.getStyle().setPosition(Style.Position.RELATIVE);
 
@@ -85,13 +83,23 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
     public void createScrollerSide(Ad ad) {
         var descriptionDiv = new DivContainer(SCROLLER_CONTENT_WIDTH, "auto");
         descriptionTitle = new H3("About this property");
-        descriptionText = ad.getDescription().isEmpty() ? new Span("No description given.") : new Span(ad.getDescription());
+        descriptionText = ad.getDescription() == null || ad.getDescription().isEmpty() ? new Span("No description given.") : new Span(ad.getDescription());
 
-        var roomsBadgeLayout = new HorizontalLayout();
-        roomsBadgeLayout.getStyle().setMarginTop("10px").setMarginBottom("10px");
-        roomsBadgeLayout.add(BadgeFactory.rooms(ad.getNRooms()), BadgeFactory.bathrooms(ad.getNBathrooms()));
+        var badges = new HorizontalLayout();
+        badges.getStyle().setMarginTop("10px").setMarginBottom("10px");
+        badges.add(
+                BadgeFactory.rooms(ad.getNRooms()),
+                BadgeFactory.bathrooms(ad.getNBathrooms()),
+                BadgeFactory.squareMeters(ad.getDimensions())
+        );
 
-        descriptionDiv.add(descriptionTitle, new Hr(), new H3(ad.getPriceAsString()), roomsBadgeLayout, descriptionText);
+        if (ad.isAC()) badges.add(BadgeFactory.AC());
+        if (ad.isPrivateGarage()) badges.add(BadgeFactory.privateParking());
+        if (ad.isCondominiumParking()) badges.add(BadgeFactory.condominiumParking());
+        if (ad.isDoormanService()) badges.add(BadgeFactory.doormanService());
+        badges.setWrap(true);
+
+        descriptionDiv.add(descriptionTitle, new Hr(), new H3(ad.getPriceAsString()), badges, descriptionText);
 
         var mapDiv = new DivContainer(SCROLLER_CONTENT_WIDTH, "500px");
         var mapTitle = new H3("What's around");
@@ -99,19 +107,30 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
 
         InteractiveMap map = null;
 
-        if (ad.getCoordinates() != null)
-            map = new InteractiveMap(registry, ad.getCoordinates());
+        if (ad.getCoordinates() != null) {
+            map = new InteractiveMap(registry, ad.getCoordinates(), 0);
+            map.addMarker(registry, ad.getCoordinates(), ad.getAddress());
+        }
 
-        var badgeLayout = new HorizontalLayout();
-        badgeLayout.getStyle().setMarginTop("10px").setMarginBottom("10px");
+        var mapBadges = new HorizontalLayout();
+        mapBadges.getStyle().setMarginTop("10px").setMarginBottom("10px");
         if (ad.isSchool350m())
-            badgeLayout.add(BadgeFactory.school());
+            mapBadges.add(BadgeFactory.school());
         if (ad.isLeisurePark350m())
-            badgeLayout.add(BadgeFactory.park());
+            mapBadges.add(BadgeFactory.park());
         if (ad.isPublicTransport350m())
-            badgeLayout.add(BadgeFactory.publicTransport());
+            mapBadges.add(BadgeFactory.publicTransport());
 
-        mapDiv.add(mapTitle, badgeLayout, map != null ? map : new Span("No coordinates were found for the given address."));
+        mapDiv.add(mapTitle, new Hr(), mapBadges,
+                map != null
+                        ? map
+                        : new Span("No coordinates were found for the given address."),
+                new Span(ad.getRegion() + ", " + ad.getProvince() + ", " + ad.getCityName())
+        );
+
+        if (mapBadges.getComponentCount() <= 0)
+            mapDiv.remove(mapBadges);
+
         scrollerContent.add(descriptionDiv, mapDiv);
     }
 

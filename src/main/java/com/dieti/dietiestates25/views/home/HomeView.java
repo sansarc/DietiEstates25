@@ -1,13 +1,12 @@
 package com.dieti.dietiestates25.views.home;
 
+import com.dieti.dietiestates25.dto.ad.Ad;
+import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.services.session.UserSession;
-import com.dieti.dietiestates25.ui_components.DivCard;
-import com.dieti.dietiestates25.ui_components.DivCardsHorizontalSlider;
+import com.dieti.dietiestates25.ui_components.AdCard;
 import com.dieti.dietiestates25.views.MainLayout;
-import com.dieti.dietiestates25.views.ad.AdView;
 import com.dieti.dietiestates25.views.registerAgency.ConfirmAccountDialog;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.*;
@@ -22,12 +21,15 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Dieti Estates | Home")
 public class HomeView extends VerticalLayout {
+
+    AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
     Div titleContainer;
     TextField searchText;
@@ -35,8 +37,9 @@ public class HomeView extends VerticalLayout {
     HorizontalLayout searchLayout;
     Div background;
     VerticalLayout backgroundContent;
-    VerticalLayout secondTitleContainer;
-    DivCardsHorizontalSlider cardSlider;
+    VerticalLayout adsList;
+
+    private static final Map<Integer, Ad> TEMP_AD_CACHE = new HashMap<>();
 
     public HomeView() {
         configureLayout();
@@ -49,33 +52,42 @@ public class HomeView extends VerticalLayout {
         createTitle();
         createSearchLayout();
         createBackground();
-
-        var cards = new ArrayList<DivCard>();
-        for (int i = 0; i < 6; i++)
-            cards.add(new DivCard(
-                    "https://picsum.photos/2670/1780",
-                    400000,
-                    "DietiEstates",
-                    "2 baths | 3 bedrooms"
-            ));
-        cards.get(0).addClickListener(event -> UI.getCurrent().navigate(AdView.class, "1"));
-        cardSlider = new DivCardsHorizontalSlider(cards);
-
         createSecondTitle();
 
         background.add(backgroundContent);
-        add(background, new Hr(), secondTitleContainer, cardSlider);
+        add(background, new Hr(), adsList);
+    }
+
+    private Ad getOrFetchAd(int id) {
+        if (TEMP_AD_CACHE.containsKey(id))
+            return TEMP_AD_CACHE.get(id);
+
+        var ad = adRequestsHandler.getAd(id);
+        if (ad != null)
+            TEMP_AD_CACHE.put(id, ad);
+
+        return ad;
     }
 
     private void createSecondTitle() {
         var secondTitle = new H1("Latest Listings");
-        var subtitle = new Paragraph("Check out the latest uploaded homes in the last days.");
+        var subtitle = new Span("Check out the latest uploaded properties in the last days.");
 
-        secondTitleContainer = new VerticalLayout(secondTitle, subtitle);
-        secondTitleContainer.setWidth(cardSlider.getCardsWrapperActualWidth());
-        secondTitleContainer.setSpacing(false);
-        secondTitleContainer.setPadding(false);
-        secondTitleContainer.getStyle().setMarginBottom("-30px");
+        adsList = new VerticalLayout(secondTitle, subtitle);
+        adsList.setSizeFull();
+        adsList.setAlignItems(Alignment.CENTER);
+        adsList.setAlignSelf(Alignment.START, secondTitle, subtitle);
+
+        var lastAd = getOrFetchAd(0);   // retrieving the last uploaded ad
+        if (lastAd != null) {
+            var lastId = lastAd.getId();
+            for (int i = 0; i < 2; i++) {
+                var ad = getOrFetchAd(lastId--);  // then going down
+                if (ad != null)
+                    adsList.add(new AdCard(ad));
+            }
+        }
+
     }
 
     private void createTitle() {
@@ -87,15 +99,12 @@ public class HomeView extends VerticalLayout {
                 .setColor("white")
                 .setDisplay(Style.Display.INLINE_BLOCK)
                 .setPadding("5px");
-
         slidingDownPart.getStyle()
                 .setColor("white")
                 .setDisplay(Style.Display.INLINE_BLOCK)
                 .setPadding("5px")
                 .setPosition(Style.Position.RELATIVE)
                 .set("animation", "slideDown 2s ease-out");
-
-
         slidingInPart.getStyle()
                 .setColor("white")
                 .setDisplay(Style.Display.INLINE_BLOCK)

@@ -10,8 +10,8 @@ public class ImagesCarousel extends Splide {
 
     public ImagesCarousel(List<Photo> photos) {
         super();
-        setWidth("1000px");
-        setHeight("600px");
+        setWidth("800px");
+        setHeight("500px");
         getStyle().setMarginBottom("50px");
 
         for (var photo : photos) {
