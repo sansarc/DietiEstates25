@@ -1,61 +1,28 @@
 package com.dieti.dietiestates25.ui_components;
 
+import com.dieti.dietiestates25.dto.ad.City;
+import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
+import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.*;
 import com.vaadin.flow.component.select.Select;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Form extends FormLayout {
 
-    public Form() {
-        getStyle().setMarginBottom("var(--lumo-space-l)");
-    }
-
+    public Form() {}
     public Form(Component...components) {
         super(components);
         getStyle().setMarginBottom("var(--lumo-space-l)");
     }
-
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-
-        getChildren()
-                .filter(TextFieldBase.class::isInstance)
-                .forEach(field ->
-                        ((TextFieldBase<?, ?>) field).addValueChangeListener(event -> {
-                            if (((TextFieldBase<?, ?>) field).getValue().toString().isEmpty())
-                                getElement().executeJs("window.unsavedChanges = false;");
-                            else
-                                getElement().executeJs("window.unsavedChanges = true;");
-                        })
-                );
-
-        attachEvent.getUI().getPage().executeJs(
-                "console.log('beforeunload listener attached');" +
-                        "window.unsavedChanges = false;" +
-                        "window.addEventListener('beforeunload', function(e) {" +
-                        "  console.log('beforeunload event fired, unsavedChanges:', window.unsavedChanges);" +
-                        "  if(window.unsavedChanges) {" +
-                        "    e.preventDefault();" +
-                        "    e.returnValue = '';" +
-                        "  }" +
-                        "});"
-        );
-    }
-
 
     public static RadioButtonGroup<String> radioButtonGroup(String label, String...fields) {
         var radioGroup = new RadioButtonGroup<String>(label);
@@ -73,22 +40,6 @@ public class Form extends FormLayout {
         select.setLabel(label);
         select.setItems(fields);
         return select;
-    }
-
-    public static CheckboxGroup<String> checkboxGroup(String label, String...fields) {
-        var checkboxGroup = new CheckboxGroup<String>(label);
-        checkboxGroup.setItems(fields);
-        checkboxGroup.getChildren()
-                .forEach(field ->
-                        field.getStyle().setFontSize("14px")
-                );
-        return checkboxGroup;
-    }
-
-    public static ComboBox<String> comboBox(String label, String...fields) {
-        var comboBox = new ComboBox<String>(label);
-        comboBox.setItems(fields);
-        return comboBox;
     }
 
     public static IntegerField integerField(String label, Component icon) {
@@ -119,56 +70,53 @@ public class Form extends FormLayout {
         return numberField;
     }
 
-    private Stream<Component> getAllComponents(Component parent) {
-        return Stream.concat(
-                parent.getChildren(),
-                parent.getChildren().flatMap(this::getAllComponents)
-        );
-    }
+    public void setRequiredTrue(Component... fields) {
+        for (var field : fields) {
+            if (field instanceof HasValue<?, ?> hasValue)
+                hasValue.setRequiredIndicatorVisible(true);
 
-
-    public void setRequiredTrue(HasValue<?,?>...fields) {
-        for (HasValue<?,?> field : fields) {
-            field.setRequiredIndicatorVisible(true);
         }
     }
 
     public boolean areRequiredFieldsValid() {
+        List<TextFieldBase<?, ?>> requiredTextFields = new ArrayList<>();
+        List<ComboBox<?>> requiredComboBoxes = new ArrayList<>();
+        List<AbstractNumberField<?, ?>> requiredNumberFields = new ArrayList<>();
+        List<PasswordField> passwordFields = new ArrayList<>();
+        AtomicReference<Optional<EmailField>> emailField = new AtomicReference<>(Optional.empty());
 
-        boolean textFieldsValid = getAllComponents(this)
-                .filter(TextFieldBase.class::isInstance)
-                .map(TextFieldBase.class::cast)
-                .filter(TextFieldBase::isRequiredIndicatorVisible)
-                .noneMatch(AbstractField::isEmpty);
+        getChildren()
+                .forEach(component -> {
+                    if (component instanceof TextFieldBase<?, ?> tfb && tfb.isRequiredIndicatorVisible())
+                        requiredTextFields.add(tfb);
+                    if (component instanceof AbstractNumberField<?, ?> nf && nf.isRequiredIndicatorVisible())
+                        requiredNumberFields.add(nf);
+                    if (component instanceof ComboBox<?> cb && cb.isRequiredIndicatorVisible())
+                        requiredComboBoxes.add(cb);
+                    if (component instanceof PasswordField pf)
+                        passwordFields.add(pf);
+                    if (component instanceof EmailField ef && emailField.get().isEmpty())
+                        emailField.set(Optional.of(ef));
+        });
 
-        if (!textFieldsValid) {
-            Notification.show("Please fill in all required text fields to continue.")
-                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+        // validate required text fields and combo boxes
+        if (requiredTextFields.stream().anyMatch(AbstractField::isEmpty)
+                || requiredComboBoxes.stream().anyMatch(ComboBox::isEmpty)) {
+            NotificationFactory.error("Please fill in all required fields to continue.");
             return false;
         }
 
-        boolean numberFieldsValid = getAllComponents(this)
-                .filter(AbstractNumberField.class::isInstance)
-                .map(AbstractNumberField.class::cast)
-                .filter(TextFieldBase::isRequiredIndicatorVisible)
-                .allMatch(field -> field.getValue() != null && field.getValue().intValue() > 0);
-
-        if (!numberFieldsValid) {
-            Notification.show("All required numeric fields must have values greater than 0")
-                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+        // validate required number fields
+        if (requiredNumberFields.stream()
+                .anyMatch(nf -> nf.getValue() == null || nf.getValue().intValue() <= 0)) {
+            NotificationFactory.error("All required numeric fields must have values greater than 0.");
             return false;
         }
 
-        // password fields validation
-        List<PasswordField> passwordFields = getAllComponents(this)
-                .filter(PasswordField.class::isInstance)
-                .map(PasswordField.class::cast)
-                .toList();
-
+        // validate passwords (only if exactly two password fields)
         if (passwordFields.size() == 2) {
             var password = passwordFields.get(0);
             var confirmPassword = passwordFields.get(1);
-
             if (!Objects.equals(password.getValue(), confirmPassword.getValue())) {
                 password.setInvalid(true);
                 confirmPassword.setInvalid(true);
@@ -177,22 +125,73 @@ public class Form extends FormLayout {
             }
         }
 
-        // email validation
-        var email = getAllComponents(this)
-                .filter(EmailField.class::isInstance)
-                .map(EmailField.class::cast)
-                .findFirst();
-
-        if (email.isPresent() && email.get().isInvalid()) {
-            email.get().setInvalid(true);
-            email.get().setErrorMessage("Invalid email address.");
+        // validate email field
+        if (emailField.get().isPresent() && emailField.get().get().isInvalid()) {
+            var email = emailField.get().get();
+            email.setInvalid(true);
+            email.setErrorMessage("Invalid email address.");
             return false;
         }
 
         return true;
     }
 
+    public void clear() {
+        getChildren()
+                .map(HasValue.class::cast)
+                .forEach(HasValue::clear);
+    }
 
+    public static class LocationForm extends Form {
+        public final ComboBox<String> region;
+        public final ComboBox<String> province;
+        public final CitiesComboBox city;
+        public final TextField address;
+
+        public LocationForm() {
+            region = new ComboBox<>("Region");
+            province = new ComboBox<>("Province");
+            city = new CitiesComboBox();
+            address = new TextField("Address");
+            address.setAllowedCharPattern("^[a-zA-Z0-9 ]+$");
+
+            var adRequestsHandler = new AdRequestsHandler();
+
+            region.setItems(adRequestsHandler.getRegions());
+            region.addValueChangeListener(event ->
+                    province.setItems(adRequestsHandler.getProvinces(region.getValue()))
+            );
+
+            var cities = new ArrayList<City>();
+            province.addValueChangeListener(event -> {
+                cities.addAll(adRequestsHandler.getCities(province.getValue()));
+                city.setItems(cities.stream().toList());
+            });
+        }
+
+        public String getRegion() {
+            return region.getValue() == null ? "" : region.getValue();
+        }
+        public String getProvince() {
+            return province.getValue() == null ? "" : province.getValue();
+        }
+
+        public String getCity() {
+            return city.getValue() == null ? "" : city.getValue().getCode();
+        }
+
+        public String getAddress() {
+            return address.getValue() == null ? "" : address.getValue();
+        }
+
+        public List<Component> asList() {
+            return List.of(region, province, city, address);
+        }
+
+        public Component[] asArray() {
+            return asList().toArray(new Component[0]);
+        }
+    }
 
 
 }

@@ -21,8 +21,14 @@ import static com.dieti.dietiestates25.constants.Constants.Codes.INTERNAL_SERVER
 
 public class AdRequestsService {
 
+    private final RequestService requestService;
+
+    public AdRequestsService() {
+        requestService = new RequestService();
+    }
+
     public SimpleResponse getRegions() {
-        var response = RequestService.GET(ApiEndpoints.GET_REGIONS);
+        var response = requestService.GET(ApiEndpoints.GET_REGIONS);
         if (response.getStatusCode() == INTERNAL_SERVER_ERROR)
             return null;
 
@@ -33,7 +39,7 @@ public class AdRequestsService {
         Map<String, Serializable> regionParam = new HashMap<>();
         regionParam.put("region", region);
 
-        var response = RequestService.GET(ApiEndpoints.GET_PROVINCES, regionParam);
+        var response = requestService.GET(ApiEndpoints.GET_PROVINCES, regionParam);
         if (response.getStatusCode() == INTERNAL_SERVER_ERROR)
             return null;
 
@@ -44,7 +50,7 @@ public class AdRequestsService {
         Map<String, Serializable> provinceParam = new HashMap<>();
         provinceParam.put("province", province);
 
-        var response = RequestService.GET(ApiEndpoints.GET_CITIES, provinceParam);
+        var response = requestService.GET(ApiEndpoints.GET_CITIES, provinceParam);
         if (response.getStatusCode() == INTERNAL_SERVER_ERROR)
             return null;
 
@@ -53,7 +59,7 @@ public class AdRequestsService {
 
     public EntityResponse<Ad> insertAd(AdInsert ad) {
         String json = new Gson().toJson(ad);
-        var response =  RequestService.POST(ApiEndpoints.INSERT_AD, "sessionId", UserSession.getSessionId(), json);
+        var response =  requestService.POST(ApiEndpoints.INSERT_AD, "sessionId", UserSession.getSessionId(), json);
 
         if (response.getStatusCode() == INTERNAL_SERVER_ERROR)
             return null;
@@ -66,25 +72,15 @@ public class AdRequestsService {
         photo.setFileName(idAd + "_" + oldFileName);
         var json = new Gson().toJson(photo);
 
-        var response = RequestService.POST(ApiEndpoints.UPLOAD_IMAGE, json);
+        var response = requestService.POST(ApiEndpoints.UPLOAD_IMAGE, json);
 
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response;
-    }
-
-    public EntityResponse<Ad> getAd(int idAd) {
-        var json = new Gson().toJson(new Ad.IdOnly(idAd));
-        var response = RequestService.PUT(ApiEndpoints.SEARCH_AD, json);
-
-        if (response.getStatusCode() == INTERNAL_SERVER_ERROR)
-            return null;
-
-        return response.parse(Ad.class);
     }
 
     public EntityResponse<Photo> getImages(int idAd) {
         var params = new HashMap<String, Serializable>();
         params.put("idAd", idAd);
-        var response =  RequestService.GET(ApiEndpoints.GET_IMAGES, params);
+        var response =  requestService.GET(ApiEndpoints.GET_IMAGES, params);
 
         if (response.getStatusCode() == INTERNAL_SERVER_ERROR)
             return null;
@@ -94,7 +90,7 @@ public class AdRequestsService {
 
     public EntityResponse<Bid> sendBid(Bid.Insert bid) {
         String json = new Gson().toJson(bid);
-        var response = RequestService.POST(ApiEndpoints.SEND_BID, "sessionId", UserSession.getSessionId(), json);
+        var response = requestService.POST(ApiEndpoints.SEND_BID, "sessionId", UserSession.getSessionId(), json);
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response.parse(Bid.class);
     }
 
@@ -103,7 +99,7 @@ public class AdRequestsService {
         params.put("key", key);
         params.put("value", value);
 
-        var response = RequestService.GET(ApiEndpoints.GET_BIDS, params);
+        var response = requestService.GET(ApiEndpoints.GET_BIDS, params);
 
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response.parse(Bid.class);
     }
@@ -111,23 +107,30 @@ public class AdRequestsService {
     public SimpleResponse cancelBid(int bidId) {
         var params = new HashMap<String, Serializable>();
         params.put("bidId", bidId);
-        var response = RequestService.PUT(ApiEndpoints.CANCEL_BID, "sessionId", UserSession.getSessionId(), params);
+        var response = requestService.PUT(ApiEndpoints.CANCEL_BID, "sessionId", UserSession.getSessionId(), params);
 
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response;
     }
 
     public SimpleResponse acceptOrRefuseBid(Bid bid) {
         var json = new Gson().toJson(bid);
-        var response = RequestService.PUT(ApiEndpoints.ACCEPT_OR_REFUSE_BID, "sessionId", UserSession.getSessionId(), json);
+        var response = requestService.PUT(ApiEndpoints.ACCEPT_OR_REFUSE_BID, "sessionId", UserSession.getSessionId(), json);
 
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response;
     }
 
     public SimpleResponse acceptOrRefuseCounterOffer(Bid counteroffer) {
         var json = new GsonBuilder().create().toJson(counteroffer);
-        var response = RequestService.PUT(ApiEndpoints.ACCEPT_OR_REFUSE_COUNTEROFFER, "sessionId", UserSession.getSessionId(), json);
+        var response = requestService.PUT(ApiEndpoints.ACCEPT_OR_REFUSE_COUNTEROFFER, "sessionId", UserSession.getSessionId(), json);
 
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response;
+    }
+
+    public EntityResponse<Ad> searchAds(Ad.SearchBy searchBy) {
+        var json = new Gson().toJson(searchBy);
+        var response = requestService.PUT(ApiEndpoints.SEARCH_AD, json);
+
+        return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response.parse(Ad.class);
     }
 
 }

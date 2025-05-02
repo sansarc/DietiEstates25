@@ -1,5 +1,6 @@
 package com.dieti.dietiestates25.services.ad;
 
+import com.dieti.dietiestates25.dto.SimpleResponse;
 import com.dieti.dietiestates25.dto.bid.Bid;
 import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.dto.ad.AdInsert;
@@ -19,7 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@SuppressWarnings("LoggingSimilarMessage")
 public class AdRequestsHandler {
     private final AdRequestsService adRequestsService;
     private final static Logger logger = LoggerFactory.getLogger(AdRequestsHandler.class);
@@ -77,23 +78,36 @@ public class AdRequestsHandler {
     }
 
     public Ad getAd(int idAd) {
-        var response = adRequestsService.getAd(idAd);
-        if (response == null)
+        var search = new Ad.SearchBy();
+        search.setId(idAd);
+        var response = adRequestsService.searchAds(search);
+        if (response == null) return null;
+
+        if (!response.ok()) {
+            NotificationFactory.error("Failed to retrieve ad.");
+            logger.warn("Failed to retrieve ad {}.", idAd);
             return null;
+        }
 
         var ad = response.getFirstEntity();
-        var photos = adRequestsService.getImages(idAd);
+        retrievePhotos(ad);
+
+        return ad;
+    }
+
+
+    public void retrievePhotos(Ad ad) {
+        var photos = adRequestsService.getImages(ad.getId());
 
         if (photos != null) {
             if (photos.ok())
                 ad.setPhotos(photos.getEntities());
             else {
                 NotificationFactory.error(photos.getMessage());
-                logger.warn("Failed to get photos for ad {}.", idAd);
+                logger.warn("Failed to get photos for ad {}.", ad.getId());
             }
         }
 
-        return ad;
     }
 
     public Bid sendBid(int adId, double amount, String bidMessage) {
@@ -164,4 +178,46 @@ public class AdRequestsHandler {
 
         return response.ok();
     }
+
+    public List<Ad> getAdsByAgent(String agentEmail) {
+        var search = new Ad.SearchBy();
+        search.setAgentEmail(agentEmail);
+        search.setType("S");
+        var response = adRequestsService.searchAds(search);
+        if (badAdResponse(response)) return null;
+
+        var ads = response.getEntities();
+
+        search.setType("R");
+        response = adRequestsService.searchAds(search);
+        if (badAdResponse(response)) return null;
+
+        ads.addAll(response.getEntities()); // add other ads
+        for (var ad : ads) retrievePhotos(ad);
+
+        return ads;
+    }
+
+    public List<Ad> searchAds(Ad.SearchBy search) {
+        var response = adRequestsService.searchAds(search);
+        if (badAdResponse(response)) return null;
+
+        var ads = response.getEntities();
+        for (var ad : ads) retrievePhotos(ad);
+
+        return ads;
+    }
+
+    public boolean badAdResponse(SimpleResponse response) {
+        if (response == null) return true;
+
+        if (!response.ok()) {
+            NotificationFactory.error("Failed to retrieve ad.");
+            logger.warn("Failed to retrieve ad.");
+            return true;
+        }
+        
+        return false;
+    } 
+
 }
