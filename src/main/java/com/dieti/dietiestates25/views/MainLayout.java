@@ -6,7 +6,6 @@ import com.dieti.dietiestates25.views.agency_dashboard.AgencyDashboardView;
 import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
-import com.dieti.dietiestates25.ui_components.NotificationBell;
 import com.dieti.dietiestates25.utils.ThemeManager;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
@@ -67,8 +66,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         if (UserSession.isUserLoggedIn()) {
             createAvatarBadge();
-            var notificationButton = new NotificationBell();
-            variablePartNavigationBar.add(notificationButton, avatar);
+            variablePartNavigationBar.add(avatar);
         }
         else {
             var loginButton = new Button("Login", event -> UI.getCurrent().navigate(LoginView.class));
