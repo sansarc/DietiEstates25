@@ -122,8 +122,10 @@ public class DescriptionNMediaForm extends Form {
                 uploadParagraph.setText(CURRENT_UPLOADS + " pictures uploaded " + "(max " + UPLOAD_LIMIT + ")");
         });
 
+        upload.addFileRejectedListener(event -> NotificationFactory.error("File is too large! Max 5 MB allowed."));
+
         upload.addFileRemovedListener(event -> {
-           CURRENT_UPLOADS--;
+           if (CURRENT_UPLOADS > 0) CURRENT_UPLOADS--;
            uploadParagraph.setText(CURRENT_UPLOADS + " pictures uploaded " + "(max " + UPLOAD_LIMIT + ")");
         });
     }

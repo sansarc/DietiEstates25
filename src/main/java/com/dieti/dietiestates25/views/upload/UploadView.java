@@ -4,8 +4,10 @@ import com.dieti.dietiestates25.annotations.roles_only.ManagerOrAgentOnly;
 import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
+import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.upload.forms.*;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -19,6 +21,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
+import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -193,4 +196,36 @@ public class UploadView extends VerticalLayout {
         layout.setAlignItems(Alignment.CENTER);
         return layout;
     }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+
+        getChildren()
+                .filter(Form.class::isInstance)
+                .forEach(form -> form.getChildren()
+                        .filter(TextFieldBase.class::isInstance)
+                        .forEach(field ->
+                                        ((TextFieldBase<?, ?>) field).addValueChangeListener(event -> {
+                                            if (((TextFieldBase<?, ?>) field).getValue().toString().isEmpty())
+                                                getElement().executeJs("window.unsavedChanges = false;");
+                                            else
+                                                getElement().executeJs("window.unsavedChanges = true;");
+                                        })
+                                )
+                );
+
+        attachEvent.getUI().getPage().executeJs(
+                "console.log('beforeunload listener attached');" +
+                        "window.unsavedChanges = false;" +
+                        "window.addEventListener('beforeunload', function(e) {" +
+                        "  console.log('beforeunload event fired, unsavedChanges:', window.unsavedChanges);" +
+                        "  if(window.unsavedChanges) {" +
+                        "    e.preventDefault();" +
+                        "    e.returnValue = '';" +
+                        "  }" +
+                        "});"
+        );
+    }
+
 }

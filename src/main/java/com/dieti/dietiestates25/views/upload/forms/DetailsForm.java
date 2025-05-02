@@ -6,9 +6,9 @@
     import com.dieti.dietiestates25.utils.EnergyClassUtils;
     import com.vaadin.flow.component.checkbox.Checkbox;
     import com.vaadin.flow.component.checkbox.CheckboxGroup;
-    import com.vaadin.flow.component.html.Image;
     import com.vaadin.flow.component.select.Select;
     import com.vaadin.flow.component.textfield.IntegerField;
+    import org.vaadin.lineawesome.LineAwesomeIcon;
 
     import java.util.Set;
 
@@ -27,20 +27,15 @@
 
         protected void createComponents() {
             elevator = new Checkbox("Elevator");
-            nRooms = integerField("Number of rooms", new Image("/images/sofa-512.png", "sofa_icon"));
-            nBathrooms = integerField("Bathrooms", new Image("/images/shower-512.png", "shower_icon"));
-
+            nRooms = integerField("Number of rooms", LineAwesomeIcon.COUCH_SOLID.create());
+            nBathrooms = integerField("Bathrooms", LineAwesomeIcon.BATH_SOLID.create());
             energyClass = select("Energy class", "Unknown", "A", "B", "C", "D", "E", "F");
             energyClass.setValue("Unknown");
             EnergyClassUtils.setRenderer(energyClass);
-
             AC = new Checkbox("AC");
-
             otherServices = new CheckboxGroup<>();
             otherServices.setLabel("Other services");
             otherServices.setItems("Private garage", "Condominium parking", "Doorman service");
-
-
             nRooms.setHelperText("All rooms of the building.");
             nBathrooms.setHelperText("All kind of bathrooms.");
 
