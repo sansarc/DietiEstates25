@@ -6,9 +6,10 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 
 public class SessionManager {
 
-    public static final long SESSION_TIMEOUT = 60 * 60 * 1000; // 1 hour
-    public static final long WARNING_THRESHOLD = 10 * 60 * 1000; // 10 minutes
+    private SessionManager() {}
 
+    public static final long SESSION_TIMEOUT = 60L * 60 * 1000; // 1 hour
+    public static final long WARNING_THRESHOLD = 10L * 60 * 1000; // 10 minutes
 
     private static boolean warned = false;
 

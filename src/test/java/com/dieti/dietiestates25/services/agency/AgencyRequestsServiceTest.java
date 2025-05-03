@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.dieti.dietiestates25.constants.Constants.Codes.INTERNAL_SERVER_ERROR;
 import static com.dieti.dietiestates25.constants.Constants.Codes.OK;
-import static com.dieti.dietiestates25.utils.TestUtils.SUCCESS_RESPONSE_JSON;
+import static com.dieti.dietiestates25.utils.TestUtils.SUCCESS_JSON_MOCK;
 import static com.dieti.dietiestates25.utils.TestUtils.mockResponse;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -112,7 +112,7 @@ class AgencyRequestsServiceTest {
 
     @Test
     void testGetAgents_success() {
-        var response = new SimpleResponse(OK, SUCCESS_RESPONSE_JSON);
+        var response = new SimpleResponse(OK, SUCCESS_JSON_MOCK);
         var spy = spy(response);
 
         when(request.GET(any(), any())).thenReturn(spy);

@@ -14,13 +14,17 @@ import java.util.HashMap;
 
 public class AuthenticationService {
 
-    protected AuthenticationService() {}
+    RequestService requestService;
+    
+    public AuthenticationService() {
+        requestService = new RequestService();
+    }
 
     public SimpleResponse login(String email, String pwd) {
         User loginRequest = new User(email, pwd);
         String json = new Gson().toJson(loginRequest);
 
-        var response = RequestService.POST(ApiEndpoints.LOGIN, json);
+        var response = requestService.POST(ApiEndpoints.LOGIN, json);
 
         if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
             return null;
@@ -47,7 +51,7 @@ public class AuthenticationService {
 
     public SimpleResponse createUser(User user) {
         String json = new Gson().toJson(user);
-        var response = RequestService.POST(ApiEndpoints.SIGNUP, json);
+        var response = requestService.POST(ApiEndpoints.SIGNUP, json);
 
         if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
             return null;
@@ -63,7 +67,7 @@ public class AuthenticationService {
         params.put("isManagerOrAgent", String.valueOf(false));
         var json = new Gson().toJson(new Otp(email, otp));
 
-        var response = RequestService.POST(ApiEndpoints.CONFIRM_USER, params, json);
+        var response = requestService.POST(ApiEndpoints.CONFIRM_USER, params, json);
 
         if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
             return null;
@@ -74,7 +78,7 @@ public class AuthenticationService {
     public SimpleResponse logout (String sessionId) {
         var params = new HashMap<String, Serializable>();
         params.put("sessionId", sessionId);
-        var response = RequestService.GET(ApiEndpoints.LOGOUT, params);
+        var response = requestService.GET(ApiEndpoints.LOGOUT, params);
 
         if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
             return null;
@@ -87,7 +91,7 @@ public class AuthenticationService {
         params.put("email", email);
         params.put("key", "ChangePwd");
         
-        var response = RequestService.GET(ApiEndpoints.GENERATE_OTP, params);
+        var response = requestService.GET(ApiEndpoints.GENERATE_OTP, params);
 
         if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
             return null;
@@ -97,7 +101,7 @@ public class AuthenticationService {
 
     public SimpleResponse changePwd(String email, String newPwd, String otp) {
         String json = new Gson().toJson(new Otp.NewPassword(email, newPwd, otp));
-        var response = RequestService.PUT(ApiEndpoints.CHANGE_PWD, json);
+        var response = requestService.PUT(ApiEndpoints.CHANGE_PWD, json);
 
         return response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR
                 ? null

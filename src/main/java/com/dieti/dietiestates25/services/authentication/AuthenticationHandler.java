@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import static org.springframework.util.StringUtils.capitalize;
 
 public class AuthenticationHandler {
-    private final AuthenticationService authenticationService;
-    private final static Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
+    AuthenticationService authenticationService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
 
     public AuthenticationHandler() {
         authenticationService = new AuthenticationService();
@@ -50,10 +50,8 @@ public class AuthenticationHandler {
 
         if (authenticated.ok()) {
             NotificationFactory.success(String.format("Welcome Back, %s!", UserSession.getFirstName()));
-            UI.getCurrent().access(() -> {
-                SessionManager.monitorSession(UI.getCurrent());
-                UI.getCurrent().navigate(HomeView.class);
-            });
+            SessionManager.monitorSession(UI.getCurrent());
+            UI.getCurrent().navigate(HomeView.class);
             logger.info("User logged in with email: {}", email);
 
         } else {
@@ -108,11 +106,11 @@ public class AuthenticationHandler {
             UserSession.clearSession();
             UI.getCurrent().navigate(LoginView.class);
             NotificationFactory.success("Password change successful! Now you can log back in.");
-            Log.info(UserSession.class, UserSession.getEmail() + "changed password successfully.");
+            Log.info(UserSession.class, email + "changed password successfully.");
         }
         else {
             NotificationFactory.error(response.getRawBody());
-            Log.warn(UserSession.class, UserSession.getEmail() + "failed to change password.");
+            Log.warn(UserSession.class, email + "failed to change password.");
         }
     }
 

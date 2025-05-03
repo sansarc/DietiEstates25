@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 public class TestUtils {
 
-    public static final String SUCCESS_RESPONSE_JSON = """
+    public static final String SUCCESS_JSON_MOCK = """
     {
         "entities": [],
         "message": "Operation successful."
