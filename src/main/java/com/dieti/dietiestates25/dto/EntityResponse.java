@@ -15,6 +15,13 @@ public class EntityResponse<T> extends SimpleResponse {
 
     public EntityResponse() {
         super();
+        this.message = "";
+        this.entities = new ArrayList<>();
+    }
+
+    public EntityResponse(int statusCode, String rawBody) {
+        super(statusCode, rawBody);
+        this.message = "";
         this.entities = new ArrayList<>();
     }
 

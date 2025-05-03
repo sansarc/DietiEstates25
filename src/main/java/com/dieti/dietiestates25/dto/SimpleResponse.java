@@ -12,6 +12,7 @@ import java.util.ArrayList;
 @Setter
 public class SimpleResponse {
 
+    public static final String ENTITIES = "entities";
     protected int statusCode;
     protected String rawBody;
 
@@ -30,15 +31,13 @@ public class SimpleResponse {
         try {
             if (this.rawBody == null || this.rawBody.isEmpty()) {
                 Log.warn(SimpleResponse.class, "Error while parsing: Raw response body is null or empty");
-                return null;
+                return new EntityResponse<>(this.statusCode, "");
             }
 
             var jsonElement = JsonParser.parseString(this.rawBody);
             var response = new EntityResponse<T>();
-
             response.setStatusCode(this.statusCode);  // Copy status code from original response
             response.setRawBody(this.rawBody);       // Copy raw body from original response
-
             var entities = new ArrayList<T>();
             var gson = new Gson();
 
@@ -48,8 +47,8 @@ public class SimpleResponse {
                 if (jsonObject.has("message"))
                     response.setMessage(jsonObject.get("message").getAsString());
 
-                if (jsonObject.has("entities") && jsonObject.get("entities").isJsonArray()) {
-                    JsonArray entitiesArray = jsonObject.getAsJsonArray("entities");
+                if (jsonObject.has(ENTITIES) && jsonObject.get(ENTITIES).isJsonArray()) {
+                    JsonArray entitiesArray = jsonObject.getAsJsonArray(ENTITIES);
                     for (JsonElement element : entitiesArray) {
                         T entity = gson.fromJson(element, entityType);
                         entities.add(entity);
@@ -70,7 +69,7 @@ public class SimpleResponse {
 
         } catch (Exception e) {
             Log.error(SimpleResponse.class, "Unexpected error while parsing the response: " + e.getMessage());
-            return null;
+            return new EntityResponse<>(this.statusCode, "");
         }
     }
 }

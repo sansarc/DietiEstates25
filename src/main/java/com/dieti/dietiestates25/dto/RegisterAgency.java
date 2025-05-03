@@ -11,6 +11,8 @@ public class RegisterAgency {
     private String vatNumber;
     private User manager;
 
+    public RegisterAgency() {}
+
     public RegisterAgency(String agencyName, String vatNumber, User manager) {
         this.agencyName = agencyName;
         this.vatNumber = vatNumber;

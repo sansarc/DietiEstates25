@@ -9,6 +9,10 @@ import com.vaadin.flow.server.VaadinSession;
 
 public class UserSession {
 
+    public static final String SESSION_START = "sessionStart";
+
+    private UserSession() {}
+
     public static void init(User user) {
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
@@ -53,15 +57,15 @@ public class UserSession {
 
     public static void setSessionId(String sessionId) {
         VaadinSession.getCurrent().setAttribute("sessionId", sessionId);
-        VaadinSession.getCurrent().setAttribute("sessionStart", System.currentTimeMillis());
+        VaadinSession.getCurrent().setAttribute(SESSION_START, System.currentTimeMillis());
     }
 
     public static Long getSessionStart() {
-        return (Long) VaadinSession.getCurrent().getAttribute("sessionStart");
+        return (Long) VaadinSession.getCurrent().getAttribute(SESSION_START);
     }
 
     public static void setSessionStart(Long sessionStart) {
-        VaadinSession.getCurrent().setAttribute("sessionStart", sessionStart);
+        VaadinSession.getCurrent().setAttribute(SESSION_START, sessionStart);
     }
 
     public static void setConfirmed(boolean confirmed) {
