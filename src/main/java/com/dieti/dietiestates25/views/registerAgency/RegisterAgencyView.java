@@ -24,7 +24,7 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Register Your Agency")
 public class RegisterAgencyView extends VerticalLayout {
 
-    AgencyRequestsHandler agencyHandler = new AgencyRequestsHandler();
+    transient AgencyRequestsHandler agencyHandler = new AgencyRequestsHandler();
 
     Form form = new Form();
     TextField agencyName;
@@ -32,6 +32,7 @@ public class RegisterAgencyView extends VerticalLayout {
     TextField firstName;
     TextField lastName;
     EmailField email;
+    Button register;
 
     public RegisterAgencyView() {
         configureLayout();
@@ -68,7 +69,7 @@ public class RegisterAgencyView extends VerticalLayout {
         var registerAgencyDiv = new DivContainer("600px", "auto");
         createForm();
 
-        var register = new Button("Register");
+        register = new Button("Register");
         register.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         register.addClickShortcut(Key.ENTER);
         setAlignSelf(Alignment.CENTER, register);

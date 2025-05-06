@@ -29,19 +29,23 @@ import com.vaadin.flow.router.*;
 @Route("otp/:key")
 public class OtpView extends VerticalLayout implements BeforeEnterObserver {
 
+    private final String CONFIRM_ACCOUNT = "confirmAccount";
+    private final String CHANGE_PWD = "changePassword";
+
+    private String KEY;
+    private String TITLE;
+
     DivContainer otpViewDiv = new DivContainer("600px", "250px");
     H3 title;
     Button confirmButton;
     TextField otpTextField;
     Form form;
     PasswordField password;
+    PasswordField confirmPassword;
     ResendLink resendLink;
     Component inputLayout; // either Horizontal or Vertical layout
 
-    private final AuthenticationHandler authHandler = new AuthenticationHandler();
-
-    private String KEY;
-    private String TITLE;
+    transient AuthenticationHandler authHandler = new AuthenticationHandler();
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
@@ -50,12 +54,12 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
         var keyParam = event.getRouteParameters().get("key");
 
         if (keyParam.isPresent() &&
-                (keyParam.get().equals("changePwd") || keyParam.get().equals("confirmAccount")))
+                (keyParam.get().equals(CHANGE_PWD) || keyParam.get().equals(CONFIRM_ACCOUNT)))
             KEY = keyParam.get();
         else
             event.forwardTo(PageNotFoundView.class);
 
-        TITLE = KEY.equals("changePwd") ? "Change Your Password" : "Confirm Your Account";
+        TITLE = KEY.equals(CHANGE_PWD) ? "Change Your Password" : "Confirm Your Account";
 
         UI.getCurrent().access(() ->   // change page title depending on the param
                 UI.getCurrent().getPage().setTitle(TITLE)
@@ -65,7 +69,7 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
         configureLayout();
     }
 
-    public OtpView() {}
+    public OtpView() { /* for testing */ }
 
     private void configureComponents() {
         title = new H3(TITLE);
@@ -87,7 +91,7 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
         addPasswordFormIfChangePwd();
         createConfirmButton();
 
-        inputLayout = KEY.equals("changePwd")
+        inputLayout = KEY.equals(CHANGE_PWD)
                 ? new VerticalLayout(form, confirmButton)
                 : new HorizontalLayout(otpTextField, confirmButton);
 
@@ -102,9 +106,9 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void addPasswordFormIfChangePwd() {
-        if (KEY.equals("changePwd")) {
+        if (KEY.equals(CHANGE_PWD)) {
             password = new PasswordField("New Password");
-            var confirmPassword = new PasswordField("Confirm Password");
+            confirmPassword = new PasswordField("Confirm Password");
 
             form = new Form(otpTextField, password, confirmPassword);
             form.setRequiredTrue(otpTextField, confirmPassword, otpTextField);
@@ -121,9 +125,9 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
 
     private void createResendLink() {
         resendLink = new ResendLink(() -> {
-            if (KEY.equals("confirmAccount"))
+            if (KEY.equals(CONFIRM_ACCOUNT))
                 authHandler.recreateUser(UserSession.getFirstName(), UserSession.getLastName(), UserSession.getEmail(), UserSession.getPwd());
-            else if (KEY.equals("changePwd"))
+            else if (KEY.equals(CHANGE_PWD))
                 authHandler.sendOTP(UserSession.getEmail());
             else
                 NotificationFactory.criticalError("There was an unexpected error. Please try again later.");
@@ -166,9 +170,9 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
                 otpTextField.setInvalid(true);
             }
             else {
-                if (KEY.equals("confirmAccount"))
+                if (KEY.equals(CONFIRM_ACCOUNT))
                     authHandler.confirmUser(UserSession.getEmail(), otpTextField.getValue());
-                else if (KEY.equals("changePwd") && form.areRequiredFieldsValid())
+                else if (KEY.equals(CHANGE_PWD) && form.areRequiredFieldsValid())
                     authHandler.changePwd(UserSession.getEmail(), password.getValue(), otpTextField.getValue());
                 else
                     NotificationFactory.criticalError("There was an unexpected error. Please try again later.");

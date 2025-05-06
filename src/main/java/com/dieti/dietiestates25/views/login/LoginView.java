@@ -27,6 +27,7 @@ import java.util.Map;
 @Route(value = "login", layout = MainLayout.class)
 public class LoginView extends VerticalLayout implements HasUrlParameter<String> {
 
+    public static final String TMP_PWD_LITERAL = "tmpPwd";
     H3 title = new H3("Login");
     EmailField emailField = new EmailField("Email");
     PasswordField passwordField = new PasswordField("Password");
@@ -37,15 +38,15 @@ public class LoginView extends VerticalLayout implements HasUrlParameter<String>
     ThirdPartyLoginButton linkedinButton = new ThirdPartyLoginButton("Linkedin", "75%", "/images/linkedin_logo.png", "");
     ThirdPartyLoginButton facebookButton = new ThirdPartyLoginButton("Facebook", "75%", "/images/facebook_logo.png", "");
 
-    private final AuthenticationHandler authHandler = new AuthenticationHandler();
+    transient AuthenticationHandler authHandler = new AuthenticationHandler();
 
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
         var queryParameters = event.getLocation().getQueryParameters();
         Map<String, List<String>> parameters = queryParameters.getParameters();
 
-        if (parameters.containsKey("tmpPwd") && !parameters.get("tmpPwd").isEmpty()) {
-            var tmpPwd = parameters.get("tmpPwd").get(0);
+        if (parameters.containsKey(TMP_PWD_LITERAL) && !parameters.get(TMP_PWD_LITERAL).isEmpty()) {
+            var tmpPwd = parameters.get(TMP_PWD_LITERAL).getFirst();
             configureComponents(tmpPwd);
         }
         else

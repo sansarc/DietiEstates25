@@ -16,7 +16,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 public class ConfirmAccountDialog extends Dialog {
 
     VerticalLayout layout;
-    final AgencyRequestsHandler agencyRequestsHandler = new AgencyRequestsHandler();
+    transient AgencyRequestsHandler agencyRequestsHandler = new AgencyRequestsHandler();
 
     public ConfirmAccountDialog() {
         setCloseOnEsc(false);
@@ -30,7 +30,6 @@ public class ConfirmAccountDialog extends Dialog {
         addOpenedChangeListener(event -> {
             if (event.isOpened())
                 UI.getCurrent().access(this::initializeComponents);
-
         });
     }
 
@@ -45,6 +44,7 @@ public class ConfirmAccountDialog extends Dialog {
         confirmPassword.setAutocomplete(Autocomplete.NEW_PASSWORD);
 
         var form = new Form(password, confirmPassword);
+        form.setId("confirm-account-form");
         form.setRequiredTrue(password, confirmPassword);
 
         var confirmButton = new Button("Confirm");

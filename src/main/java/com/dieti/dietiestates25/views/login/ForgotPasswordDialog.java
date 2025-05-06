@@ -19,7 +19,7 @@ public class ForgotPasswordDialog extends Dialog {
     Span subtitle;
     VerticalLayout emailLayout;
 
-    private final AuthenticationHandler authenticationHandler = new AuthenticationHandler();
+    transient AuthenticationHandler authenticationHandler = new AuthenticationHandler();
 
     public ForgotPasswordDialog() {
         configureComponents();
@@ -42,8 +42,10 @@ public class ForgotPasswordDialog extends Dialog {
         createEmailLayout();
         
         var sendButton = new Button("Send", event -> {
-            if (emailField.isInvalid())
+            if (emailField.isInvalid() || emailField.isEmpty()) {
                 emailField.setInvalid(true);
+                emailField.setErrorMessage("Please enter a valid email address.");
+            }
             else
                 authenticationHandler.sendOTP(emailField.getValue());
         });

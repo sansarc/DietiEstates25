@@ -27,14 +27,18 @@ public class SignUpView extends VerticalLayout {
 
         H3 title;
         Form form;
-        TextField firstName, lastName;
+        TextField firstName;
+        TextField lastName;
         EmailField email;
-        PasswordField password, confirmPassword;
+        PasswordField password;
+        PasswordField confirmPassword;
         Paragraph disclaimer;
         Button signup;
-        ThirdPartyLoginButton googleButton, linkedinButton, facebookButton;
+        ThirdPartyLoginButton googleButton;
+        ThirdPartyLoginButton linkedinButton;
+        ThirdPartyLoginButton facebookButton;
 
-        private final AuthenticationHandler authHandler = new AuthenticationHandler();
+        transient AuthenticationHandler authHandler = new AuthenticationHandler();
 
         SignUpView() {
             configureComponents();

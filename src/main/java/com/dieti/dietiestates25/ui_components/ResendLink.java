@@ -7,20 +7,21 @@ import com.vaadin.flow.shared.Registration;
 
 public class ResendLink extends Span {
 
-    Span resendLink;
+    Span link;
     Span countdownText;
     int COUNTDOWN = 60;
     Registration clickListenerRegistration;
     Registration pollListenerRegistration = () -> {}; // prevents NPE
     UI ui;
-    Runnable action;
+
+    public transient Runnable action;
 
     public ResendLink(Runnable action) {
         this.action = action;
         ui = UI.getCurrent();
 
-        resendLink = new Span("Resend code");
-        resendLink.getStyle()
+        link = new Span("Resend code");
+        link.getStyle()
                 .setColor("lightgray")
                 .setTextDecoration("underline")
                 .setCursor("pointer")
@@ -28,7 +29,7 @@ public class ResendLink extends Span {
 
         countdownText = new Span(" in " + COUNTDOWN + " seconds");
 
-        add(resendLink, countdownText);
+        add(link, countdownText);
 
         disableResendLink();
         startCountdown();
@@ -53,10 +54,10 @@ public class ResendLink extends Span {
     }
 
     private void enableResendLink() {
-        resendLink.getStyle().setColor(Constants.Colors.PRIMARY_BLUE);
-        resendLink.getStyle().setCursor("pointer");
+        link.getStyle().setColor(Constants.Colors.PRIMARY_BLUE);
+        link.getStyle().setCursor("pointer");
 
-        clickListenerRegistration = resendLink.addClickListener(event -> {
+        clickListenerRegistration = link.addClickListener(event -> {
             action.run();
             disableResendLink();
             COUNTDOWN = 30;
@@ -65,8 +66,8 @@ public class ResendLink extends Span {
     }
 
     private void disableResendLink() {
-        resendLink.getStyle().setColor("lightgray");
-        resendLink.getStyle().setCursor("not-allowed");
+        link.getStyle().setColor("lightgray");
+        link.getStyle().setCursor("not-allowed");
 
         if (clickListenerRegistration != null) {
             clickListenerRegistration.remove();
