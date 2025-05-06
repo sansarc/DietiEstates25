@@ -16,7 +16,8 @@ public class Bid {
     protected double amount;
     protected String agentMessage;
     protected String offererMessage;
-    private String firstname, lastname;
+    private String firstname;
+    private String lastname;
 
     @SerializedName("counterOffer") private Counteroffer counteroffer;
 
@@ -25,7 +26,7 @@ public class Bid {
     protected String offerer;
     private String timestamp;
 
-    protected Bid() {}
+    public Bid() {/* for testing */}
 
     public static class Refuse extends Bid {
         public Refuse(int id, String agentMessage, double amount) {
@@ -36,6 +37,7 @@ public class Bid {
         }
     }
 
+    // `Accept` works for both `Bid` and `Counteroffer`
     public static class Accept extends Bid {
         public Accept(int id) {
             this.id = id;
@@ -54,7 +56,7 @@ public class Bid {
 
     @Getter
     public static class Counteroffer extends Bid {
-        int parentBidId;
+        int parentBid;
 
         public static class Refuse extends Counteroffer {
             public Refuse(int id) {

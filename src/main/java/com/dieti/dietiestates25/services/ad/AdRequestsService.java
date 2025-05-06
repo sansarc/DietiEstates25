@@ -11,7 +11,6 @@ import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.dto.ad.City;
 import com.dieti.dietiestates25.services.requests.RequestService;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -21,7 +20,8 @@ import static com.dieti.dietiestates25.constants.Constants.Codes.INTERNAL_SERVER
 
 public class AdRequestsService {
 
-    private final RequestService requestService;
+    public static final String SESSION_ID = "sessionId";
+    RequestService requestService;
 
     public AdRequestsService() {
         requestService = new RequestService();
@@ -59,7 +59,7 @@ public class AdRequestsService {
 
     public EntityResponse<Ad> insertAd(AdInsert ad) {
         String json = new Gson().toJson(ad);
-        var response =  requestService.POST(ApiEndpoints.INSERT_AD, "sessionId", UserSession.getSessionId(), json);
+        var response =  requestService.POST(ApiEndpoints.INSERT_AD, SESSION_ID, UserSession.getSessionId(), json);
 
         if (response.getStatusCode() == INTERNAL_SERVER_ERROR)
             return null;
@@ -90,7 +90,7 @@ public class AdRequestsService {
 
     public EntityResponse<Bid> sendBid(Bid.Insert bid) {
         String json = new Gson().toJson(bid);
-        var response = requestService.POST(ApiEndpoints.SEND_BID, "sessionId", UserSession.getSessionId(), json);
+        var response = requestService.POST(ApiEndpoints.SEND_BID, SESSION_ID, UserSession.getSessionId(), json);
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response.parse(Bid.class);
     }
 
@@ -107,21 +107,21 @@ public class AdRequestsService {
     public SimpleResponse cancelBid(int bidId) {
         var params = new HashMap<String, Serializable>();
         params.put("bidId", bidId);
-        var response = requestService.PUT(ApiEndpoints.CANCEL_BID, "sessionId", UserSession.getSessionId(), params);
+        var response = requestService.PUT(ApiEndpoints.CANCEL_BID, SESSION_ID, UserSession.getSessionId(), params);
 
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response;
     }
 
     public SimpleResponse acceptOrRefuseBid(Bid bid) {
         var json = new Gson().toJson(bid);
-        var response = requestService.PUT(ApiEndpoints.ACCEPT_OR_REFUSE_BID, "sessionId", UserSession.getSessionId(), json);
+        var response = requestService.PUT(ApiEndpoints.ACCEPT_OR_REFUSE_BID, SESSION_ID, UserSession.getSessionId(), json);
 
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response;
     }
 
     public SimpleResponse acceptOrRefuseCounterOffer(Bid counteroffer) {
-        var json = new GsonBuilder().create().toJson(counteroffer);
-        var response = requestService.PUT(ApiEndpoints.ACCEPT_OR_REFUSE_COUNTEROFFER, "sessionId", UserSession.getSessionId(), json);
+        var json = new Gson().toJson(counteroffer);
+        var response = requestService.PUT(ApiEndpoints.ACCEPT_OR_REFUSE_COUNTEROFFER, SESSION_ID, UserSession.getSessionId(), json);
 
         return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response;
     }

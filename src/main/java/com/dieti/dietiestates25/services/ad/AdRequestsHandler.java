@@ -6,7 +6,6 @@ import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.dto.ad.City;
 import com.dieti.dietiestates25.dto.ad.Photo;
-import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.ad.AdView;
 import com.google.gson.Gson;
@@ -19,26 +18,33 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
-@SuppressWarnings("LoggingSimilarMessage")
 public class AdRequestsHandler {
-    private final AdRequestsService adRequestsService;
-    private final static Logger logger = LoggerFactory.getLogger(AdRequestsHandler.class);
+    public static final String FAILED = "Failed to retrieve ad.";
+    AdRequestsService adRequestsService;
+    private static final Logger logger = LoggerFactory.getLogger(AdRequestsHandler.class);
 
     public AdRequestsHandler() { adRequestsService = new AdRequestsService(); }
 
     public List<String> getRegions() {
         var response = adRequestsService.getRegions();
+        if (response == null) return List.of("No regions found.");
         return new Gson().fromJson(response.getRawBody(), new TypeToken<List<String>>() {}.getType());
     }
 
     public List<String> getProvinces(String region) {
         var response = adRequestsService.getProvinces(region);
-        return new Gson().fromJson(response.getRawBody(), new TypeToken<List<String>>() {}.getType());
+        if (response == null) return List.of("No provinces found.");
+        List<String> list = new Gson().fromJson(response.getRawBody(), new TypeToken<List<String>>() {}.getType());
+        return list.isEmpty()
+                ? List.of("No provinces found.")
+                : list;
     }
 
     public List<City> getCities(String province) {
         var response = adRequestsService.getCities(province);
+        if (response == null  || response.getEntities().isEmpty()) return List.of(new City("No cities found.", "0"));
         return response.getEntities();
     }
 
@@ -48,8 +54,8 @@ public class AdRequestsHandler {
         if (adResponse == null)
             return;
         else if (!adResponse.ok()) {
-            logger.warn("Failed to create ad for user {}", UserSession.getEmail());
-            NotificationFactory.error(adResponse.parse(Ad.class).getMessage());
+            logger.warn("Failed to create ad.");
+            NotificationFactory.error(adResponse.getMessage());
             return;
         }
 
@@ -69,11 +75,8 @@ public class AdRequestsHandler {
             }
         }
 
-        if (failedPhotos.isEmpty()) {
-            logger.info("New ad created by {}", UserSession.getEmail());
-            NotificationFactory.success("Ad created successfully!");
-        }
-
+        logger.info("New ad created. Ad ID: {}", adId);
+        NotificationFactory.success("Ad created successfully!");
         UI.getCurrent().navigate(AdView.class, new RouteParameters("id", String.valueOf(adId))); // even if there may be partial pictures?
     }
 
@@ -84,7 +87,7 @@ public class AdRequestsHandler {
         if (response == null) return null;
 
         if (!response.ok()) {
-            NotificationFactory.error("Failed to retrieve ad.");
+            NotificationFactory.error(FAILED);
             logger.warn("Failed to retrieve ad {}.", idAd);
             return null;
         }
@@ -107,7 +110,6 @@ public class AdRequestsHandler {
                 logger.warn("Failed to get photos for ad {}.", ad.getId());
             }
         }
-
     }
 
     public Bid sendBid(int adId, double amount, String bidMessage) {
@@ -115,21 +117,20 @@ public class AdRequestsHandler {
                 new Bid.Insert(adId, amount, bidMessage, "")
         );
 
-        if (response == null) {
+        if (response == null || !response.ok()) {
             NotificationFactory.error("Either you already placed a bid or another one was accepted.");
             return null;
         }
 
-        if (response.ok())
-            NotificationFactory.success("Bid sent!");
-
+        NotificationFactory.success("Bid sent!");
+        logger.info("New bid ({}) for ad {}.", response.getFirstEntity().getId(), adId);
         return response.getFirstEntity();
     }
 
     public List<Bid> getBidsBy(String key, Serializable value) {
         var response = adRequestsService.getBidsBy(key, value);
 
-        if (response == null) return null;
+        if (response == null) return List.of();
 
         if (!response.ok())
             NotificationFactory.error("We couldn't fetch bids for this ad.");
@@ -168,13 +169,19 @@ public class AdRequestsHandler {
         if (response == null) return false;
 
         if (response.ok()) {
-            if (counteroffer instanceof Bid.Counteroffer.Refuse)
+            if (counteroffer instanceof Bid.Counteroffer.Refuse) {
                 NotificationFactory.success("Counter offer refused.");
-            else if (counteroffer instanceof Bid.Accept)
+                logger.info("Counter offer {} refused for ad {}.", counteroffer.getId(), counteroffer.getAdId());
+            }
+            else if (counteroffer instanceof Bid.Accept) {
                 NotificationFactory.success("Counter offer accepted.");
+                logger.info("Counter offer {} accepted for ad {}.", counteroffer.getId(), counteroffer.getAdId());
+            }
         }
-        else
+        else {
             NotificationFactory.error(response.getRawBody());
+            logger.warn("Failed to accept or refuse counter offer {} for ad {}.", counteroffer.getId(), counteroffer.getAdId());
+        }
 
         return response.ok();
     }
@@ -184,15 +191,15 @@ public class AdRequestsHandler {
         search.setAgentEmail(agentEmail);
         search.setType("S");
         var response = adRequestsService.searchAds(search);
-        if (badAdResponse(response)) return null;
+        if (badAdResponse(response)) return List.of();
 
         var ads = response.getEntities();
 
         search.setType("R");
         response = adRequestsService.searchAds(search);
-        if (badAdResponse(response)) return null;
+        if (badAdResponse(response)) return List.of();
 
-        ads.addAll(response.getEntities()); // add other ads
+        ads = Stream.concat(ads.stream(), response.getEntities().stream()).toList(); // add other ads
         for (var ad : ads) retrievePhotos(ad);
 
         return ads;
@@ -200,7 +207,8 @@ public class AdRequestsHandler {
 
     public List<Ad> searchAds(Ad.SearchBy search) {
         var response = adRequestsService.searchAds(search);
-        if (badAdResponse(response)) return null;
+        if (badAdResponse(response))
+            return List.of();
 
         var ads = response.getEntities();
         for (var ad : ads) retrievePhotos(ad);
@@ -212,8 +220,8 @@ public class AdRequestsHandler {
         if (response == null) return true;
 
         if (!response.ok()) {
-            NotificationFactory.error("Failed to retrieve ad.");
-            logger.warn("Failed to retrieve ad.");
+            NotificationFactory.error(FAILED);
+            logger.warn(FAILED);
             return true;
         }
         
