@@ -27,7 +27,7 @@ public class EntityResponse<T> extends SimpleResponse {
 
     public T getFirstEntity() {
         return entities != null && !entities.isEmpty()
-                ? entities.get(0)
+                ? entities.getFirst()
                 : null;
     }
 

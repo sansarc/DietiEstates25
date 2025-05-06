@@ -6,6 +6,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 
+@SuppressWarnings("unchecked")
 public class ForwardGuestAnnotationInit implements VaadinServiceInitListener {
 
     @Override

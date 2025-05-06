@@ -12,7 +12,7 @@ import java.util.ArrayList;
 @Setter
 public class SimpleResponse {
 
-    public static final String ENTITIES = "entities";
+    private static final String ENTITIES_LITERAL = "entities";
     protected int statusCode;
     protected String rawBody;
 
@@ -47,8 +47,8 @@ public class SimpleResponse {
                 if (jsonObject.has("message"))
                     response.setMessage(jsonObject.get("message").getAsString());
 
-                if (jsonObject.has(ENTITIES) && jsonObject.get(ENTITIES).isJsonArray()) {
-                    JsonArray entitiesArray = jsonObject.getAsJsonArray(ENTITIES);
+                if (jsonObject.has(ENTITIES_LITERAL) && jsonObject.get(ENTITIES_LITERAL).isJsonArray()) {
+                    JsonArray entitiesArray = jsonObject.getAsJsonArray(ENTITIES_LITERAL);
                     for (JsonElement element : entitiesArray) {
                         T entity = gson.fromJson(element, entityType);
                         entities.add(entity);
