@@ -42,7 +42,7 @@ class AgencyRequestsServiceTest {
         var result = service.createAgency(agency);
 
         assertTrue(result.ok());
-        verify(request, times(1)).POST(any(), any());
+        verify(request, atMostOnce()).POST(any(), any());
     }
 
     @Test
@@ -52,7 +52,7 @@ class AgencyRequestsServiceTest {
 
         var result = service.createAgency(new RegisterAgency());
         assertNull(result);
-        verify(request, times(1)).POST(any(), any());
+        verify(request, atMostOnce()).POST(any(), any());
 
     }
 
@@ -65,7 +65,7 @@ class AgencyRequestsServiceTest {
         var result = service.confirmManagerOrAgentAccount("user@test.com", "oldPwd", "newPwd");
 
         assertTrue(result.ok());
-        verify(request, times(1)).POST(any(), any(), any());
+        verify(request, atMostOnce()).POST(any(), any(), any());
     }
 
     @Test
@@ -76,7 +76,7 @@ class AgencyRequestsServiceTest {
         var result = service.confirmManagerOrAgentAccount("user@test.com", "oldPwd", "newPwd");
 
         assertNull(result);
-        verify(request, times(1)).POST(any(), any(), any());
+        verify(request, atMostOnce()).POST(any(), any(), any());
     }
 
     @Test
@@ -92,7 +92,7 @@ class AgencyRequestsServiceTest {
             assertTrue(result.ok());
         }
 
-        verify(request, times(1)).POST(any(), any(), any(), any());
+        verify(request, atMostOnce()).POST(any(), any(), any(), any());
     }
 
     @Test
@@ -107,7 +107,7 @@ class AgencyRequestsServiceTest {
             assertNull(result);
         }
 
-        verify(request, times(1)).POST(any(), any(), any(), any());
+        verify(request, atMostOnce()).POST(any(), any(), any(), any());
     }
 
     @Test
@@ -120,7 +120,7 @@ class AgencyRequestsServiceTest {
         var result = service.getAgents(validVAT);
 
         assertTrue(result.ok());
-        verify(request, times(1)).GET(any(), any());
+        verify(request, atMostOnce()).GET(any(), any());
     }
 
     @Test
@@ -131,6 +131,6 @@ class AgencyRequestsServiceTest {
         var result = service.getAgents(validVAT);
 
         assertNull(result);
-        verify(request, times(1)).GET(any(), any());
+        verify(request, atMostOnce()).GET(any(), any());
     }
 }

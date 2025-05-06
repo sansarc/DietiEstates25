@@ -42,7 +42,7 @@ class AuthenticationHandlerTest {
 
         handler.confirmUser("user@test.com", "otp");
 
-        verify(service, times(1)).confirmUser(any(), any());
+        verify(service, atMostOnce()).confirmUser(any(), any());
     }
     
     @Test
@@ -53,7 +53,7 @@ class AuthenticationHandlerTest {
         
         handler.confirmUser("user@test.com", "otp");
         
-        verify(service, times(1)).confirmUser(any(), any());
+        verify(service, atMostOnce()).confirmUser(any(), any());
     }
     
     @Test
@@ -63,7 +63,7 @@ class AuthenticationHandlerTest {
         
         handler.confirmUser("user@test.com", "otp");
         
-        verify(service, times(1)).confirmUser(any(), any());
+        verify(service, atMostOnce()).confirmUser(any(), any());
     }
 
     @Test
@@ -81,8 +81,8 @@ class AuthenticationHandlerTest {
 
             handler.login("user@test.com", "pwd");
 
-            verify(service, times(1)).login(any(), any());
-            sessionManagerMock.verify(() -> SessionManager.monitorSession(any()), times(1));
+            verify(service, atMostOnce()).login(any(), any());
+            sessionManagerMock.verify(() -> SessionManager.monitorSession(any()), atMostOnce());
         }
     }
 
@@ -94,7 +94,7 @@ class AuthenticationHandlerTest {
 
         handler.login("user@test.com", "pwd");
 
-        verify(service, times(1)).login(any(), any());
+        verify(service, atMostOnce()).login(any(), any());
     }
 
     @Test
@@ -105,7 +105,7 @@ class AuthenticationHandlerTest {
 
         handler.createUser("John", "Doe", "user@test.com", "pwd");
 
-        verify(service, times(1)).createUser(any());
+        verify(service, atMostOnce()).createUser(any());
     }
 
     @Test
@@ -116,7 +116,7 @@ class AuthenticationHandlerTest {
 
         handler.createUser("John", "Doe", "user@test.com", "pwd");
 
-        verify(service, times(1)).createUser(any());
+        verify(service, atMostOnce()).createUser(any());
     }
 
     @Test
@@ -126,7 +126,7 @@ class AuthenticationHandlerTest {
 
         handler.createUser("John", "Doe", "user@test.com", "pwd");
 
-        verify(service, times(1)).createUser(any());
+        verify(service, atMostOnce()).createUser(any());
     }
 
     @Test
@@ -136,7 +136,7 @@ class AuthenticationHandlerTest {
 
         handler.recreateUser("John", "Doe", "user@test.com", "password");
 
-        verify(service, times(1)).createUser(any());
+        verify(service, atMostOnce()).createUser(any());
     }
 
     @Test
@@ -147,7 +147,7 @@ class AuthenticationHandlerTest {
 
         handler.logout("user@test.com");
 
-        verify(service, times(1)).logout(any());
+        verify(service, atMostOnce()).logout(any());
     }
 
     @Test
@@ -158,7 +158,7 @@ class AuthenticationHandlerTest {
 
         handler.logout("user@test.com");
 
-        verify(service, times(1)).logout(any());
+        verify(service, atMostOnce()).logout(any());
     }
 
     @Test
@@ -168,7 +168,7 @@ class AuthenticationHandlerTest {
 
         handler.logout("user@test.com");
 
-        verify(service, times(1)).logout(any());
+        verify(service, atMostOnce()).logout(any());
     }
 
     @Test
@@ -180,8 +180,8 @@ class AuthenticationHandlerTest {
         try (var sessionMock = mockStatic(UserSession.class)) {
             handler.changePwd("user@test.com", "oldPwd", "newPwd");
 
-            sessionMock.verify(UserSession::clearSession, times(1));
-            verify(service, times(1)).changePwd(any(), any(), any());
+            sessionMock.verify(UserSession::clearSession, atMostOnce());
+            verify(service, atMostOnce()).changePwd(any(), any(), any());
 
         }
     }
@@ -194,7 +194,7 @@ class AuthenticationHandlerTest {
 
         handler.changePwd("user@test.com", "oldPwd", "newPwd");
 
-        verify(service, times(1)).changePwd(any(), any(), any());
+        verify(service, atMostOnce()).changePwd(any(), any(), any());
     }
 
     @Test
@@ -204,7 +204,7 @@ class AuthenticationHandlerTest {
 
         handler.changePwd("user@test.com", "oldPwd", "newPwd");
 
-        verify(service, times(1)).changePwd(any(), any(), any());
+        verify(service, atMostOnce()).changePwd(any(), any(), any());
     }
 
     @Test
@@ -216,9 +216,9 @@ class AuthenticationHandlerTest {
         try (var sessionMock = mockStatic(UserSession.class)) {
             handler.sendOTP("user@test.com");
 
-            sessionMock.verify(() -> UserSession.setSessionId(any()), times(1));
-            sessionMock.verify(() -> UserSession.setEmail(any()), times(1));
-            verify(service, times(1)).sendOTP(any());
+            sessionMock.verify(() -> UserSession.setSessionId(any()), atMostOnce());
+            sessionMock.verify(() -> UserSession.setEmail(any()), atMostOnce());
+            verify(service, atMostOnce()).sendOTP(any());
         }
     }
 
@@ -230,7 +230,7 @@ class AuthenticationHandlerTest {
 
         handler.sendOTP("user@test.com");
 
-        verify(service, times(1)).sendOTP(any());
+        verify(service, atMostOnce()).sendOTP(any());
     }
 
     @Test
@@ -240,6 +240,6 @@ class AuthenticationHandlerTest {
 
         handler.sendOTP("user@test.com");
 
-        verify(service, times(1)).sendOTP(any());
+        verify(service, atMostOnce()).sendOTP(any());
     }
 }

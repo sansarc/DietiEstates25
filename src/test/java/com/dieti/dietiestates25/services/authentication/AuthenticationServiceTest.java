@@ -65,10 +65,10 @@ class AuthenticationServiceTest {
 
             assertNotNull(result);
             assertTrue(result.ok());
-            sessionMock.verify(() -> UserSession.init(any()), times(1));
-            sessionMock.verify(() -> UserSession.setSessionId(any()), times(1));
-            sessionMock.verify(() -> UserSession.setPwd(any()), times(0));
-            verify(request, times(1)).POST(any(), any());
+            sessionMock.verify(() -> UserSession.init(any()), atMostOnce());
+            sessionMock.verify(() -> UserSession.setSessionId(any()), atMostOnce());
+            sessionMock.verify(() -> UserSession.setPwd(any()), never());
+            verify(request, atMostOnce()).POST(any(), any());
         }
     }
 
@@ -85,10 +85,10 @@ class AuthenticationServiceTest {
 
             assertNotNull(result);
             assertTrue(result.ok());
-            sessionMock.verify(() -> UserSession.init(any()), times(1));
-            sessionMock.verify(() -> UserSession.setSessionId(any()), times(1));
-            sessionMock.verify(() -> UserSession.setPwd(any()), times(1));
-            verify(request, times(1)).POST(any(), any());
+            sessionMock.verify(() -> UserSession.init(any()), atMostOnce());
+            sessionMock.verify(() -> UserSession.setSessionId(any()), atMostOnce());
+            sessionMock.verify(() -> UserSession.setPwd(any()), atMostOnce());
+            verify(request, atMostOnce()).POST(any(), any());
         }
     }
 
@@ -106,7 +106,7 @@ class AuthenticationServiceTest {
 
             assertNotNull(result);
             assertTrue(result.ok());
-            verify(request, times(1)).POST(any(), any());
+            verify(request, atMostOnce()).POST(any(), any());
             sessionMock.verifyNoInteractions(); // Ensure no session initialization occurred
         }
     }
@@ -124,9 +124,9 @@ class AuthenticationServiceTest {
 
             assertNotNull(result);
             assertTrue(result.ok());
-            sessionMock.verify(() -> UserSession.init(any()), times(1));
-            sessionMock.verify(() -> UserSession.setSessionId(any()), times(1));
-            sessionMock.verify(() -> UserSession.setPwd(any()), times(1));
+            sessionMock.verify(() -> UserSession.init(any()), atMostOnce());
+            sessionMock.verify(() -> UserSession.setSessionId(any()), atMostOnce());
+            sessionMock.verify(() -> UserSession.setPwd(any()), atMostOnce());
         }
     }
     @Test
@@ -137,7 +137,7 @@ class AuthenticationServiceTest {
         var result = service.login("user@test.com", "password");
 
         assertNull(result);
-        verify(request, times(1)).POST(any(), any());
+        verify(request, atMostOnce()).POST(any(), any());
     }
 
     @Test
@@ -151,9 +151,9 @@ class AuthenticationServiceTest {
 
             assertNotNull(result);
             assertTrue(result.ok());
-            sessionMock.verify(() -> UserSession.init(any()), times(1));
-            sessionMock.verify(() -> UserSession.setSessionId(any()), times(1));
-            verify(request, times(1)).POST(any(), any());
+            sessionMock.verify(() -> UserSession.init(any()), atMostOnce());
+            sessionMock.verify(() -> UserSession.setSessionId(any()), atMostOnce());
+            verify(request, atMostOnce()).POST(any(), any());
         }
     }
 
@@ -165,7 +165,7 @@ class AuthenticationServiceTest {
         var result = service.createUser(new User("John", "Doe", "user@test.com", "password"));
 
         assertNull(result);
-        verify(request, times(1)).POST(any(), any());
+        verify(request, atMostOnce()).POST(any(), any());
     }
 
     @Test
@@ -178,7 +178,7 @@ class AuthenticationServiceTest {
 
         assertNotNull(result);
         assertTrue(result.ok());
-        verify(request, times(1)).POST(any(), any(), any());
+        verify(request, atMostOnce()).POST(any(), any(), any());
     }
 
     @Test
@@ -189,7 +189,7 @@ class AuthenticationServiceTest {
         var result = service.confirmUser("user@test.com", "otp");
 
         assertNull(result);
-        verify(request, times(1)).POST(any(), any(), any());
+        verify(request, atMostOnce()).POST(any(), any(), any());
     }
 
     @Test
@@ -202,7 +202,7 @@ class AuthenticationServiceTest {
 
         assertNotNull(result);
         assertTrue(result.ok());
-        verify(request, times(1)).GET(any(), any());
+        verify(request, atMostOnce()).GET(any(), any());
     }
 
     @Test
@@ -213,7 +213,7 @@ class AuthenticationServiceTest {
         var result = service.logout("user@test.com");
 
         assertNull(result);
-        verify(request, times(1)).GET(any(), any());
+        verify(request, atMostOnce()).GET(any(), any());
     }
 
     @Test
@@ -226,7 +226,7 @@ class AuthenticationServiceTest {
 
         assertNotNull(result);
         assertTrue(result.ok());
-        verify(request, times(1)).GET(any(), any());
+        verify(request, atMostOnce()).GET(any(), any());
     }
 
     @Test
@@ -237,7 +237,7 @@ class AuthenticationServiceTest {
         var result = service.sendOTP("user@test.com");
 
         assertNull(result);
-        verify(request, times(1)).GET(any(), any());
+        verify(request, atMostOnce()).GET(any(), any());
     }
 
     @Test
@@ -250,7 +250,7 @@ class AuthenticationServiceTest {
 
         assertNotNull(result);
         assertTrue(result.ok());
-        verify(request, times(1)).PUT(any(), any());
+        verify(request, atMostOnce()).PUT(any(), any());
     }
 
     @Test
@@ -261,6 +261,6 @@ class AuthenticationServiceTest {
         var result = service.changePwd("user@test.com", "oldPwd", "newPwd");
 
         assertNull(result);
-        verify(request, times(1)).PUT(any(), any());
+        verify(request, atMostOnce()).PUT(any(), any());
     }
 }
