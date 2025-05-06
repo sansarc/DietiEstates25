@@ -2,6 +2,8 @@ package com.dieti.dietiestates25.services.agency;
 
 import com.dieti.dietiestates25.dto.*;
 import com.dieti.dietiestates25.services.session.UserSession;
+import com.dieti.dietiestates25.views.login.LoginView;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static com.dieti.dietiestates25.utils.TestUtils.mockResponse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,6 +23,9 @@ class AgencyRequestsHandlerTest {
 
     @Mock
     private UI ui;
+
+    @Captor
+    private ArgumentCaptor<Class<? extends Component>> navigationCaptor;
 
     @Mock
     private AgencyRequestsService service;
@@ -36,6 +41,16 @@ class AgencyRequestsHandlerTest {
         handler.agencyRequestsService = service;
     }
 
+    private void verifyNavigationTo(Class<? extends Component> target) {
+        verify(ui, atMostOnce()).navigate(navigationCaptor.capture());
+        assertEquals(target, navigationCaptor.getValue());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void verifyNoNavigation() {
+        verify(ui, never()).navigate((Class<? extends Component>) any());
+    }
+
     @Test
     void testCreateAgency_success() {
         var success = mockResponse(true);
@@ -46,6 +61,7 @@ class AgencyRequestsHandlerTest {
         handler.createAgency("FailAgency", "999", "Alice", "Smith", "alice@example.com");
 
         verify(service, atMostOnce()).createAgency(any());
+        verifyNavigationTo(LoginView.class);
     }
 
     @Test
@@ -58,6 +74,7 @@ class AgencyRequestsHandlerTest {
         handler.createAgency("FailAgency", "999", "Alice", "Smith", "alice@example.com");
 
         verify(service).createAgency(any());
+        verifyNoNavigation();
     }
 
     @Test
@@ -66,7 +83,9 @@ class AgencyRequestsHandlerTest {
                 .thenReturn(null);
 
         handler.createAgency("FailAgency", "999", "Alice", "Smith", "alice@example.com");
+
         verify(service).createAgency(any());
+        verifyNoNavigation();
     }
 
     @Test

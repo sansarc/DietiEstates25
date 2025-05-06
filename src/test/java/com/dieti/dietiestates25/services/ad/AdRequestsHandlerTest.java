@@ -7,10 +7,15 @@ import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.dto.ad.City;
 import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.dto.bid.Bid;
+import com.dieti.dietiestates25.views.ad.AdView;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.router.RouteParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,6 +33,9 @@ class AdRequestsHandlerTest {
 
     @Mock
     private UI ui;
+    
+    @Captor
+    private ArgumentCaptor<Class<? extends Component>> navigationCaptor;
 
     @Mock
     private AdRequestsService service;
@@ -43,16 +51,23 @@ class AdRequestsHandlerTest {
         handler.adRequestsService = service;
     }
 
+    private void verifyNavigationWithParamsTo(Class<? extends Component> target) {
+        verify(ui, atMostOnce()).navigate(navigationCaptor.capture(), (RouteParameters) any());
+        assertEquals(target, navigationCaptor.getValue());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void verifyNoNavigation() {
+        verify(ui, never()).navigate((Class<? extends Component>) any());
+    }
+
     @Test
     void testGetRegions_success() {
-        // Arrange
         var mockResponse = new SimpleResponse(OK, "[\"Region1\", \"Region2\"]");
         when(service.getRegions()).thenReturn(mockResponse);
 
-        // Act
         var regions = handler.getRegions();
 
-        // Assert
         assertNotNull(regions);
         assertEquals(2, regions.size());
         assertEquals("Region1", regions.get(0));
@@ -62,13 +77,10 @@ class AdRequestsHandlerTest {
 
     @Test
     void testGetRegions_nullResponse() {
-        // Arrange
         when(service.getRegions()).thenReturn(null);
 
-        // Act
         var regions = handler.getRegions();
 
-        // Assert
         assertNotNull(regions);
         assertTrue(regions.contains("No regions found."));
         verify(service, atMostOnce()).getRegions();
@@ -159,7 +171,6 @@ class AdRequestsHandlerTest {
 
     @Test
     void testInsertAd_success() {
-        // Arrange
         var ad = new AdInsert();
         var photos = List.of(new Photo("file1", "base64"), new Photo("file2", "base64"));
 
@@ -173,18 +184,15 @@ class AdRequestsHandlerTest {
         when(service.insertAd(ad)).thenReturn(mockAdResponse);
         when(service.uploadImages(anyInt(), any())).thenReturn(mockPhotoResponse);
 
-        // Act
         handler.insertAd(ad, photos);
 
-        // Assert
         verify(service, atMostOnce()).insertAd(ad);
         verify(service, times(2)).uploadImages(anyInt(), any());
+        verifyNavigationWithParamsTo(AdView.class);
     }
 
     @Test
     void testInsertAd_photoFailure() {
-        // Arrange
-        // Arrange
         var ad = new AdInsert();
         var photos = List.of(new Photo("file1", "base64"), new Photo("file2", "base64"));
 
@@ -198,52 +206,46 @@ class AdRequestsHandlerTest {
         when(service.insertAd(ad)).thenReturn(mockAdResponse);
         when(service.uploadImages(anyInt(), any())).thenReturn(mockPhotoResponse);
 
-        // Act
         handler.insertAd(ad, photos);
 
-        // Assert
         verify(service, atMostOnce()).insertAd(ad);
         verify(service, times(2)).uploadImages(anyInt(), any());
+        verifyNavigationWithParamsTo(AdView.class);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     void testInsertAd_failure() {
-        // Arrange
         var ad = new AdInsert();
         EntityResponse<Ad> mockResponse = mock(EntityResponse.class);
         when(mockResponse.ok()).thenReturn(false);
         when(mockResponse.getMessage()).thenReturn("");
         when(service.insertAd(ad)).thenReturn(mockResponse);
 
-        // Act
         handler.insertAd(ad, List.of());
 
-        // Assert
         verify(service, atMostOnce()).insertAd(ad);
         verify(service, never()).uploadImages(anyInt(), any());
         verifyNoMoreInteractions(service);
+        verifyNoNavigation();
     }
 
     @Test
     void testInsertAd_nullResponse() {
-        // Arrange
         var ad = new AdInsert();
         List<Photo> photos = List.of();
         when(service.insertAd(ad)).thenReturn(null);
 
-        // Act
         handler.insertAd(ad, photos);
 
-        // Assert
         verify(service, atMostOnce()).insertAd(ad);
         verify(service, never()).uploadImages(anyInt(), any());
         verifyNoMoreInteractions(service);
+        verifyNoNavigation();
     }
 
     @Test
     void testGetAd_success() {
-        // Arrange
         var ad = new Ad();
         ad.setId(1);
         ad.setAC(true);
@@ -258,10 +260,8 @@ class AdRequestsHandlerTest {
         photoResponse.setEntities(List.of(new Photo("file1", "base64")));
         when(service.getImages(anyInt())).thenReturn(photoResponse);
 
-        // Act
         var result = handler.getAd(1);
 
-        // Assert
         assertNotNull(result);
         assertEquals(1, result.getId());
         assertTrue(result.isAC());
@@ -276,17 +276,14 @@ class AdRequestsHandlerTest {
     @SuppressWarnings("unchecked")
     @Test
     void testGetAd_failedAdSearch() {
-        // Arrange
         EntityResponse<Ad> mockResponse = mock(EntityResponse.class);
         when(mockResponse.ok()).thenReturn(false);
         mockResponse.setEntities(List.of());
 
         when(service.searchAds(any())).thenReturn(mockResponse);
 
-        // Act
         var resultAd = handler.getAd(1);
 
-        // Assert
         assertNull(resultAd);
         verify(service, atMostOnce()).searchAds(any());
         verify(service, never()).getImages(anyInt());
@@ -295,13 +292,10 @@ class AdRequestsHandlerTest {
 
     @Test
     void testGetAd_nullResponse() {
-        // Arrange
         when(service.searchAds(any())).thenReturn(null);
 
-        // Act
         var resultAd = handler.getAd(1);
 
-        // Assert
         assertNull(resultAd);
         verify(service, atMostOnce()).searchAds(any());
         verify(service, never()).getImages(anyInt());
@@ -324,7 +318,6 @@ class AdRequestsHandlerTest {
 
     @Test
     void testSendBid_success() {
-        // Arrange
         var bid = new Bid();
         bid.setId(1);
         bid.setAmount(1.0);
@@ -335,10 +328,8 @@ class AdRequestsHandlerTest {
 
         when(service.sendBid(any())).thenReturn(mockResponse);
 
-        // Act
         var result = handler.sendBid(1, 200.0, "Test bid message");
 
-        // Assert
         assertNotNull(result);
         assertEquals(1, result.getId());
         assertEquals(1.0, result.getAmount());
@@ -347,13 +338,10 @@ class AdRequestsHandlerTest {
 
     @Test
     void testSendBid_nullResponse() {
-        // Arrange
         when(service.sendBid(any(Bid.Insert.class))).thenReturn(null);
 
-        // Act
         var result = handler.sendBid(1, 150.0, "Test bid message");
 
-        // Assert
         assertNull(result);
         verify(service, atMostOnce()).sendBid(any(Bid.Insert.class));
     }
@@ -361,17 +349,14 @@ class AdRequestsHandlerTest {
     @SuppressWarnings("unchecked")
     @Test
     void testSendBid_failure() {
-        // Arrange
         EntityResponse<Bid> mockResponse = mock(EntityResponse.class);
         when(mockResponse.ok()).thenReturn(false);
         mockResponse.setEntities(List.of());
 
         when(service.sendBid(any(Bid.Insert.class))).thenReturn(mockResponse);
 
-        // Act
         var result = handler.sendBid(1, 300.0, "Another test bid message");
 
-        // Assert
         assertNull(result);
         verify(service, atMostOnce()).sendBid(any(Bid.Insert.class));
     }

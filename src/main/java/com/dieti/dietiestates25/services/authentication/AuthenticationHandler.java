@@ -44,14 +44,13 @@ public class AuthenticationHandler {
     public void login(String email, String password) {
         var authenticated = authenticationService.login(email.toLowerCase(), password);
 
-        if (authenticated == null) {
+        if (authenticated == null)
             return;
-        }
 
         if (authenticated.ok()) {
+            UI.getCurrent().navigate(HomeView.class);
             NotificationFactory.success(String.format("Welcome Back, %s!", UserSession.getFirstName()));
             SessionManager.monitorSession(UI.getCurrent());
-            UI.getCurrent().navigate(HomeView.class);
             logger.info("User logged in with email: {}", email);
 
         } else {
