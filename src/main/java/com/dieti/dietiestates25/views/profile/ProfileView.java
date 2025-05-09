@@ -30,14 +30,15 @@ import java.util.Map;
 @ForwardGuest(LoginView.class)
 @Route(value = "profile", layout = MainLayout.class)
 @RouteAlias(value = "profile/:email", layout = MainLayout.class)
-public class Profile extends VerticalLayout implements BeforeEnterObserver, BidActionListener {
+public class ProfileView extends VerticalLayout implements BeforeEnterObserver, BidActionListener {
 
-    private final AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+    transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
     private static final Map<String, User> TEMP_USER_CACHE = new HashMap<>();
 
     DivContainer container;
-    VerticalLayout bidsListLayout;
+    VerticalLayout adsList;
+    VerticalLayout bidsList;
 
     public static void cacheUser(User user) {
         TEMP_USER_CACHE.put(user.getEmail(), user);
@@ -70,14 +71,38 @@ public class Profile extends VerticalLayout implements BeforeEnterObserver, BidA
         );
     }
 
-    public Profile() {}
+    public ProfileView() {/* for testing */}
 
     private void configureComponents(User user, boolean isPersonalProfile) {
         removeAll(); // to prevent duplication
 
         container = new DivContainer("600px", "180px");
         container.getStyle().setMarginBottom("-10px");
+        add(container);
 
+        createProfileHeader(user);
+
+
+        if ("A".equals(user.getRole()) || "M".equals(user.getRole())) {
+            RouterLink agencyLink;
+            if (isPersonalProfile)
+                agencyLink = new RouterLink(user.getAgencyName(), AgencyDashboardView.class);
+            else {
+                agencyLink = new RouterLink(user.getAgencyName(), AgencyDashboardView.class, new RouteParameters("agency", user.getAgencyName()));
+                agencyLink.getElement().addEventListener("click", event -> AgencyDashboardView.cacheAgency(new Agency(user.getAgencyName(), user.getAgencyVAT())));
+            }
+
+            var agency = new TextWithLink("Agency: ", agencyLink);
+            container.add(agency);
+
+            createAdsLayout(user);
+        }
+
+        if (isPersonalProfile)
+            createBidsLayout(user);
+    }
+
+    private void createProfileHeader(User user) {
         var fullName = user.getFirstName() + " " + user.getLastName();
         var avatar = new Avatar(fullName);
         avatar.setWidth("100px");
@@ -94,91 +119,76 @@ public class Profile extends VerticalLayout implements BeforeEnterObserver, BidA
         email.getStyle().set("color", "#888888");
 
         container.add(avatar, name, email);
-        add(container);
+    }
 
-        System.out.println(user.getRole());
+    private void createAdsLayout(User user) {
+        var adsTitle = new H3("Ads");
+        adsTitle.getStyle().setPaddingTop("var(--lumo-space-m)");
+        add(adsTitle);
 
-        if ("A".equals(user.getRole()) || "M".equals(user.getRole())) {
-            RouterLink agencyLink;
-            if (isPersonalProfile)
-                agencyLink = new RouterLink(user.getAgencyName(), AgencyDashboardView.class);
-            else {
-                agencyLink = new RouterLink(user.getAgencyName(), AgencyDashboardView.class, new RouteParameters("agency", user.getAgencyName()));
-                agencyLink.getElement().addEventListener("click", event -> AgencyDashboardView.cacheAgency(new Agency(user.getAgencyName(), user.getAgencyVAT())));
+        var ads = adRequestsHandler.getAdsByAgent(user.getEmail());
+        adsList = new VerticalLayout();
+        for (var ad : ads) {
+            var adCard = new AdCard(ad);
+            adsList.add(adCard);
+        }
+
+        adsList.setAlignItems(Alignment.CENTER);
+        var scroller = new Scroller(adsList);
+        scroller.setWidth("70%");
+        scroller.setHeight("auto");
+        scroller.setMaxHeight("300px");
+        scroller.getStyle()
+                .setBorder("0.5px solid #ccc")
+                .setBorderRadius("4px")
+                .setBackgroundColor("#f9f9f9");
+        add(scroller);
+    }
+
+    private void createBidsLayout(User user) {
+        bidsList = new VerticalLayout();
+        bidsList.removeAll();
+
+        var bidsTitle = new H3("Bids you've placed.");
+        bidsTitle.getStyle().setPaddingTop("var(--lumo-space-m)");
+        add(bidsTitle);
+
+        var bids = adRequestsHandler.getBidsBy("offerer", user.getEmail());
+
+        for (var bid : bids) {
+            if (!bid.getStatus().equals("C")) {
+                var bidMessage = new BidMessage(bid, "", this);
+
+                if (bid.getStatus().equals("A")) {
+                    if (bid.getCounteroffer() == null)
+                        bidMessage.setAccepted();
+                    bidsList.addComponentAsFirst(bidMessage);
+                } else if (bid.getStatus().equals("R")) {
+                    bidMessage.setRefused();
+                    bidsList.add(bidMessage);
+                } else bidsList.add(bidMessage);
             }
+        }
 
-            var agency = new TextWithLink("Agency: ", agencyLink);
-            container.add(agency);
-
-            var adsTitle = new H3("Ads");
-            adsTitle.getStyle().setPaddingTop("var(--lumo-space-m)");
-            add(adsTitle);
-
-            var ads = adRequestsHandler.getAdsByAgent(user.getEmail());
-            var adList = new VerticalLayout();
-            for (var ad : ads) {
-                var adCard = new AdCard(ad);
-                adList.add(adCard);
-            }
-
-            adList.setAlignItems(Alignment.CENTER);
-            var scroller = new Scroller(adList);
-            scroller.setWidth("70%");
+        if (bidsList.getComponentCount() > 0) {
+            var scroller = new Scroller(bidsList);
+            scroller.setWidth("60%");
             scroller.setHeight("auto");
-            scroller.setMaxHeight("300px");
+            scroller.setMaxHeight("400px");
             scroller.getStyle()
                     .setBorder("0.5px solid #ccc")
                     .setBorderRadius("4px")
                     .setBackgroundColor("#f9f9f9");
             add(scroller);
-        }
-
-        if (isPersonalProfile) {
-            bidsListLayout = new VerticalLayout();
-            bidsListLayout.removeAll();
-
-            var bidsTitle = new H3("Bids you've placed.");
-            bidsTitle.getStyle().setPaddingTop("var(--lumo-space-m)");
-            add(bidsTitle);
-
-            var bids = adRequestsHandler.getBidsBy("offerer", user.getEmail());
-
-            for (var bid : bids) {
-                if (!bid.getStatus().equals("C")) {
-                    var bidMessage = new BidMessage(bid, "", this);
-
-                    if (bid.getStatus().equals("A")) {
-                        if (bid.getCounteroffer() == null)
-                            bidMessage.setAccepted();
-                        bidsListLayout.addComponentAsFirst(bidMessage);
-                    } else if (bid.getStatus().equals("R")) {
-                        bidMessage.setRefused();
-                        bidsListLayout.add(bidMessage);
-                    } else bidsListLayout.add(bidMessage);
-                }
-            }
-
-            if (bidsListLayout.getComponentCount() > 0) {
-                var scroller = new Scroller(bidsListLayout);
-                scroller.setWidth("60%");
-                scroller.setHeight("auto");
-                scroller.setMaxHeight("400px");
-                scroller.getStyle()
-                        .setBorder("0.5px solid #ccc")
-                        .setBorderRadius("4px")
-                        .setBackgroundColor("#f9f9f9");
-                add(scroller);
-            } else
-                add(new Span("Looks like you haven't place a bid yet."));
-        }
+        } else
+            add(new Span("Looks like you haven't place a bid yet."));
     }
 
-    @Override public void onAccepted(Bid bid) {}
-    @Override public void onRefused(Bid bid) {}
-
+    @Override public void onAccepted(Bid bid) {/* Accepting a bid will be possible only on the ad page */}
+    @Override public void onRefused(Bid bid) {/* Same goes for refusal */}
     @Override
     public void onDeleted(Bid bid) {
-        bidsListLayout.remove(BidMessage.find(bidsListLayout, bid.getId()));
+        bidsList.remove(BidMessage.find(bidsList, bid.getId()));
     }
 
     private void configureLayout() {

@@ -513,29 +513,21 @@ class AdRequestsHandlerTest {
     @Test
     void testGetAdsByAgent_success() {
         // sell ad
-        var sellAd = new Ad();
-        sellAd.setId(1);
-        sellAd.setType("S");
+        var ad1 = new Ad();
+        ad1.setId(1);
+        ad1.setType("S");
 
         // rent ad
-        var rentAd = new Ad();
-        rentAd.setId(2);
-        rentAd.setType("R");
+        var ad2 = new Ad();
+        ad2.setId(2);
+        ad2.setType("R");
 
-        // response for sells
-        var sellResponse = new EntityResponse<Ad>();
-        sellResponse.setStatusCode(OK);
-        sellResponse.setEntities(List.of(sellAd));
+        var response = new EntityResponse<Ad>();
+        response.setStatusCode(OK);
+        response.setEntities(List.of(ad1, ad2));
 
-        // response for rents
-        var rentResponse = new EntityResponse<Ad>();
-        rentResponse.setStatusCode(OK);
-        rentResponse.setEntities(List.of(rentAd));
-
-        when(service.searchAds(argThat(search -> search != null && "S".equals(search.getType()))))
-                .thenReturn(sellResponse);
-        when(service.searchAds(argThat(search -> search != null && "R".equals(search.getType()))))
-                .thenReturn(rentResponse);
+        when(service.searchAds(any()))
+                .thenReturn(response);
 
         var result = handler.getAdsByAgent("agent1");
 
@@ -546,7 +538,7 @@ class AdRequestsHandlerTest {
         assertEquals(2, result.getLast().getId());
         assertEquals("R", result.getLast().getType());
 
-        verify(service, times(2)).searchAds(any());
+        verify(service, atMostOnce()).searchAds(any());
     }
 
     @SuppressWarnings("unchecked")

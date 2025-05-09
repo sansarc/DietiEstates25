@@ -41,7 +41,7 @@ public class LoginView extends VerticalLayout implements HasUrlParameter<String>
     transient AuthenticationHandler authHandler = new AuthenticationHandler();
 
     @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+    public void setParameter(BeforeEvent event, @OptionalParameter String ignored) {
         var queryParameters = event.getLocation().getQueryParameters();
         Map<String, List<String>> parameters = queryParameters.getParameters();
 

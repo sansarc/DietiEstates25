@@ -3,10 +3,11 @@ package com.dieti.dietiestates25.views.login;
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.github.mvysny.kaributesting.v10.MockVaadin;
 import com.github.mvysny.kaributesting.v10.Routes;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,22 +17,38 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.mvysny.kaributesting.v10.LocatorJ.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LoginViewTest {
 
+    private LoginView view;
+
     @Mock
     private AuthenticationHandler authHandlerMock;
 
+    @Mock
+    private BeforeEvent beforeEventMock;
+
+    private static Routes routes;
+
+    @BeforeAll
+    static void setupRoutes() {
+        routes = new Routes().autoDiscoverViews("com.dieti.dietiestates25.views");
+    }
+
     @BeforeEach
     void setup() {
-        var routes = new Routes();
-        routes.autoDiscoverViews("com.dieti.dietiestates25.views");
-
         MockVaadin.setup(routes);
+
+        view = new LoginView();
+        view.authHandler = authHandlerMock;
+
+        when(beforeEventMock.getLocation())
+                .thenReturn(mock(Location.class));
+        when(beforeEventMock.getLocation().getQueryParameters())
+                .thenReturn(new QueryParameters(Map.of()));
     }
 
     @AfterEach
@@ -41,8 +58,7 @@ class LoginViewTest {
 
     @Test
     void keyComponentsShouldBeInitialized() {
-        var view = new LoginView();
-        UI.getCurrent().add(view);
+        view.setParameter(beforeEventMock, null);
 
         assertNotNull(view.emailField);
         assertNotNull(view.passwordField);
@@ -52,8 +68,7 @@ class LoginViewTest {
 
     @Test
     void loginButtonShouldCallAuthHandlerWhenFieldsNotEmpty() {
-        var view = new LoginView();
-        UI.getCurrent().add(view);
+        view.setParameter(beforeEventMock, null);
 
         view.authHandler = authHandlerMock; // replace handler with the mocked one
         view.emailField.setValue("test@example.com");
@@ -66,8 +81,7 @@ class LoginViewTest {
 
     @Test
     void emptyFieldsShouldBeMarkedInvalid() {
-        var view = new LoginView();
-        UI.getCurrent().add(view);
+        view.setParameter(beforeEventMock, null);
 
         // all fields are left empty
         view.loginButton.click();
@@ -78,16 +92,19 @@ class LoginViewTest {
 
     @Test
     void temporaryPasswordShouldBeSetFromQueryParameter() {
-        UI.getCurrent().navigate(LoginView.class, new QueryParameters(Map.of("tmpPwd", List.of("test"))));
+        when(beforeEventMock.getLocation().getQueryParameters())
+                .thenReturn(new QueryParameters(Map.of("tmpPwd", List.of("test"))));
 
-        assertEquals("test", _get(PasswordField.class).getValue());
+        view.setParameter(beforeEventMock, null);
+
+        assertEquals("test", view.passwordField.getValue());
     }
 
     @Test
     void noQueryParameterShouldNotSetTemporaryPassword() {
-        UI.getCurrent().navigate(LoginView.class);
+        view.setParameter(beforeEventMock, null);
 
-        assertTrue(_get(PasswordField.class).getValue().isEmpty());
+        assertTrue(view.passwordField.isEmpty());
     }
 
 }

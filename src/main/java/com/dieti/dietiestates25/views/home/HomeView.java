@@ -6,7 +6,9 @@ import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.AdCard;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.registerAgency.ConfirmAccountDialog;
+import com.dieti.dietiestates25.views.search.SearchView;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.*;
@@ -18,10 +20,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -29,7 +33,8 @@ import java.util.Map;
 @PageTitle("Dieti Estates | Home")
 public class HomeView extends VerticalLayout {
 
-    AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+    public static final String WHITE = "white";
+    transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
     Div titleContainer;
     TextField searchText;
@@ -78,7 +83,7 @@ public class HomeView extends VerticalLayout {
         adsList.setAlignItems(Alignment.CENTER);
         adsList.setAlignSelf(Alignment.START, secondTitle, subtitle);
 
-        var lastAd = getOrFetchAd(0);   // retrieving the last uploaded ad
+        var lastAd = getOrFetchAd(0);   // retrieving the latest ad
         if (lastAd != null) {
             var lastId = lastAd.getId();
             for (int i = 0; i < 2; i++) {
@@ -96,17 +101,17 @@ public class HomeView extends VerticalLayout {
         var slidingInPart = new H1("meet Clients.");
 
         base.getStyle()
-                .setColor("white")
+                .setColor(WHITE)
                 .setDisplay(Style.Display.INLINE_BLOCK)
                 .setPadding("5px");
         slidingDownPart.getStyle()
-                .setColor("white")
+                .setColor(WHITE)
                 .setDisplay(Style.Display.INLINE_BLOCK)
                 .setPadding("5px")
                 .setPosition(Style.Position.RELATIVE)
                 .set("animation", "slideDown 2s ease-out");
         slidingInPart.getStyle()
-                .setColor("white")
+                .setColor(WHITE)
                 .setDisplay(Style.Display.INLINE_BLOCK)
                 .setPadding("5px")
                 .setPosition(Style.Position.RELATIVE)
@@ -172,6 +177,7 @@ public class HomeView extends VerticalLayout {
     private void createSearchLayout() {
         createSearchText();
         createSearchButton();
+
         searchLayout = new HorizontalLayout(searchText, searchButton);
         searchLayout.setSpacing(false);
         searchLayout.setWidthFull();
@@ -184,22 +190,25 @@ public class HomeView extends VerticalLayout {
     }
 
     private void createSearchButton() {
-        searchButton = new Button();
+        searchButton = new Button(VaadinIcon.SEARCH.create(), event -> {
+            if (!searchText.getValue().isBlank())
+                UI.getCurrent().navigate(SearchView.class, new QueryParameters(Map.of("locationAny", List.of(searchText.getValue()))));
+        });
+
         searchButton.setHeight("50px");
-        searchButton.setIcon(VaadinIcon.SEARCH.create());
         searchButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         searchButton.addClickShortcut(Key.ENTER);
     }
 
     private void createSearchText() {
-        searchText = new TextField("", "Enter a City.");
+        searchText = new TextField("", "Where's your next home?");
         searchText.setAutocomplete(Autocomplete.OFF);
         searchText.setWidth("35%");
         searchText.getStyle()
                 .setBackgroundColor("transparent")
-                .set("--vaadin-input-field-placeholder-color", "white")
+                .set("--vaadin-input-field-placeholder-color", WHITE)
                 .set("--vaadin-input-field-height", "50px")
-                .set("--vaadin-input-field-value-color", "white")
+                .set("--vaadin-input-field-value-color", WHITE)
                 .set("--vaadin-input-field-value-font-size", "24px")
                 .set("--vaadin-input-field-value-font-weight", LumoUtility.FontWeight.BOLD);
     }

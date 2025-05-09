@@ -29,8 +29,8 @@ import com.vaadin.flow.router.*;
 @Route("otp/:key")
 public class OtpView extends VerticalLayout implements BeforeEnterObserver {
 
-    private final String CONFIRM_ACCOUNT = "confirmAccount";
-    private final String CHANGE_PWD = "changePassword";
+    private static final String CONFIRM_ACCOUNT = "confirmAccount";
+    private static final String CHANGE_PWD = "changePassword";
 
     private String KEY;
     private String TITLE;
@@ -52,6 +52,7 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
         removeAll(); // prevents duplication
 
         var keyParam = event.getRouteParameters().get("key");
+        KEY = "";
 
         if (keyParam.isPresent() &&
                 (keyParam.get().equals(CHANGE_PWD) || keyParam.get().equals(CONFIRM_ACCOUNT)))
@@ -153,8 +154,8 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
         setAlignSelf(Alignment.CENTER, title, otpTextField, confirmButton);
         setAlignSelf(Alignment.END, confirmButton);
 
-        if (inputLayout instanceof HorizontalLayout)
-            ((HorizontalLayout) inputLayout).setJustifyContentMode(JustifyContentMode.CENTER);
+        if (inputLayout instanceof HorizontalLayout inputHorizontalLayout)
+            inputHorizontalLayout.setJustifyContentMode(JustifyContentMode.CENTER);
     }
 
     private void createConfirmButton() {

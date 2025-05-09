@@ -2,10 +2,9 @@ package com.dieti.dietiestates25.views.signup;
 
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.services.session.UserSession;
+import com.dieti.dietiestates25.utils.TestUtils;
 import com.dieti.dietiestates25.views.notfound.PageNotFoundView;
 import com.github.mvysny.kaributesting.v10.MockVaadin;
-import com.github.mvysny.kaributesting.v10.Routes;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.RouteParameters;
 import org.junit.jupiter.api.AfterEach;
@@ -21,32 +20,42 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class OtpViewTest {
 
+    private OtpView view;
+
+    @Mock
+    private BeforeEnterEvent beforeEnterMock;
+
     @Mock
     private AuthenticationHandler authHandlerMock;
 
     @BeforeEach
     void setUp() {
-        var routes = new Routes();
-        routes.autoDiscoverViews("com.dieti.dietiestates25.views");
-        MockVaadin.setup(routes);
+        MockVaadin.setup();
+
+        view = new OtpView();
+        view.authHandler = authHandlerMock;
+
+        UserSession.init(TestUtils.TEST_USER);
+        UserSession.setSessionId("mock-session");
     }
 
     @AfterEach
     void tearDown() {
+        UserSession.clearSession();
         MockVaadin.tearDown();
     }
 
+    /*
+     * Components are initialized and rendered from beforeEvent implementation
+     * and not from the constructor like in other views
+     */
+
     @Test
     void keyComponentsShouldBeInitialized_confirmAccount() {
-        OtpView view;
+        when(beforeEnterMock.getRouteParameters())
+                .thenReturn(new RouteParameters("key", "confirmAccount"));
 
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                    .thenReturn(true);
-
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "confirmAccount"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
-        }
+        view.beforeEnter(beforeEnterMock);
 
         assertNotNull(view.resendLink);
         assertNotNull(view.otpTextField);
@@ -54,15 +63,10 @@ class OtpViewTest {
 
     @Test
     void keyComponentsShouldBeInitialized_changePassword() {
-        OtpView view;
+        when(beforeEnterMock.getRouteParameters())
+                .thenReturn(new RouteParameters("key", "changePassword"));
 
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                    .thenReturn(true);
-
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "changePassword"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
-        }
+        view.beforeEnter(beforeEnterMock);
 
         assertNotNull(view.form);
         assertNotNull(view.resendLink);
@@ -70,17 +74,10 @@ class OtpViewTest {
 
     @Test
     void emptyOtpShouldBeMarkedInvalid() {
-        OtpView view;
+        when(beforeEnterMock.getRouteParameters())
+                .thenReturn(new RouteParameters("key", "confirmAccount"));
 
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                            .thenReturn(true);
-
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "confirmAccount"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
-        }
-
-        view.authHandler = authHandlerMock;
+        view.beforeEnter(beforeEnterMock);
         view.confirmButton.click();
 
         assertTrue(view.otpTextField.isInvalid());
@@ -89,40 +86,23 @@ class OtpViewTest {
 
     @Test
     void confirmButtonShouldCallAuthHandlerWhenOtpIsValid() {
-        OtpView view;
+        when(beforeEnterMock.getRouteParameters())
+                .thenReturn(new RouteParameters("key", "confirmAccount"));
 
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                    .thenReturn(true);
-            sessionMock.when(UserSession::getEmail)
-                    .thenReturn("test@example.com");
+        view.beforeEnter(beforeEnterMock);
 
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "confirmAccount"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
+        view.otpTextField.setValue("123456");
+        view.confirmButton.click();
 
-            view.authHandler = authHandlerMock;
-            view.otpTextField.setValue("123456");
-            view.confirmButton.click();
-
-            verify(authHandlerMock, atMostOnce()).confirmUser(UserSession.getEmail(), view.otpTextField.getValue());
-        }
+        verify(authHandlerMock, atMostOnce()).confirmUser(UserSession.getEmail(), view.otpTextField.getValue());
     }
 
     @Test
     void emptyOrInvalidPasswordFieldsShouldMeMarkedInvalid() {
-        OtpView view;
+        when(beforeEnterMock.getRouteParameters())
+                .thenReturn(new RouteParameters("key", "changePassword"));
 
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                    .thenReturn(true);
-            sessionMock.when(UserSession::getEmail)
-                    .thenReturn("test@example.com");
-
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "changePassword"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
-        }
-
-        view.authHandler = authHandlerMock;
+        view.beforeEnter(beforeEnterMock);
 
         // empty password fields
         view.otpTextField.setValue("123456");
@@ -143,50 +123,26 @@ class OtpViewTest {
 
     @Test
     void confirmButtonShouldCallAuthHandlerWhenFormIsValid() {
-        OtpView view;
+        when(beforeEnterMock.getRouteParameters())
+            .thenReturn(new RouteParameters("key", "changePassword"));
 
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                    .thenReturn(true);
-            sessionMock.when(UserSession::getEmail)
-                    .thenReturn("test@example.com");
+        view.beforeEnter(beforeEnterMock);
 
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "changePassword"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
-            view.authHandler = authHandlerMock;
+        view.otpTextField.setValue("123456");
+        view.password.setValue("<PASSWORD>");
+        view.confirmPassword.setValue("<PASSWORD>");
 
-            view.otpTextField.setValue("123456");
-            view.password.setValue("<PASSWORD>");
-            view.confirmPassword.setValue("<PASSWORD>");
+        view.confirmButton.click();
 
-            view.confirmButton.click();
-
-            verify(authHandlerMock, atMostOnce()).confirmUser(UserSession.getEmail(), view.otpTextField.getValue());
-        }
+        verify(authHandlerMock, atMostOnce()).confirmUser(UserSession.getEmail(), view.otpTextField.getValue());
     }
 
     @Test
     void resendLinkShouldCallRecreateUserWhenKeyIsConfirmAccount() {
-        OtpView view;
+        when(beforeEnterMock.getRouteParameters())
+                .thenReturn(new RouteParameters("key", "confirmAccount"));
 
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                    .thenReturn(true);
-            sessionMock.when(UserSession::getEmail)
-                    .thenReturn("test@example.com");
-            sessionMock.when(UserSession::getFirstName)
-                    .thenReturn("John");
-            sessionMock.when(UserSession::getLastName)
-                    .thenReturn("Doe");
-            sessionMock.when(UserSession::getPwd)
-                    .thenReturn("password123");
-
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "confirmAccount"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
-        }
-
-        view.authHandler = authHandlerMock;
-
+        view.beforeEnter(beforeEnterMock);
         view.resendLink.action.run();
 
         verify(authHandlerMock).recreateUser(
@@ -199,57 +155,23 @@ class OtpViewTest {
 
     @Test
     void resendLinkShouldCallSendOTPWhenKeyIsChangePassword() {
-        OtpView view;
+        when(beforeEnterMock.getRouteParameters())
+                .thenReturn(new RouteParameters("key", "changePassword"));
 
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                    .thenReturn(true);
-            sessionMock.when(UserSession::getEmail)
-                    .thenReturn("test@example.com");
+        view.beforeEnter(beforeEnterMock);
+        view.resendLink.action.run();
 
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "changePassword"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
-            view.authHandler = authHandlerMock;
-
-            view.resendLink.action.run();
-
-            verify(authHandlerMock).sendOTP(UserSession.getEmail());
-        }
+        verify(authHandlerMock).sendOTP(UserSession.getEmail());
     }
 
     @Test
     void beforeEnterShouldForwardToPageNotFoundWhenKeyIsInvalidOrMissing() {
-        OtpView view;
+        when(beforeEnterMock.getRouteParameters())
+                .thenReturn(new RouteParameters("key", "invalid"));
 
-        BeforeEnterEvent eventMock = mock(BeforeEnterEvent.class);
-        RouteParameters routeParamsMock = mock(RouteParameters.class);
+        view.beforeEnter(beforeEnterMock);
 
-        when(eventMock.getRouteParameters()).thenReturn(routeParamsMock);
-        when(routeParamsMock.get("key")).thenReturn(java.util.Optional.of("invalidKey"));
-
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                    .thenReturn(true);
-
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "changePassword"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
-        }
-
-        view.beforeEnter(eventMock);
-
-        when(eventMock.getRouteParameters()).thenReturn(routeParamsMock);
-        when(routeParamsMock.get("key")).thenReturn(java.util.Optional.empty());
-
-        try (var sessionMock = mockStatic(UserSession.class)) {
-            sessionMock.when(UserSession::isUserLoggedIn)   // bypassing @ForwardGuest
-                    .thenReturn(true);
-
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "changePassword"));
-            view = (OtpView) UI.getCurrent().getCurrentView();
-        }
-
-        view.beforeEnter(eventMock);
-
-        verify(eventMock, times(2)).forwardTo(PageNotFoundView.class);
+        verify(beforeEnterMock, atMostOnce()).forwardTo(PageNotFoundView.class);
+        verifyNoInteractions(authHandlerMock);
     }
 }

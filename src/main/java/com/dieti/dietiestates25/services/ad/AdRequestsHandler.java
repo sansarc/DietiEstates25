@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class AdRequestsHandler {
     public static final String FAILED = "Failed to retrieve ad.";
@@ -189,20 +188,12 @@ public class AdRequestsHandler {
     public List<Ad> getAdsByAgent(String agentEmail) {
         var search = new Ad.SearchBy();
         search.setAgentEmail(agentEmail);
-        search.setType("S");
         var response = adRequestsService.searchAds(search);
-        if (badAdResponse(response)) return List.of();
 
-        var ads = response.getEntities();
+        if (badAdResponse(response))
+            return List.of();
 
-        search.setType("R");
-        response = adRequestsService.searchAds(search);
-        if (badAdResponse(response)) return List.of();
-
-        ads = Stream.concat(ads.stream(), response.getEntities().stream()).toList(); // add other ads
-        for (var ad : ads) retrievePhotos(ad);
-
-        return ads;
+        return response.getEntities();
     }
 
     public List<Ad> searchAds(Ad.SearchBy search) {
