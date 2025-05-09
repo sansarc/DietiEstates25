@@ -14,6 +14,8 @@ public class ImagesCarousel extends Splide {
         setHeight("500px");
         getStyle().setMarginBottom("50px");
 
+        if (photos == null || photos.isEmpty()) return;
+
         for (var photo : photos) {
             var image = photo.toImage();
             image.setSizeFull();

@@ -24,11 +24,10 @@ import java.util.Map;
 @PageTitle("Ad Details")
 public class AdView extends VerticalLayout implements BeforeEnterObserver {
 
-    AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+    transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
     public static final String SCROLLER_CONTENT_WIDTH = "90%";
 
-    ImagesCarousel imagesCarousel;
     VerticalLayout scrollerContent = new VerticalLayout();
     HorizontalLayout layout = new HorizontalLayout();
     Scroller scroller = new Scroller(scrollerContent);
@@ -49,7 +48,7 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
 
         if (idParam.isPresent()) {
             var id = Integer.parseInt(idParam.get());
-            var ad = new Ad();
+            Ad ad;
 
             if (TEMP_AD_CACHE.containsKey(id)) {
                 ad = TEMP_AD_CACHE.get(id);
@@ -58,26 +57,32 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
             else
                 ad = adRequestsHandler.getAd(id);
 
-            if (ad != null)
+            if (ad != null) {
                 configureComponents(ad);
+                configureLayout();
+            }
             else
                 event.forwardTo(HomeView.class);
         } else
             event.forwardTo(PageNotFoundView.class);
     }
 
-    public AdView() {
-        configureLayout();
-    }
+    public AdView() {/* UI initialization in beforeEnter */}
 
     private void configureComponents(Ad ad) {
-        imagesCarousel = new ImagesCarousel(ad.getPhotos());
+        if (ad.getPhotos() != null && !ad.getPhotos().isEmpty()) {
+            var imagesCarousel = new ImagesCarousel(ad.getPhotos());
+            imagesCarousel.getStyle().setMarginBottom("-5px");
+            add(imagesCarousel);
+        }
+        else
+            add(new Span("No pictures were uploaded for this ad."));
 
         createScrollerSide(ad);
         layout.add(scroller, new BidsPanel(ad));
         layout.getStyle().setPosition(Style.Position.RELATIVE);
 
-        add(imagesCarousel, layout);
+        add(layout);
     }
 
     public void createScrollerSide(Ad ad) {
@@ -93,7 +98,7 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
                 BadgeFactory.squareMeters(ad.getDimensions())
         );
 
-        if (ad.isAC()) badges.add(BadgeFactory.AC());
+        if (ad.isAC()) badges.add(BadgeFactory.airConditioning());
         if (ad.isPrivateGarage()) badges.add(BadgeFactory.privateParking());
         if (ad.isCondominiumParking()) badges.add(BadgeFactory.condominiumParking());
         if (ad.isDoormanService()) badges.add(BadgeFactory.doormanService());
@@ -145,9 +150,6 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
         scroller.getStyle()
                 .set("box-sizing", "border-box");
 
-        scrollerContent.setWidthFull();
-
-        layout.setWidth("100%");
-        layout.setHeightFull();
+        layout.setWidthFull();
     }
 }

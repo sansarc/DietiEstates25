@@ -4,6 +4,7 @@ import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.views.ad.AdView;
+import com.dieti.dietiestates25.views.search.SearchView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,6 +16,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import lombok.Getter;
@@ -22,10 +25,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AdCard extends Card {
+public class AdCard extends Card implements AfterNavigationObserver {
 
+    private transient Ad ad;
 
     public AdCard(Ad ad) {
+        this.ad = ad;
+
         setWidth("600px");
         setHeight("150px");
         getStyle().setCursor("pointer");
@@ -38,7 +44,7 @@ public class AdCard extends Card {
         );
 
         if (ad.getPhotos() != null && !ad.getPhotos().isEmpty()) {
-            var image = ad.getPhotos().get(0).toImage();
+            var image = ad.getPhotos().getFirst().toImage();
             image.setWidth("200px");
             setMedia(image);
         }
@@ -66,13 +72,16 @@ public class AdCard extends Card {
         badgesLayout.setMargin(false);
         setHeaderSuffix(badgesLayout);
 
-        add(ad.getDescription() == null
-                ? new Span("No description provided.")
-                : new Span(ad.getDescription().length() > 47
-                    ? ad.getDescription().substring(0, 47).trim() + "..."
-                    : ad.getDescription()
-                )
-        );
+        String description;
+
+        if (ad.getDescription() == null)
+            description = "No description provided.";
+        else if (ad.getDescription().length() > 47)
+            description = ad.getDescription().substring(0, 47).trim() + "...";
+        else
+            description = ad.getDescription();
+
+        add(new Span(description));
 
         if (ad.getAgent().getEmail().equals(UserSession.getEmail()) && UserSession.getCurrentPath().contains("profile")) {
             var trashButton = new Button("🗑", event -> {});
@@ -88,23 +97,29 @@ public class AdCard extends Card {
             footer.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
             addToFooter(footer);
         }
+    }
 
-
-        if (UserSession.getCurrentPath().contains("search")) {  // on search is annoying to have this click event
+    private void defineClickEvents(boolean isInSearchView) {
+        if (isInSearchView) {  // on search is annoying to have this click event
             var goToAd = new Anchor(String.valueOf(ad.getId()), "Go to Ad");
-            goToAd.getElement().addEventListener("click", event -> goToAd(ad))
+            goToAd.getElement().addEventListener("click", event -> goToAd())
                             .addEventData("preventDefault()");
             addToFooter(goToAd);
         }
         else {
             getStyle().setTransition("transform 0.2s ease-in-out");
-            getElement().addEventListener("click", event -> goToAd(ad));
+            getElement().addEventListener("click", event -> goToAd());
             getElement().addEventListener("mouseover", event -> getStyle().setTransform("scale(1.07)"));
             getElement().addEventListener("mouseout", event -> getStyle().setTransform("scale(1)"));
         }
     }
 
-    private void goToAd(Ad ad) {
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        defineClickEvents(UI.getCurrent().getCurrentView() instanceof SearchView);
+    }
+
+    private void goToAd() {
         AdView.cacheAd(ad);
         UI.getCurrent().navigate(AdView.class, new RouteParameters("id", String.valueOf(ad.getId())));
     }

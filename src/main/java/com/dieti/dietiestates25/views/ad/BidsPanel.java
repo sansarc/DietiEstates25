@@ -11,7 +11,7 @@ import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.login.LoginView;
-import com.dieti.dietiestates25.views.profile.Profile;
+import com.dieti.dietiestates25.views.profile.ProfileView;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -32,7 +32,7 @@ import lombok.Setter;
 
 public class BidsPanel extends DivContainer implements BidActionListener {
 
-    private final AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+    transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
     @Getter private static VerticalLayout bidsListLayout;
     private final Scroller scroller = new Scroller();
@@ -62,32 +62,14 @@ public class BidsPanel extends DivContainer implements BidActionListener {
         createBidsList(ad);
     }
 
-    private void createBidsList(Ad ad) {
+    private  void createBidsList(Ad ad) {
         bidsListLayout.removeAll();
 
         var bids = adRequestsHandler.getBidsBy("ad", ad.getId());
 
-        for (var bid : bids) {
-            if (!bid.getStatus().equals("C")) {
-                var bidMessage = new BidMessage(bid, ad.getAgent().getEmail(), this);
+        for (var bid : bids)
+            createNDefineBidMessage(ad, bid);
 
-                if (bid.getStatus().equals("A")) {
-                    isOneAccepted = true;   // if there's an accepted bid
-                    bidMessage.addComponentAsFirst(new H5("Accepted bid"));
-                    if (bid.getCounteroffer() == null)
-                        bidMessage.setAccepted();
-                    bidsListLayout.addComponentAsFirst(bidMessage);
-                }
-                else if (bid.getStatus().equals("R")) {
-                    bidMessage.setRefused();
-                    bidsListLayout.add(bidMessage);
-                }
-                else {
-                    if (isOneAccepted) bidMessage.disableButtons();  // then all the others will be disabled no matter status
-                    bidsListLayout.add(bidMessage);
-                }
-            }
-        }
 
         if (bidsListLayout.getComponentCount() > 0) {
             scroller.setContent(bidsListLayout);
@@ -95,6 +77,30 @@ public class BidsPanel extends DivContainer implements BidActionListener {
         }
         else
             add(new Span("No bids found for this ad."));
+    }
+
+    private void createNDefineBidMessage(Ad ad, Bid bid) {
+        if (!bid.getStatus().equals("C")) {
+            var bidMessage = new BidMessage(bid, ad.getAgent().getEmail(), this);
+
+            if (bid.getStatus().equals("A")) {
+                isOneAccepted = true;   // if there's an accepted bid
+                var accepted = new H5("Accepted bid");
+                accepted.getStyle().setColor(Constants.Colors.PRIMARY_BLUE);
+                bidMessage.addComponentAsFirst(accepted);
+                if (bid.getCounteroffer() == null)
+                    bidMessage.setAccepted();
+                bidsListLayout.addComponentAsFirst(bidMessage);
+            }
+            else if (bid.getStatus().equals("R")) {
+                bidMessage.setRefused();
+                bidsListLayout.add(bidMessage);
+            }
+            else {
+                if (isOneAccepted) bidMessage.disableButtons();  // then all the others will be disabled no matter status
+                bidsListLayout.add(bidMessage);
+            }
+        }
     }
 
     @Override
@@ -172,8 +178,8 @@ public class BidsPanel extends DivContainer implements BidActionListener {
         avatar.addThemeVariants(AvatarVariant.LUMO_XLARGE);
         avatar.getStyle().set("border-color", Constants.Colors.PRIMARY_BLUE).setCursor("pointer");
 
-        var agentLink = new RouterLink(agentName, Profile.class, new RouteParameters("email", ad.getAgent().getEmail()));
-        agentLink.getElement().addEventListener("click", event -> Profile.cacheUser(ad.getAgent()));
+        var agentLink = new RouterLink(agentName, ProfileView.class, new RouteParameters("email", ad.getAgent().getEmail()));
+        agentLink.getElement().addEventListener("click", event -> ProfileView.cacheUser(ad.getAgent()));
         agentLink.getStyle().setFontWeight(Style.FontWeight.BOLD);
 
         var layout = new HorizontalLayout(avatar, agentLink);

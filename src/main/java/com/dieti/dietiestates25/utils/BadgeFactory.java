@@ -11,9 +11,11 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 
 public class BadgeFactory {
 
+    public static final String BADGE_CONTRAST = "badge contrast";
+
     private BadgeFactory() {}
 
-    private static Span createTitle(String title) {
+    public static Span createTitle(String title) {
         var text = new Span(title);
         text.getStyle().setFontWeight(Style.FontWeight.BOLD).setCursor("default");
         return text;
@@ -21,25 +23,25 @@ public class BadgeFactory {
 
     public static Span doormanService() {
         var badge = new Span(createIcon(LineAwesomeIcon.USER_TIE_SOLID.create()), createTitle("Doorman Service"));
-        badge.getElement().getThemeList().add("badge contrast");
+        badge.getElement().getThemeList().add(BADGE_CONTRAST);
         return badge;
     }
 
     public static Span condominiumParking() {
         var badge = new Span(createIcon(LineAwesomeIcon.PARKING_SOLID.create()), createTitle("Condominium Parking"));
-        badge.getElement().getThemeList().add("badge contrast");
+        badge.getElement().getThemeList().add(BADGE_CONTRAST);
         return badge;
     }
 
     public static Span privateParking() {
         var badge = new Span(createIcon(LineAwesomeIcon.CAR_SOLID.create()), createTitle("Private Parking"));
-        badge.getElement().getThemeList().add("badge contrast");
+        badge.getElement().getThemeList().add(BADGE_CONTRAST);
         return badge;
     }
 
-    public static Span AC() {
+    public static Span airConditioning() {
         var badge = new Span(createIcon(LineAwesomeIcon.SNOWFLAKE_SOLID.create()), createTitle("Air Conditioning"));
-        badge.getElement().getThemeList().add("badge contrast");
+        badge.getElement().getThemeList().add(BADGE_CONTRAST);
         return badge;
     }
 
@@ -48,7 +50,7 @@ public class BadgeFactory {
         squareMeters.getStyle().setFontSize("16px").setFontWeight(Style.FontWeight.BOLD);
         squareMeters.getStyle().setMarginLeft("4px");
         var badge = new Span(createTitle(String.valueOf(number)), squareMeters);
-        badge.getElement().getThemeList().add("badge contrast");
+        badge.getElement().getThemeList().add(BADGE_CONTRAST);
         return badge;
     }
 
@@ -66,7 +68,7 @@ public class BadgeFactory {
 
     public static Span publicTransport() {
         var badge = new Span(createIcon(VaadinIcon.BUS.create()), createTitle("Public Transport"));
-        badge.getElement().getThemeList().add("badge contrast");
+        badge.getElement().getThemeList().add(BADGE_CONTRAST);
         new InfoPopover(badge, "Public transport is available within 350m.").setPosition(PopoverPosition.BOTTOM);
         return badge;
     }

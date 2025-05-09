@@ -6,7 +6,9 @@ import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.views.ad.AdView;
 import com.dieti.dietiestates25.views.ad.BidsPanel;
+import com.dieti.dietiestates25.views.profile.ProfileView;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -17,24 +19,34 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Style;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class BidMessage extends VerticalLayout {
+public class BidMessage extends VerticalLayout implements AfterNavigationObserver {
 
-    private final AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+    public static final String POINTER = "pointer";
+    public static final String GREEN = "green";
+    transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
-    BidActionListener listener;
-    @Getter private Bid bid;
+    transient BidActionListener listener;
+    @Setter @Getter private transient Bid bid;
 
-    private final Button acceptButton, refuseButton;
-    private Button trashButton;
-    private Span amount, counterOffer, timestamp;
-    private Anchor accept, refuse;
-    private HorizontalLayout topLayout, counterOfferLayout;
+    Button acceptButton;
+    Button refuseButton;
+    Button trashButton;
+    Span amount;
+    Span counterOffer;
+    Span timestamp;
+    Anchor accept;
+    Anchor refuse;
+    HorizontalLayout topLayout;
+    HorizontalLayout counterOfferLayout;
 
     public void createBidBaseUI(Bid bid) {
         this.bid = bid;
@@ -53,7 +65,7 @@ public class BidMessage extends VerticalLayout {
 
         var message = new Span(amount);
 
-        if (!bid.getOffererMessage().isEmpty())
+        if (bid.getOffererMessage() != null && !bid.getOffererMessage().isEmpty())
             message.add(" - " + bid.getOffererMessage());
 
         var messageLayout = new VerticalLayout(name, message);
@@ -71,92 +83,118 @@ public class BidMessage extends VerticalLayout {
 
         trashButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         trashButton.setTooltipText("Delete");
-        trashButton.getStyle().setCursor("pointer");
+        trashButton.getStyle().setCursor(POINTER);
 
         topLayout = new HorizontalLayout(messageLayout, trashButton);
         topLayout.setWidthFull();
         topLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
     }
 
+    public BidMessage() {/* for testing */}
+
     public BidMessage(Bid bid, String agentEmail, BidActionListener listener) {
         this.listener = listener;
 
         createBidBaseUI(bid);
+        addActionButtons(bid);
+        manageButtonVisibility(bid, agentEmail);
+        handleCounterOfferIfPresent(bid);
+    }
 
+    private void addActionButtons(Bid bid) {
         acceptButton = new Button("Accept", e -> {
-            var success = adRequestsHandler.acceptOrRefuseBid(new Bid.Accept(bid.getId()));
-            if (listener != null && success)
-                listener.onAccepted(bid);
+            boolean success = adRequestsHandler.acceptOrRefuseBid(new Bid.Accept(bid.getId()));
+            if (listener != null && success) listener.onAccepted(bid);
         });
         acceptButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        acceptButton.getStyle().setCursor("pointer");
+        acceptButton.getStyle().setCursor(POINTER);
 
         refuseButton = new Button("Refuse", e -> launchCounterOfferDialog(bid, listener));
-
         refuseButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        refuseButton.getStyle().setCursor("pointer");
+        refuseButton.getStyle().setCursor(POINTER);
 
-        var actionsLayout = new HorizontalLayout(acceptButton, refuseButton);
-
+        HorizontalLayout actionsLayout = new HorizontalLayout(acceptButton, refuseButton);
         add(topLayout, timestamp, actionsLayout);
+    }
 
-        if (UserSession.getCurrentPath().contains("profile"))
-            add(new RouterLink("Go to Ad", AdView.class, new RouteParameters("id", String.valueOf(bid.getAdId()))));
-
-        if (!bid.getOfferer().equals(UserSession.getEmail()))
+    private void manageButtonVisibility(Bid bid, String agentEmail) {
+        if (!bid.getOfferer().equals(UserSession.getEmail())) {
             topLayout.remove(trashButton);
+        }
 
-        if (!agentEmail.equals(UserSession.getEmail()))
-            actionsLayout.removeAll();
+        if (!agentEmail.equals(UserSession.getEmail())) {
+            var actionsLayout = getComponentAt(2); // Assuming actionsLayout is always the third added
+            if (actionsLayout instanceof HorizontalLayout layout) {
+                layout.removeAll();
+            }
+        }
+    }
 
-        if (bid.getCounteroffer() != null) {
-            counterOffer = new Span("Agency counteroffer: " + bid.getCounteroffer().getAmountAsString());
-            counterOffer.getStyle()
-                    .setColor("#0d6efd")
-                    .setFontSize("14px");
+    private void handleCounterOfferIfPresent(Bid bid) {
+        var counter = bid.getCounteroffer();
+        if (counter == null) return;
 
-            new InfoPopover(counterOffer, bid.getAgentMessage());
+        counterOffer = new Span("Agency counteroffer: " + counter.getAmountAsString());
+        counterOffer.getStyle().setColor("#0d6efd").setFontSize("14px");
+        new InfoPopover(counterOffer, bid.getAgentMessage());
 
-            accept = new Anchor("#", "Accept");
-            accept.getStyle().setColor("green").setFontSize("14px");
-            refuse = new Anchor("#", "Refuse");
-            refuse.getStyle().setColor("red").setFontSize("14px");
+        counterOfferLayout = new HorizontalLayout(counterOffer);
+        counterOfferLayout.setWidthFull();
 
-            counterOfferLayout = new HorizontalLayout(counterOffer);
-            counterOfferLayout.setWidthFull();
-
-            if (bid.getCounteroffer().getStatus().equals("A")) {
+        switch (counter.getStatus()) {
+            case "A" -> {
                 BidsPanel.setOneAccepted(true);
                 setCounterOfferAccepted();
             }
-            else if (bid.getCounteroffer().getStatus().equals("R"))
-                setCounterOfferRefused();
-            else {
-                if (BidsPanel.isOneAccepted())
-                    disableCounterOfferButtons();
-                else {
-                    if (bid.getOfferer().equals(UserSession.getEmail())) {
-                        counterOfferLayout.add(accept, refuse);
-                        counterOfferLayout.setAlignSelf(Alignment.END, accept, refuse);
-
-                        accept.getElement().addEventListener("click", event -> {
-                            var success = adRequestsHandler.acceptOrRefuseCounterOffer(new Bid.Accept(bid.getCounteroffer().getId()));
-                            if (success)
-                                setCounterOfferAccepted();
-                        }).addEventData("event.preventDefault()");
-
-                        refuse.getElement().addEventListener("click", event -> {
-                            var success = adRequestsHandler.acceptOrRefuseCounterOffer(new Bid.Counteroffer.Refuse(bid.getCounteroffer().getId()));
-                            if (success)
-                                setCounterOfferRefused();
-                        }).addEventData("event.preventDefault()");
-                    }
-                }
-            }
-
-            add(new Hr(), counterOfferLayout);
+            case "R" -> setCounterOfferRefused();
+            default -> handlePendingCounterOffer(bid, counter);
         }
 
+        add(new Hr(), counterOfferLayout);
+    }
+
+    private void handlePendingCounterOffer(Bid bid, Bid.Counteroffer counter) {
+        if (BidsPanel.isOneAccepted()) {
+            disableCounterOfferButtons();
+            return;
+        }
+
+        if (!bid.getOfferer().equals(UserSession.getEmail())) return;
+
+        accept = new Anchor("#", "Accept");
+        accept.getStyle().setColor(GREEN).setFontSize("14px");
+
+        refuse = new Anchor("#", "Refuse");
+        refuse.getStyle().setColor("red").setFontSize("14px");
+
+        counterOfferLayout.add(accept, refuse);
+        counterOfferLayout.setAlignSelf(Alignment.END, accept, refuse);
+
+        setupCounterOfferEvents(counter);
+    }
+
+    private void setupCounterOfferEvents(Bid.Counteroffer counter) {
+        accept.getElement().addEventListener("click", event -> {
+            boolean success = adRequestsHandler.acceptOrRefuseCounterOffer(new Bid.Accept(counter.getId()));
+            if (success) setCounterOfferAccepted();
+        }).addEventData("event.preventDefault()");
+
+        refuse.getElement().addEventListener("click", event -> {
+            boolean success = adRequestsHandler.acceptOrRefuseCounterOffer(new Bid.Counteroffer.Refuse(counter.getId()));
+            if (success) setCounterOfferRefused();
+        }).addEventData("event.preventDefault()");
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        if (UI.getCurrent().getCurrentView() instanceof ProfileView) {
+            if (bid.getCounteroffer() != null) {
+                var status = new Span(String.format("(%s)", bid.getCounteroffer().getStatus().equals("A") ? "Accepted" : "Refused"));
+                status.getStyle().setFontSize("14px").setColor("gray");
+                counterOfferLayout.add(status);
+            }
+            add(new RouterLink("Go to Ad", AdView.class, new RouteParameters("id", String.valueOf(bid.getAdId()))));
+        }
     }
 
     private void launchCounterOfferDialog(Bid bid, BidActionListener listener) {
@@ -168,16 +206,16 @@ public class BidMessage extends VerticalLayout {
         var newMessage = new TextField("Optional message to the offerer");
         newMessage.setPlaceholder("Explain your reason or provide context...");
         newMessage.setWidthFull();
-        var amount = Form.priceInEuroNumberField("Counteroffer amount");
-        amount.setPlaceholder("Leave empty for straight refusal");
-        amount.setWidthFull();
+        var counterofferAmount = Form.priceInEuroNumberField("Counteroffer amount");
+        counterofferAmount.setPlaceholder("Leave empty for straight refusal");
+        counterofferAmount.setWidthFull();
 
         var confirmButton = new Button("Confirm", event -> {
             var success = adRequestsHandler.acceptOrRefuseBid(
                     new Bid.Refuse(
                             bid.getId(),
                             newMessage.getValue(),
-                            amount.isEmpty() ? 0 : amount.getValue()
+                            counterofferAmount.isEmpty() ? 0 : counterofferAmount.getValue()
                     )
             );
 
@@ -193,7 +231,7 @@ public class BidMessage extends VerticalLayout {
         var cancelButton = new Button("Cancel", event -> counterofferDialog.close());
 
         counterofferDialog.getFooter().add(cancelButton, confirmButton);
-        counterofferDialog.add(newMessage, amount);
+        counterofferDialog.add(newMessage, counterofferAmount);
 
         counterofferDialog.open();
     }
@@ -202,7 +240,7 @@ public class BidMessage extends VerticalLayout {
         disableButtons();
         accept.setText("accepted");
         counterOfferLayout.remove(refuse);
-        counterOffer.getStyle().setColor("green").setFontWeight(Style.FontWeight.BOLD);
+        counterOffer.getStyle().setColor(GREEN).setFontWeight(Style.FontWeight.BOLD);
     }
 
     public void setCounterOfferRefused() {
@@ -213,7 +251,7 @@ public class BidMessage extends VerticalLayout {
     }
 
     public void setAccepted() {
-        amount.getStyle().setColor("green");
+        amount.getStyle().setColor(GREEN);
         disableButtons();
     }
 
@@ -238,11 +276,10 @@ public class BidMessage extends VerticalLayout {
 
         bidsListLayout.getChildren()
                 .forEach(component -> {
-                    if (component instanceof BidMessage i) {
-                        if (i.getBid().getId() == id) {
+                    if (component instanceof BidMessage i && i.getBid().getId() == id) {
                             bidMessage.set(i);
                         }
-                    }
+
                 });
 
         return bidMessage.get();

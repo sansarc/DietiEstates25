@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InteractiveMap extends MapContainer {
-    private final LMap map;
+    private final transient LMap map;
     private final List<LMarker> markers = new ArrayList<>();
 
     public InteractiveMap(final LComponentManagementRegistry registry, String coordinates, int zoomOnMap) {
@@ -27,7 +27,9 @@ public class InteractiveMap extends MapContainer {
     }
 
     public static InteractiveMap createDefaultMap(LComponentManagementRegistry registry) {
-        return new InteractiveMap(registry, "49.6751 ; 12.1607", 4);
+        var defaultMap = new InteractiveMap(registry, "49.6751 ; 12.1607", 4);
+        defaultMap.setSizeFull();
+        return defaultMap;
     }
 
     public void addMarker(LComponentManagementRegistry registry, String coordinates, String label) {

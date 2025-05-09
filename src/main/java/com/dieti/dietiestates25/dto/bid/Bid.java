@@ -71,6 +71,8 @@ public class Bid {
     }
 
     public String getTimestamp() {
+        if (timestamp == null || timestamp.isBlank()) return "no timestamp found";
+
         var  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         var localDateTime = LocalDateTime.parse(timestamp.split("\\.")[0], formatter);
         var instant = localDateTime.toInstant(ZoneId.systemDefault().getRules().getOffset(localDateTime));

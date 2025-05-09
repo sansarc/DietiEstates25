@@ -7,7 +7,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
-import org.springframework.util.StringUtils;
 
 public class GeneralInfoForm extends Form {
 
@@ -41,14 +40,7 @@ public class GeneralInfoForm extends Form {
     public void addFormValues(AdInsert ad) {
         ad.setType((saleType.getValue().substring(4, 5))); // S for Sale or R for Rent
         ad.setCity(locationComponents.city.getValue().getCode());
-
-        var addressString = locationComponents.address.getValue().toLowerCase();
-        var capitalized = new StringBuilder();
-        for (var word : addressString.split(" "))
-            capitalized.append(StringUtils.capitalize(word)).append(" ");
-        ad.setAddress(StringUtils.capitalize(capitalized.toString().trim()));
-        System.out.println(ad.getAddress());
-
+        ad.setAddress(locationComponents.getAddress());
         ad.setDimensions(dimension.getValue().intValue());
         ad.setFloor(FloorUtils.parseFloorToInt(floor.getValue()));
     }
