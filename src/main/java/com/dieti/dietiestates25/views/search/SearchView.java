@@ -31,6 +31,7 @@ import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementReg
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -38,26 +39,40 @@ import java.util.stream.Stream;
 @Route(value = "search", layout = MainLayout.class)
 public class SearchView extends VerticalLayout implements HasUrlParameter<String> {
 
-    AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+    public static final String FOR_SALE = "For Sale";
+    public static final String FOR_RENT = "For Rent";
+    transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
     private VerticalLayout adsList;
-    private InteractiveMap defaultMap, map;
-    private Select<String> sortByPrice, agencyFilter;
-    private List<Ad> sortedAds;
+    private InteractiveMap map;
+    private Select<String> sortByPrice;
+    private transient Select<String> agencyFilter;
+    private transient ArrayList<Ad> sortedAds;
     private HorizontalLayout adsFilters;
+    private Span adsFoundCount;
     private Div mapDiv;
     private LDefaultComponentManagementRegistry registry;
     private boolean isMapDefault;
 
     private Form form;
     private Select<String> type;
-    private NumberField minPrice, maxPrice;
-    private IntegerField nRooms, nBathrooms;
+    private NumberField minPrice;
+    private NumberField maxPrice;
+    private IntegerField nRooms;
+    private IntegerField nBathrooms;
     private Form.LocationForm locationComponents;
 
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String ignored) {
         var queryParams = event.getLocation().getQueryParameters().getParameters();
+        Ad.SearchBy search;
+
+        var locationAny = getFirstParam(queryParams, "locationAny");
+        if (locationAny != null && !locationAny.isEmpty()) {
+            search = new Ad.SearchBy(locationAny);
+            searchNRefresh(search);
+            return;
+        }
 
         var type = getFirstParam(queryParams, "q"); // "sale" or "rent"
         var nRooms = pareInt(getFirstParam(queryParams, "nrooms"));
@@ -70,21 +85,32 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         var maxPrice = parseDouble(getFirstParam(queryParams, "max"));
 
         if (type != null || nRooms > 0 || nBathrooms > 0 || region != null || province != null || city != null || address != null || maxPrice > 0 || minPrice > 0) {
-            var search = new Ad.SearchBy(
+            search = new Ad.SearchBy(
                     type != null && type.equalsIgnoreCase("rent") ? "R" : "S",
                     nRooms, nBathrooms,
                     region, province, city, address,
                     minPrice, maxPrice
             );
-            var ads = adRequestsHandler.searchAds(search);
-            form.clear();
             fillForm(search);
-            refresh(ads);
+            searchNRefresh(search);
         }
     }
 
+    private void searchNRefresh(Ad.SearchBy search) {
+        var ads = adRequestsHandler.searchAds(search);
+        refresh(ads);
+    }
+
     private void fillForm(Ad.SearchBy search) {
-        type.setValue(search.getType().equals("Rent") ? "For Rent" : "For Sale");
+        String typeValue;
+        if (search.getType().equalsIgnoreCase("all"))
+            typeValue = "All";
+        else if (search.getType().equalsIgnoreCase("sale"))
+            typeValue = FOR_SALE;
+        else
+            typeValue = FOR_RENT;
+
+        type.setValue(typeValue);
         nRooms.setValue(search.getNRooms());
         nBathrooms.setValue(search.getNBathrooms());
         locationComponents.region.setValue(search.getRegion());
@@ -96,7 +122,7 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
 
     private String getFirstParam(Map<String, List<String>> params, String key) {
         var values = params.get(key);
-        return (values != null && !values.isEmpty()) ? values.get(0) : null;
+        return (values != null && !values.isEmpty()) ? values.getFirst() : null;
     }
 
     private int pareInt(String value) {
@@ -121,8 +147,8 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
     }
 
     private void configureComponents() {
-        type = Form.select("Type", "For Sale", "For Rent");
-        type.setValue("For Sale");
+        type = Form.select("Type", "All", FOR_SALE, FOR_RENT);
+        type.setValue("All");
         nRooms = Form.integerField("Rooms", LineAwesomeIcon.COUCH_SOLID.create());
         nBathrooms = Form.integerField("Bathrooms", LineAwesomeIcon.BATH_SOLID.create());
         minPrice = Form.priceInEuroNumberField("Min Price");
@@ -143,41 +169,7 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
                         form.setColspan(component, 2);
                 });
 
-        var search = new Button("Search", event -> {
-            var isValid = new AtomicBoolean(false);
-            form.getChildren()
-                    .map(HasValue.class::cast)
-                    .forEach(component -> {
-                        if ((component.getValue() != null))
-                            isValid.set(true);
-                    });
-
-            if (isValid.get()) {
-                setEnabled(false);
-                var query = buildQueryParams(type.getValue(), nRooms.getValue(), nBathrooms.getValue(), locationComponents, minPrice.getValue(), maxPrice.getValue());
-                UI.getCurrent().getPage().getHistory().replaceState(null, "search" + query);
-
-                var ads = adRequestsHandler.searchAds(new Ad.SearchBy(
-                        type.getValue().substring(4, 5),
-                        nRooms.getValue(),
-                        nBathrooms.getValue(),
-                        locationComponents.getRegion(),
-                        locationComponents.getProvince(),
-                        locationComponents.getCity(),
-                        locationComponents.getAddress(),
-                        minPrice.getValue() == null ? 0 : minPrice.getValue(),
-                        maxPrice.getValue() == null ? 0 : maxPrice.getValue()
-
-                ));
-                refresh(ads);
-                setEnabled(true);
-            }
-            else NotificationFactory.error("Fill at least one field to make a search.");
-        });
-        search.addClickShortcut(Key.ENTER);
-        search.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        search.getStyle().setCursor("pointer");
-        search.setWidth("20px");
+        var search = getSearchButton();
 
         var clear = new Button(VaadinIcon.CLOSE.create(), event -> form.clear());
         clear.setTooltipText("Clear form");
@@ -195,28 +187,32 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         sortByPrice.addThemeVariants(SelectVariant.LUMO_SMALL);
         sortByPrice.addValueChangeListener(event -> refresh(sortedAds));
 
-        agencyFilter = Form.select("Filter By Agency", "All"); // default option
-        agencyFilter.setValue("All");
+        agencyFilter = new Select<>("Filter by agency", event -> {
+            if (event.getValue() != null)
+                /* re- */ display();
+        });
+        agencyFilter.setEmptySelectionAllowed(false);
         agencyFilter.getStyle().setMarginTop("-25px");
         agencyFilter.addThemeVariants(SelectVariant.LUMO_SMALL);
-        agencyFilter.addValueChangeListener(event -> refresh(sortedAds));
 
-        adsFilters = new HorizontalLayout(sortByPrice, agencyFilter);
+        adsFoundCount = new Span("Results will appear below.");
+        adsFoundCount.getStyle().setColor("gray");
+
+        adsFilters = new HorizontalLayout(sortByPrice, agencyFilter, adsFoundCount);
         adsFilters.setWidthFull();
         adsFilters.setAlignItems(Alignment.CENTER);
         adsFilters.setJustifyContentMode(JustifyContentMode.START);
 
-        adsList = new VerticalLayout(adsFilters, new Span("Results will appear here."));
+        adsList = new VerticalLayout(adsFilters);
         adsList.setWidth("40%");
         adsList.getStyle().setOverflow(Style.Overflow.AUTO); // scroll if many ads
 
+
         registry = new LDefaultComponentManagementRegistry(this);
-        defaultMap = InteractiveMap.createDefaultMap(registry);
-        defaultMap.setSizeFull();
-        isMapDefault = true;
         mapDiv = new DivContainer("auto", "98%");
         mapDiv.getStyle().setMarginRight("-20px").setPadding("4px");
-        mapDiv.add(defaultMap);
+        mapDiv.add(InteractiveMap.createDefaultMap(registry));
+        isMapDefault = true;
 
         var adsNMap = new SplitLayout();
         adsNMap.setSizeFull();
@@ -228,58 +224,99 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         add(formLayout, adsNMap);
     }
 
-    private void refresh(List<Ad> ads) {
-        adsList.getChildren()   // basically remove all except the sort combobox
-                .filter(component -> component instanceof Span || component instanceof AdCard)
-                .forEach(adsList::remove);
-        adsFilters.getChildren()
-                .filter(Span.class::isInstance)
-                .forEach(adsFilters::remove);
+    private boolean isFormValid() {
+        var isValid = new AtomicBoolean(false);
+        form.getChildren()
+                .map(HasValue.class::cast)
+                .forEach(component -> {
+                    if ((component.getValue() != null))
+                        isValid.set(true);
+                });
 
-        // reset map
-        if (map != null) {
-            map.removeAllMarkers();
-            mapDiv.remove(map);
-            mapDiv.add(defaultMap);
-            isMapDefault = true;
-        }
+        return isValid.get();
+    }
 
-        if (ads == null || ads.isEmpty()) {
-            adsList.add(new Span("No ads found."));
-            sortedAds.clear();
+    private Button getSearchButton() {
+        var search = new Button("Search", event -> handleSearchClick());
+
+        search.addClickShortcut(Key.ENTER);
+        search.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        search.getStyle().setCursor("pointer");
+        search.setWidth("20px");
+
+        return search;
+    }
+
+    private void handleSearchClick() {
+        if (!isFormValid()) {
+            NotificationFactory.error("Fill at least one field to make a search.");
             return;
         }
 
-        adsFilters.add(new Span("Found " + ads.size() + " ads."));
-        sortedAds = new ArrayList<>(ads);
-        sortedAds.sort((a1, a2) -> {
-            if (sortByPrice.getValue().equals("Low to High"))
-                return Double.compare(a1.getPrice(), a2.getPrice());
-            else if (sortByPrice.getValue().equals("High to Low"))
-                return Double.compare(a2.getPrice(), a1.getPrice());
+        var query = buildQueryParams(type.getValue(), nRooms.getValue(), nBathrooms.getValue(),
+                locationComponents, minPrice.getValue(), maxPrice.getValue());
+        UI.getCurrent().getPage().getHistory().replaceState(null, "search" + query);
 
-            return 0; // default
-        });
-        var agencies = sortedAds.stream()
-                .map(ad -> ad.getAgent().getAgencyName())
-                .filter(name -> name != null && !name.isEmpty())
-                .distinct()
-                .sorted()
+        setEnabled(false);
+        var ads = adRequestsHandler.searchAds(new Ad.SearchBy(
+                getTypeValue(),
+                nRooms.getValue() == null ? 0 : nRooms.getValue(),
+                nBathrooms.getValue() == null ? 0 : nRooms.getValue(),
+                locationComponents.getRegion(),
+                locationComponents.getProvince(),
+                locationComponents.getCity(),
+                locationComponents.getAddress(),
+                minPrice.getValue() == null ? 0 : nRooms.getValue(),
+                maxPrice.getValue() == null ? 0 : nRooms.getValue()
+        ));
+        setEnabled(true);
+
+        refresh(ads);
+    }
+
+    private String getTypeValue() {
+        String typeVal = type.getValue();
+        if (typeVal == null || typeVal.equals("All") || typeVal.isEmpty()) {
+            return "";
+        }
+        return typeVal.substring(4, 5);
+    }
+
+    private void refresh(List<Ad> ads) {
+        if (ads == null || ads.isEmpty()) {
+            adsFoundCount.setText("No ads found.");
+            clearPreviousData();
+            resetMap();
+            return;
+        }
+
+        sortAds(ads);
+        updateAgencyFilter();
+        display();
+    }
+
+    private void display() {
+        clearPreviousData();
+        resetMap();
+
+        // filter by selected agency
+        var selectedAgency = agencyFilter.getValue();
+
+        var filteredAds = selectedAgency == null || selectedAgency.equals("All")
+                ? sortedAds
+                : sortedAds.stream()
+                .filter(ad -> ad.getAgent().getAgencyName() != null)
+                .filter(ad -> ad.getAgent().getAgencyName().equals(selectedAgency))
                 .toList();
-        agencyFilter.setItems("All");
-        agencyFilter.setItems(Stream.concat(Stream.of("All"), agencies.stream()).toList());
 
-        for (var ad : sortedAds) {
+        var i = 0;
+        for (var ad : filteredAds) { i++;
             if (ad.getCoordinates() != null) {
-                var selectedAgency = agencyFilter.getValue();
-                if (selectedAgency != null && !"All".equals(selectedAgency) && !selectedAgency.equals(ad.getAgent().getAgencyName()))
-                    continue;
-
                 if (isMapDefault) {
-                    // map component is not the friendliest of them all
+                    // initializing map at the first valid ad with valid coordinates and setting central view there
                     map = new InteractiveMap(registry, ad.getCoordinates(), 6);
                     map.setSizeFull();
-                    mapDiv.remove(defaultMap);
+                    mapDiv.removeAll();  // replacing default map with the new updated one
                     mapDiv.add(map);
                     isMapDefault = false;
                 }
@@ -288,7 +325,7 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
             }
 
             var card = new AdCard(ad);
-            var viewOnMap = new Anchor("#", "View on Map");
+            var viewOnMap = new Anchor("#", "View on Map | ads n: " + i);
 
             if (ad.getCoordinates() == null) {
                 viewOnMap.setEnabled(false);
@@ -302,37 +339,85 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
             adsList.add(card);
         }
 
+        adsFoundCount.setText("Found " + filteredAds.size() + " ads.");
+    }
+
+    private void updateAgencyFilter() {
+        // update for agencies
+        var agencies = sortedAds.stream()
+                .map(ad -> ad.getAgent().getAgencyName())
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .toList();
+
+        agencyFilter.setItems(Stream.concat(Stream.of("All"), agencies.stream()).toList());
+        agencyFilter.setValue("All");
+    }
+
+    private void sortAds(List<Ad> ads) {
+        sortedAds = new ArrayList<>(ads);
+
+        // price sorting
+        sortedAds.sort((a1, a2) -> {
+            if (sortByPrice.getValue().equals("Low to High"))
+                return Double.compare(a1.getPrice(), a2.getPrice());
+            else if (sortByPrice.getValue().equals("High to Low"))
+                return Double.compare(a2.getPrice(), a1.getPrice());
+
+            return 0; // default
+        });
+    }
+
+    private void resetMap() {
+        if (map != null) {
+            map.removeAllMarkers();
+            mapDiv.removeAll();  // replace previous search's map back with the default one, in case next search provides no coordinates-valid results
+            mapDiv.add(InteractiveMap.createDefaultMap(registry));
+            isMapDefault = true;
+        }
+    }
+
+    private void clearPreviousData() {
+        adsList.removeAll();
+        adsList.add(adsFilters);
     }
 
     private String buildQueryParams(String type, Integer nRooms, Integer nBathrooms, Form.LocationForm loc, Double minPrice, Double maxPrice) {
-        var string = new StringBuilder();
-        string.append("?q=").append(type.toLowerCase().contains("rent") ? "rent" : "sale");
+        StringBuilder params = new StringBuilder();
+        params.append("?q=");
 
-        if (nRooms != null && nRooms > 0)
-            string.append("&nrooms=").append(nRooms);
+        if (type != null) {
+            if (FOR_SALE.equals(type))
+                params.append("sale");
+            else if (FOR_RENT.equals(type))
+                params.append("rent");
+            else
+                params.append("all");
+        }
 
-        if (nBathrooms != null && nBathrooms > 0)
-            string.append("&nbathrooms=").append(nBathrooms);
+        appendIfPositive(params, "&nrooms=", nRooms);
+        appendIfPositive(params, "&nbathrooms=", nBathrooms);
 
-        if (loc.getRegion() != null && !loc.getRegion().isEmpty())
-            string.append("&region=").append(loc.getRegion());
+        appendIfNotEmpty(params, "&region=", loc.getRegion());
+        appendIfNotEmpty(params, "&province=", loc.getProvince());
+        appendIfNotEmpty(params, "&city=", loc.getCity());
+        appendIfNotEmpty(params, "&address=", loc.getAddress());
 
-        if (loc.getProvince() != null && !loc.getProvince().isEmpty())
-            string.append("&province=").append(loc.getProvince());
+        appendIfPositive(params, "&min=", minPrice);
+        appendIfPositive(params, "&max=", maxPrice);
 
-        if (loc.getCity() != null && !loc.getCity().isEmpty())
-            string.append("&city=").append(loc.getCity());
+        return params.toString();
+    }
 
-        if (loc.getAddress() != null && !loc.getAddress().isEmpty())
-            string.append("&address=").append(loc.getAddress());
+    private void appendIfPositive(StringBuilder sb, String prefix, Number value) {
+        if (value != null && value.doubleValue() > 0)
+            sb.append(prefix).append(value);
+    }
 
-        if (minPrice != null && minPrice > 0)
-            string.append("&min=").append(minPrice);
-
-        if (maxPrice != null && maxPrice > 0)
-            string.append("&max=").append(maxPrice.intValue());
-
-        return string.toString();
+    private void appendIfNotEmpty(StringBuilder sb, String prefix, String value) {
+        if (value != null && !value.isEmpty())
+            sb.append(prefix).append(value);
     }
 
     private void configureLayout() {

@@ -1,37 +1,35 @@
 package com.dieti.dietiestates25.views;
 
 import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
-import com.dieti.dietiestates25.views.profile.Profile;
-import com.dieti.dietiestates25.views.agency_dashboard.AgencyDashboardView;
-import com.dieti.dietiestates25.constants.Constants;
+import com.dieti.dietiestates25.ui_components.UserMenu;
+import com.dieti.dietiestates25.constants.Constants.LumoSpacing;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.utils.ThemeManager;
 import com.dieti.dietiestates25.views.login.LoginView;
-import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
+import com.dieti.dietiestates25.views.search.SearchView;
 import com.dieti.dietiestates25.views.signup.SignUpView;
 import com.dieti.dietiestates25.views.upload.UploadView;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.avatar.Avatar;
-import com.vaadin.flow.component.avatar.AvatarVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.dieti.dietiestates25.observers.ThemeChangeNotifier;
+
+import java.util.List;
+import java.util.Map;
 
 public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
@@ -39,10 +37,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     HorizontalLayout navigationBar;
     DietiEstatesLogo logo;
     HorizontalLayout variablePartNavigationBar;
-    Avatar avatar;
     Select<String> themeMode;
-
-    private final AuthenticationHandler authenticationHandler = new AuthenticationHandler();
 
     public MainLayout() {
         configureComponents();
@@ -51,38 +46,61 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     }
 
     private void configureComponents() {
-
         createLogo();
         createNavigationBar();
         variablePartNavigationBar = new HorizontalLayout();
         refreshVariablePartNavigationBar();
-        header = new HorizontalLayout(logo, navigationBar, variablePartNavigationBar);
-        header.expand(navigationBar);
 
+        header = new HorizontalLayout();
+
+        var leftSection = new HorizontalLayout(navigationBar);
+        leftSection.setWidth("33%");
+        leftSection.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+
+        var centerSection = new HorizontalLayout(logo);
+        centerSection.setWidth("33%");
+        centerSection.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        var rightSection = new HorizontalLayout(variablePartNavigationBar);
+        rightSection.setWidth("33%");
+        rightSection.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+
+        header.add(leftSection, centerSection, rightSection);
     }
+
 
     private void refreshVariablePartNavigationBar() {
         variablePartNavigationBar.removeAll();
+        String spacing;
 
         if (UserSession.isUserLoggedIn()) {
-            createAvatarBadge();
-            variablePartNavigationBar.add(avatar);
+            if (UserSession.isManagerOrAgent()) {
+                var upload = new Button("Upload", VaadinIcon.HOME.create(), event -> UI.getCurrent().navigate(UploadView.class));
+                upload.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                upload.setWidth("140px");
+                variablePartNavigationBar.add(upload);
+            }
+
+            variablePartNavigationBar.add(new UserMenu());
+            variablePartNavigationBar.getStyle().setMarginLeft("30px");
+            spacing = LumoSpacing.M;
         }
         else {
             var loginButton = new Button("Login", event -> UI.getCurrent().navigate(LoginView.class));
             var signupButton = new Button("Sign up", event -> UI.getCurrent().navigate(SignUpView.class));
             signupButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             variablePartNavigationBar.add(loginButton, signupButton);
+            spacing = LumoSpacing.XS;
         }
 
         createThemeModeMenu();
 
-        variablePartNavigationBar.getChildren()
+        variablePartNavigationBar.getChildren()   // more spacing between components
                 .forEach(component ->
-                        component.getStyle().setMarginRight("var(--lumo-space-xs)").setMarginLeft("var(--lumo-space-xs)"));
+                        component.getStyle().setMarginRight(spacing).setMarginLeft(spacing));
 
         variablePartNavigationBar.add(themeMode);
-        variablePartNavigationBar.setAlignSelf(HorizontalLayout.Alignment.CENTER, themeMode);
+        variablePartNavigationBar.setAlignSelf(FlexComponent.Alignment.CENTER, themeMode);
     }
 
     private void createThemeModeMenu() {
@@ -110,44 +128,6 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         ThemeManager.initializeTheme(themeMode);
     }
 
-    private void createAvatarBadge() {
-        String name = UserSession.getFirstName() + " " + UserSession.getLastName();
-
-        avatar = new Avatar(name);
-        avatar.addThemeVariants(AvatarVariant.LUMO_LARGE);
-        avatar.getStyle()
-                .setColor(Constants.Colors.PRIMARY_BLUE)
-                .setFontWeight(Style.FontWeight.BOLDER)
-                .setBorder("1px solid " + Constants.Colors.PRIMARY_BLUE)
-                .setCursor("pointer");
-
-        var userMenu = new ContextMenu();
-        userMenu.setTarget(avatar);
-        userMenu.setOpenOnClick(true);
-
-        if (UserSession.isManagerOrAgent()) {
-            var agency = new Span(UserSession.getAgencyName());
-            agency.getStyle().setFontWeight(Style.FontWeight.BOLD);
-            userMenu.addItem(agency)
-                    .addClickListener(event -> UI.getCurrent().navigate(AgencyDashboardView.class));
-        }
-
-        userMenu.addItem(new Span("Your Profile"))
-                .addClickListener(event -> UI.getCurrent().navigate(Profile.class));
-
-        var logout = new Span("Logout");
-        logout.getStyle().setColor("red");
-        userMenu.addItem(logout)
-                .addClickListener(event -> {
-                    authenticationHandler.logout(UserSession.getSessionId());
-                    UserSession.logout(false);
-                });
-
-        for (Component item : userMenu.getItems()) {
-            item.getStyle().setCursor("pointer");
-        }
-    }
-
     private void createLogo() {
         logo = new DietiEstatesLogo(true);
         logo.getStyle()
@@ -158,6 +138,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private void createNavigationBar() {
         navigationBar = new HorizontalLayout();
+        navigationBar.setAlignItems(FlexComponent.Alignment.CENTER);
         navigationBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         navigationBar.addClassNames(
                 LumoUtility.JustifyContent.CENTER,
@@ -165,22 +146,33 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                 LumoUtility.Height.MEDIUM,
                 LumoUtility.Width.FULL
         );
-        navigationBar.add(
-                createLink("Don't", RegisterAgencyView.class),
-                createLink("Know", UploadView.class),
-                createLink("About", RegisterAgencyView.class)
-        );
-    }
 
-    private RouterLink createLink(String label, Class<? extends Component> linkClass) {
-        RouterLink link = new RouterLink(label, linkClass);
-        link.addClassNames(
-                LumoUtility.Display.FLEX,
-                LumoUtility.AlignItems.CENTER,
-                LumoUtility.Padding.Horizontal.LARGE,
-                LumoUtility.FontWeight.EXTRABOLD
-        );
-        return link;
+        var searchField = new TextField();
+        searchField.setPlaceholder("Search...");
+        searchField.addThemeVariants();
+        searchField.setWidth("220px");
+        searchField.getStyle().setMarginRight("-15px");
+
+        var searchButton = new Button(VaadinIcon.SEARCH.create(), event -> {
+            if (!searchField.getValue().isBlank()) {
+                UI.getCurrent().navigate(SearchView.class, new QueryParameters(Map.of("locationAny", List.of(searchField.getValue()))));
+            }
+        });
+        searchButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+
+        var advancedSearch = new RouterLink("Advanced Search", SearchView.class);
+        advancedSearch.getStyle()
+                .set("fontSize", "13px")
+                .set("marginLeft", "-2px");
+
+        var searchGroup = new HorizontalLayout(searchField, searchButton, advancedSearch);
+        searchGroup.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
+        searchGroup.setPadding(false);
+        searchGroup.setSpacing(true);
+        searchGroup.setAlignItems(FlexComponent.Alignment.CENTER);
+        searchGroup.getStyle().setMarginLeft("15px");
+
+        navigationBar.add(searchGroup);
     }
 
     private void configureLayout() {
@@ -192,8 +184,8 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     @Override
     public void afterNavigation(AfterNavigationEvent event) {    // refreshes MainLayout "variable part" after user logs in, the best alternative to full page reload
         UI.getCurrent().getChildren()
-                .filter(component -> component instanceof MainLayout)
-                .map(component -> (MainLayout) component)
+                .filter(MainLayout.class::isInstance)
+                .map(MainLayout.class::cast)
                 .findFirst()
                 .ifPresent(MainLayout::refreshVariablePartNavigationBar);
     }

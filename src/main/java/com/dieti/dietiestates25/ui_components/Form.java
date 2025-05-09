@@ -12,6 +12,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.*;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -44,9 +46,9 @@ public class Form extends FormLayout {
 
     public static IntegerField integerField(String label, Component icon) {
         var field = integerField(label);
-        if (icon instanceof Image) {
-            ((Image) icon).setHeight("18px");
-            ((Image) icon).setWidth("18px");
+        if (icon instanceof Image image) {
+            image.setHeight("18px");
+            image.setWidth("18px");
         }
         field.setSuffixComponent(icon);
         return field;
@@ -65,8 +67,16 @@ public class Form extends FormLayout {
         numberField.setPrefixComponent(new Icon(VaadinIcon.EURO));
         numberField.setPlaceholder("0.00");
         numberField.setMin(0);
-
         numberField.setAllowedCharPattern("[0-9\\.]");
+        numberField.setValueChangeMode(ValueChangeMode.EAGER);
+
+        numberField.addValueChangeListener(event -> {
+            if (event.getValue() != null && Integer.parseInt(event.getValue().toString().split("\\.")[1]) != 0)
+                numberField.setHelperText("Note: dot (.) is for decimals.");
+            else
+                numberField.setHelperText(null);
+        });
+
         return numberField;
     }
 
@@ -99,20 +109,45 @@ public class Form extends FormLayout {
                         emailField.set(Optional.of(ef));
         });
 
-        // validate required text fields and combo boxes
-        if (requiredTextFields.stream().anyMatch(AbstractField::isEmpty)
-                || requiredComboBoxes.stream().anyMatch(ComboBox::isEmpty)) {
-            NotificationFactory.error("Please fill in all required fields to continue.");
-            return false;
-        }
+        return !areTextFieldsInvalid(requiredTextFields, requiredComboBoxes) &&
+                !areNumberFieldsInvalid(requiredNumberFields) &&
+                !arePasswordFieldsInvalid(passwordFields) &&
+                !isEmailFieldInvalid(emailField);
+    }
 
+    private static boolean areNumberFieldsInvalid(List<AbstractNumberField<?, ?>> requiredNumberFields) {
         // validate required number fields
         if (requiredNumberFields.stream()
                 .anyMatch(nf -> nf.getValue() == null || nf.getValue().intValue() <= 0)) {
             NotificationFactory.error("All required numeric fields must have values greater than 0.");
-            return false;
+            return true;
         }
+        return false;
+    }
 
+    private static boolean areTextFieldsInvalid(List<TextFieldBase<?, ?>> requiredTextFields, List<ComboBox<?>> requiredComboBoxes) {
+        // validate required text fields and combo boxes
+        if (requiredTextFields.stream().anyMatch(AbstractField::isEmpty)
+                || requiredComboBoxes.stream().anyMatch(ComboBox::isEmpty)) {
+            NotificationFactory.error("Please fill in all required fields to continue.");
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isEmailFieldInvalid(AtomicReference<Optional<EmailField>> emailField) {
+        // validate email field
+        var optionalEmail = emailField.get();
+        if (optionalEmail.isPresent() && optionalEmail.get().isInvalid()) {
+            var email = optionalEmail.get();
+            email.setInvalid(true);
+            email.setErrorMessage("Invalid email address.");
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean arePasswordFieldsInvalid(List<PasswordField> passwordFields) {
         // validate passwords (only if exactly two password fields)
         if (passwordFields.size() == 2) {
             var password = passwordFields.get(0);
@@ -121,19 +156,10 @@ public class Form extends FormLayout {
                 password.setInvalid(true);
                 confirmPassword.setInvalid(true);
                 confirmPassword.setErrorMessage("Passwords do not match.");
-                return false;
+                return true;
             }
         }
-
-        // validate email field
-        if (emailField.get().isPresent() && emailField.get().get().isInvalid()) {
-            var email = emailField.get().get();
-            email.setInvalid(true);
-            email.setErrorMessage("Invalid email address.");
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     public void clear() {
@@ -181,7 +207,7 @@ public class Form extends FormLayout {
         }
 
         public String getAddress() {
-            return address.getValue() == null ? "" : address.getValue();
+            return capitalize(address.getValue());
         }
 
         public List<Component> asList() {
@@ -193,5 +219,15 @@ public class Form extends FormLayout {
         }
     }
 
+    public static String capitalize(String string) {
+        if (string == null) return "";
+
+        var lowerCase = string.toLowerCase();
+        var capitalized = new StringBuilder();
+        for (var word : lowerCase.split(" "))
+            capitalized.append(StringUtils.capitalize(word)).append(" ");
+
+        return StringUtils.capitalize(capitalized.toString().trim());
+    }
 
 }

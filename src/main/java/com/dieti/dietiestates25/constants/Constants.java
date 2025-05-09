@@ -36,10 +36,7 @@ public final class Constants {
 
         public static final int OK = 200;
         public static final int CREATED = 201;
-        public static final int UNAUTHORIZED = 401;
-        public static final int BAD_REQUEST = 400;
         public static final int INTERNAL_SERVER_ERROR = 500;
-        public static final int CONFLICT = 409;
     }
 
     public static final class StaticPaths {
@@ -55,6 +52,15 @@ public final class Constants {
         public static final String PRIMARY_BLUE = "var(--lumo-primary-color)";
         public static final String SECONDARY_GRAY = "var(--lumo-secondary-color)";
         public static final String GRAY_OVER_WHITEMODE = "#E0E0E0";
-            public static final String GRAY_OVER_DARKMODE = "#2D2F31";
+        public static final String GRAY_OVER_DARKMODE = "#2D2F31";
+    }
+
+    public static final class LumoSpacing {
+        private LumoSpacing() {}
+
+        public static final String L = "var(--lumo-space-l)";
+        public static final String M = "var(--lumo-space-m)";
+        public static final String S = "var(--lumo-space-s)";
+        public static final String XS = "var(--lumo-space-xs)";
     }
 }
