@@ -35,7 +35,7 @@ class OtpViewTest {
         view = new OtpView();
         view.authHandler = authHandlerMock;
 
-        UserSession.init(TestUtils.TEST_USER);
+        UserSession.init(TestUtils.newUser("U"));
         UserSession.setSessionId("mock-session");
     }
 

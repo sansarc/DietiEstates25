@@ -2,16 +2,12 @@ package com.dieti.dietiestates25.views.agency_dashboard;
 
 import com.dieti.dietiestates25.dto.Agency;
 import com.dieti.dietiestates25.dto.User;
-import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.utils.BadgeFactory;
-import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.notfound.PageNotFoundView;
 import com.dieti.dietiestates25.views.profile.ProfileView;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.services.agency.AgencyRequestsHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
-import com.dieti.dietiestates25.ui_components.InfoPopover;
-import com.dieti.dietiestates25.ui_components.TextWithLink;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -34,6 +30,7 @@ public class AgencyDashboardView extends VerticalLayout  implements BeforeEnterO
 
     DivContainer container;
     VerticalLayout agentsLayout;
+    Button addAgentButton;
 
     private static final Map<String, Agency> TEMP_AGENCY_CACHE = new HashMap<>();
 
@@ -59,8 +56,11 @@ public class AgencyDashboardView extends VerticalLayout  implements BeforeEnterO
             }
         }
         else {
-            if (!UserSession.isManagerOrAgent())
-                event.forwardTo(LoginView.class);
+            // if user visits /agency-dashboard (his agency) without having a role (so has no agency basically) => forward
+            if (!UserSession.isManagerOrAgent()) {
+                event.forwardTo(PageNotFoundView.class);
+                return;
+            }
 
             agency = new Agency(UserSession.getAgencyName(), UserSession.getAgencyVAT());
             configureComponents(agency, true);
@@ -88,44 +88,28 @@ public class AgencyDashboardView extends VerticalLayout  implements BeforeEnterO
 
 
     private void createAgentsDetails(Agency agency, boolean isPersonalAgency) {
-        var addAgentButton = new Button(VaadinIcon.PLUS.create(), event -> new AddAgentDialog().open());
-        addAgentButton.getStyle().setCursor("pointer");
-        new InfoPopover(addAgentButton, "Add a new agent");
-
         var title = new H3("Agents");
+        title.setId("agents-h3");
         title.getStyle().setCursor("pointer");
 
         var titleLayout = new HorizontalLayout(title);
-        if (isPersonalAgency && UserSession.isManager())
-            titleLayout.add(addAgentButton);
         titleLayout.setAlignItems(Alignment.CENTER);
+
+        if (isPersonalAgency && UserSession.isManager()) {
+            addAgentButton = new Button(VaadinIcon.PLUS.create(), event -> new AddAgentDialog().open());
+            addAgentButton.getStyle().setCursor("pointer");
+            addAgentButton.setTooltipText("Add a new agent");
+            titleLayout.add(addAgentButton);
+        }
 
         agentsLayout = new VerticalLayout(titleLayout);
         var agentsList = agencyRequestsHandler.getAgents(agency.getVatNumber());
 
+        // agents list can (hopefully) never be null as there's always the manager
         if (agentsList != null) {
-
-            if (isPersonalAgency && UserSession.isManager())
-                agentsList.removeFirst(); // remove the manager from agents list when user's actually the manager.
-
-            if (agentsList.isEmpty())
-                createEmptyAgentListView();
-            else {
-                for (var agent : agentsList)
-                    createAgentCard(agent);
-            }
+            for (var agent : agentsList)
+                createAgentCard(agent);
         }
-    }
-
-    private void createEmptyAgentListView() {
-        var addAgentAnchor = new Anchor("#", "here");
-        addAgentAnchor.getElement().addEventListener("click", event ->
-                new AddAgentDialog().open()
-        ).addEventData("event.preventDefault()");
-
-        var emptyAgents = new TextWithLink("Looks like there are no agents signed up yet. Add them", addAgentAnchor, ".");
-        emptyAgents.getStyle().set("color", "#888888").setPaddingTop("var(--lumo-space-s)");
-        agentsLayout.add(emptyAgents);
     }
 
     private void createAgentCard(User agent) {

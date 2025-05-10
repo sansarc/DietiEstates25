@@ -32,8 +32,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProfileViewTest {
 
-    private static final User TEST_USER = TestUtils.TEST_USER;
-    private static final User OTHER_USER = TestUtils.OTHER_USER;
+    private static final User TEST_USER = TestUtils.newUser("A");
+    private static final User OTHER_USER = TestUtils.newUser("U");
 
     private ProfileView view;
 

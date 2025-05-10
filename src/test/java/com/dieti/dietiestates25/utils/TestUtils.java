@@ -13,15 +13,12 @@ import static org.mockito.Mockito.when;
 
 public class TestUtils {
 
-    public static final User TEST_USER = new User(
-            "John", "Doe", "john@example.com", null,
-            "ACME Agency", "123456789", "A", true
-    );
-
-    public static final User OTHER_USER = new User(
-            "Jane", "Smith", "jane@example.com", null,
-            "XYZ Agency", "987654321", "A", true
-    );
+    public static User newUser(String role) {
+        return new User(
+                "John", "Doe", "john@example.com", null,
+                "ACME Agency", "123456789", role, true
+        );
+    }
 
     public static final String SUCCESS_JSON_MOCK = """
     {
@@ -60,15 +57,15 @@ public class TestUtils {
     public static List<Bid> mockBidsList() {
         var bid1 = new Bid();
         bid1.setId(1);
-        bid1.setOfferer(TEST_USER.getEmail());
+        bid1.setOfferer("test1@example.com");
         bid1.setStatus("P");
         var bid2 = new Bid();
         bid2.setId(2);
-        bid2.setOfferer(TEST_USER.getEmail());
+        bid1.setOfferer("test2@example.com");
         bid2.setStatus("A");
         var bid3 = new Bid();
         bid3.setId(3);
-        bid3.setOfferer(TEST_USER.getEmail());
+        bid1.setOfferer("test3@example.com");
         bid3.setStatus("R");
 
         return List.of(bid1, bid2, bid3);
