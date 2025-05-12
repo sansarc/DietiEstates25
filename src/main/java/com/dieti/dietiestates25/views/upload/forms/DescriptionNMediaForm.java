@@ -20,18 +20,18 @@ import java.util.Base64;
 import java.util.List;
 
 public class DescriptionNMediaForm extends Form {
-    final int DESCRIPTION_CHAR_MIN = 50;
-    final int DESCRIPTION_CHAR_MAX = 1000;
-    final int UPLOAD_LIMIT = 20;
+    static final int DESCRIPTION_CHAR_MAX = 1000;
+    static final int UPLOAD_LIMIT = 20;
     int CURRENT_UPLOADS = 0;
 
     TextArea description;
     MultiFileMemoryBuffer buffer;
     Upload upload;
     VerticalLayout uploadLayout;
-    Paragraph uploadParagraph, filesFormatParagraph;
+    Paragraph uploadParagraph;
+    Paragraph filesFormatParagraph;
     NumberField price;
-    List<Photo> uploadedPhotos;
+    transient List<Photo> uploadedPhotos;
 
 
     public  DescriptionNMediaForm() {
@@ -87,14 +87,7 @@ public class DescriptionNMediaForm extends Form {
         description.setMinHeight("350px");
         description.setValueChangeMode(ValueChangeMode.EAGER);
         description.setMaxLength(DESCRIPTION_CHAR_MAX);
-
-        description.addValueChangeListener(event -> {
-            int charsToType = DESCRIPTION_CHAR_MIN - event.getValue().length();
-            if (charsToType > 0)
-                event.getSource().setHelperText(charsToType + " more characters still to type.");
-            else
-                event.getSource().setHelperText(String.format("You can type more, but that's already okay! (%s/%s)", event.getValue().length(), DESCRIPTION_CHAR_MAX));
-        });
+        description.addValueChangeListener(event -> event.getSource().setHelperText(String.format("(%s/%s)", event.getValue().length(), DESCRIPTION_CHAR_MAX)));
     }
 
     private void createUploadComponent() {

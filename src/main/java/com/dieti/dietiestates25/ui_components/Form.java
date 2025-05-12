@@ -230,4 +230,9 @@ public class Form extends FormLayout {
         return StringUtils.capitalize(capitalized.toString().trim());
     }
 
+    public boolean isEmpty() {
+        return getChildren()
+                .map(HasValue.class::cast)
+                .allMatch(HasValue::isEmpty);
+    }
 }

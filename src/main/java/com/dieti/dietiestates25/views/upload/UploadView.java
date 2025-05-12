@@ -4,10 +4,8 @@ import com.dieti.dietiestates25.annotations.roles_only.ManagerOrAgentOnly;
 import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
-import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.upload.forms.*;
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,13 +13,13 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
-import com.vaadin.flow.component.textfield.TextFieldBase;
+import com.vaadin.flow.router.BeforeLeaveEvent;
+import com.vaadin.flow.router.BeforeLeaveObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -31,24 +29,26 @@ import java.util.List;
 @ManagerOrAgentOnly
 @Route(value = "upload", layout = MainLayout.class)
 @PageTitle("Upload")
-public class UploadView extends VerticalLayout {
+public class UploadView extends VerticalLayout implements BeforeLeaveObserver {
+
+    public static final String GREEN = "green";
 
     Tabs tabs;
     Div tabsContent;
     Tab generalInfoTab;
     Tab detailsTab;
     Tab descriptionNMediaTab;
-    Div generalInfoContent;
-    Div detailsContent;
-    Div descriptionNMediaContent;
+    VerticalLayout generalInfoContent;
+    VerticalLayout detailsContent;
+    VerticalLayout descriptionNMediaContent;
 
     GeneralInfoForm generalInfoForm;
     DetailsForm detailsForm;
     DescriptionNMediaForm descriptionNMediaForm;
 
-    AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
-    AdInsert ad = new AdInsert();
-    List<Photo> photos = new ArrayList<>();
+    transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+    transient AdInsert ad = new AdInsert();
+    transient List<Photo> photos = new ArrayList<>();
 
     public UploadView() {
         configureLayout();
@@ -84,12 +84,12 @@ public class UploadView extends VerticalLayout {
     }
 
     private Tabs createTabs() {
-        var tabs = new Tabs(generalInfoTab, detailsTab, descriptionNMediaTab);
-        tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
-        tabs.addThemeVariants(TabsVariant.LUMO_CENTERED);
-        tabs.setWidthFull();
-        tabs.getElement().getStyle().set("pointer-events", "none");
-        return tabs;
+        var tabsTmp = new Tabs(generalInfoTab, detailsTab, descriptionNMediaTab);
+        tabsTmp.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
+        tabsTmp.addThemeVariants(TabsVariant.LUMO_CENTERED);
+        tabsTmp.setWidthFull();
+        tabsTmp.getElement().getStyle().set("pointer-events", "none");
+        return tabsTmp;
     }
 
     private Div createTabsContent() {
@@ -127,8 +127,8 @@ public class UploadView extends VerticalLayout {
         return layout;
     }
 
-    private Div createTabContent(Component content) {
-        return new Div(wrapInVerticalLayout(content));
+    private VerticalLayout createTabContent(Component content) {
+        return wrapInVerticalLayout(content);
     }
 
     private VerticalLayout wrapInVerticalLayout(Component content) {
@@ -147,15 +147,15 @@ public class UploadView extends VerticalLayout {
         continueButton.addClickListener(event -> {
             Tab selectedTab = tabs.getSelectedTab();
             if (selectedTab.equals(generalInfoTab) && generalInfoForm.areRequiredFieldsValid() ) {
-                generalInfoTab.getStyle().setColor("green");
+                generalInfoTab.getStyle().setColor(GREEN);
                 tabs.setSelectedTab(detailsTab);
                 generalInfoForm.addFormValues(ad);
             } else if (selectedTab.equals(detailsTab) && detailsForm.areRequiredFieldsValid()) {
-                detailsTab.getStyle().setColor("green");
+                detailsTab.getStyle().setColor(GREEN);
                 tabs.setSelectedTab(descriptionNMediaTab);
                 detailsForm.addFormValues(ad);
             } else if (selectedTab.equals(descriptionNMediaTab) && descriptionNMediaForm.areRequiredFieldsValid()) {
-                descriptionNMediaTab.getStyle().setColor("green");
+                descriptionNMediaTab.getStyle().setColor(GREEN);
                 descriptionNMediaForm.addFormValuesNPhotos(ad, photos);
 
                 var dialog = new ConfirmDialog();
@@ -180,8 +180,8 @@ public class UploadView extends VerticalLayout {
             } else if (selectedTab.equals(detailsTab)) {
                 tabs.setSelectedTab(generalInfoTab);
             } else {
-                Notification.show("You're at the beginning of the form")
-                        .addThemeVariants(NotificationVariant.LUMO_CONTRAST);
+                var notification = Notification.show("You're at the beginning of the form");
+                notification.setId("form-start-notification");
             }
         });
 
@@ -198,34 +198,10 @@ public class UploadView extends VerticalLayout {
     }
 
     @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-
-        getChildren()
-                .filter(Form.class::isInstance)
-                .forEach(form -> form.getChildren()
-                        .filter(TextFieldBase.class::isInstance)
-                        .forEach(field ->
-                                        ((TextFieldBase<?, ?>) field).addValueChangeListener(event -> {
-                                            if (((TextFieldBase<?, ?>) field).getValue().toString().isEmpty())
-                                                getElement().executeJs("window.unsavedChanges = false;");
-                                            else
-                                                getElement().executeJs("window.unsavedChanges = true;");
-                                        })
-                                )
-                );
-
-        attachEvent.getUI().getPage().executeJs(
-                "console.log('beforeunload listener attached');" +
-                        "window.unsavedChanges = false;" +
-                        "window.addEventListener('beforeunload', function(e) {" +
-                        "  console.log('beforeunload event fired, unsavedChanges:', window.unsavedChanges);" +
-                        "  if(window.unsavedChanges) {" +
-                        "    e.preventDefault();" +
-                        "    e.returnValue = '';" +
-                        "  }" +
-                        "});"
-        );
+    public void beforeLeave(BeforeLeaveEvent event) {
+        var postponeNavigationAction = event.postpone();
+        if (!generalInfoForm.isEmpty())
+            new ConfirmDialog("Unsaved changes", "Are you sure?", "Leave", e -> postponeNavigationAction.proceed(), "Stay", e -> {}).open();
     }
 
 }

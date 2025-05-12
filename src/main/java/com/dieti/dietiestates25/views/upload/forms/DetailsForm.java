@@ -14,11 +14,13 @@
 
     public class DetailsForm extends Form {
 
+        public static final String UNKNOWN = "Unknown";
         Checkbox elevator;
-        IntegerField nRooms, nBathrooms;
+        IntegerField nRooms;
+        IntegerField nBathrooms;
         Select<String> energyClass;
         CheckboxGroup<String> otherServices;
-        Checkbox AC;
+        Checkbox airConditioning;
 
         public DetailsForm() {
             configureLayout();
@@ -29,10 +31,10 @@
             elevator = new Checkbox("Elevator");
             nRooms = integerField("Number of rooms", LineAwesomeIcon.COUCH_SOLID.create());
             nBathrooms = integerField("Bathrooms", LineAwesomeIcon.BATH_SOLID.create());
-            energyClass = select("Energy class", "Unknown", "A", "B", "C", "D", "E", "F");
-            energyClass.setValue("Unknown");
+            energyClass = select("Energy class", UNKNOWN, "A", "B", "C", "D", "E", "F");
+            energyClass.setValue(UNKNOWN);
             EnergyClassUtils.setRenderer(energyClass);
-            AC = new Checkbox("AC");
+            airConditioning = new Checkbox("AC");
             otherServices = new CheckboxGroup<>();
             otherServices.setLabel("Other services");
             otherServices.setItems("Private garage", "Condominium parking", "Doorman service");
@@ -49,7 +51,7 @@
                     nBathrooms,
                     energyClass,
                     elevator,
-                    AC,
+                    airConditioning,
                     otherServices
             );
         }
@@ -59,10 +61,10 @@
             ad.setNBathrooms(nBathrooms.getValue());
             ad.setElevator(elevator.getValue());
 
-            if (!energyClass.getValue().equals("Unknown"))
+            if (!energyClass.getValue().equals(UNKNOWN))
                 ad.setEnergyClass(energyClass.getValue());
 
-            ad.setAC(AC.getValue());
+            ad.setAC(airConditioning.getValue());
 
             Set<String> selectedServices = otherServices.getSelectedItems();
             ad.setPrivateGarage(selectedServices.contains("Private garage"));
