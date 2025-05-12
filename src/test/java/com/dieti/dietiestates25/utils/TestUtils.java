@@ -3,6 +3,7 @@ package com.dieti.dietiestates25.utils;
 import com.dieti.dietiestates25.dto.SimpleResponse;
 import com.dieti.dietiestates25.dto.User;
 import com.dieti.dietiestates25.dto.ad.Ad;
+import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.dto.bid.Bid;
 import com.dieti.dietiestates25.services.session.UserSession;
 
@@ -61,13 +62,30 @@ public class TestUtils {
         bid1.setStatus("P");
         var bid2 = new Bid();
         bid2.setId(2);
-        bid1.setOfferer("test2@example.com");
+        bid2.setOfferer("test2@example.com");
         bid2.setStatus("A");
         var bid3 = new Bid();
         bid3.setId(3);
-        bid1.setOfferer("test3@example.com");
+        bid3.setOfferer("test3@example.com");
         bid3.setStatus("R");
 
         return List.of(bid1, bid2, bid3);
+    }
+
+    public static Ad mockAd() {
+        Ad ad = new Ad();
+        ad.setAgent(TestUtils.newUser("A"));
+        ad.setId(1);
+        ad.setDescription("Test Description");
+        ad.setPhotos(List.of(new Photo("photo1.jpg", "base64"), new Photo("photo2.jpg", "base64")));
+        ad.setNRooms(3);
+        ad.setNBathrooms(2);
+        ad.setDimensions(120);
+        ad.setCoordinates("40.7128 ; -74.0060");
+        ad.setAddress("123 Test Street");
+        ad.setRegion("Test Region");
+        ad.setProvince("Test Province");
+        ad.setCityName("Test City");
+        return ad;
     }
 }
