@@ -1,13 +1,16 @@
 package com.dieti.dietiestates25.services.session;
 
 import com.dieti.dietiestates25.dto.User;
-import com.dieti.dietiestates25.services.logging.Log;
 import com.dieti.dietiestates25.views.home.HomeView;
 import com.dieti.dietiestates25.views.login.LoginView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserSession {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserSession.class);
 
     public static final String SESSION_START = "sessionStart";
 
@@ -169,7 +172,7 @@ public class UserSession {
                 setSessionStart(null);
             }
         } catch (NullPointerException npe) {
-            Log.warn(UserSession.class, "Session is already cleared: " + npe.getMessage());
+            logger.warn("Session is already cleared: {}", npe.getMessage());
         }
     }
 
@@ -187,6 +190,6 @@ public class UserSession {
         });
 
         if (isSessionExpired)
-            Log.info(UserSession.class, email + " session expired.");
+            logger.info("{} session expired.", email);
     }
 }

@@ -1,7 +1,6 @@
 package com.dieti.dietiestates25.services.authentication;
 
 import com.dieti.dietiestates25.dto.User;
-import com.dieti.dietiestates25.services.logging.Log;
 import com.dieti.dietiestates25.services.session.SessionManager;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.utils.DialogUtils;
@@ -17,7 +16,7 @@ import static org.springframework.util.StringUtils.capitalize;
 
 public class AuthenticationHandler {
     AuthenticationService authenticationService;
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
 
     public AuthenticationHandler() {
         authenticationService = new AuthenticationService();
@@ -90,9 +89,9 @@ public class AuthenticationHandler {
             return;
 
         if (response.ok())
-            Log.info(UserSession.class, "Logged out successfully.");
+            logger.info("Logged out successfully.");
         else
-            Log.warn(UserSession.class, "Failed to log out server-side.");
+            logger.warn("Failed to log out server-side.");
     }
 
     public void changePwd(String email, String newPwd, String otp) {
@@ -105,11 +104,11 @@ public class AuthenticationHandler {
             UserSession.clearSession();
             UI.getCurrent().navigate(LoginView.class);
             NotificationFactory.success("Password change successful! Now you can log back in.");
-            Log.info(UserSession.class, email + "changed password successfully.");
+            logger.info("{} changed password successfully.", email);
         }
         else {
             NotificationFactory.error(response.getRawBody());
-            Log.warn(UserSession.class, email + "failed to change password.");
+            logger.warn("{} failed to change password.", email);
         }
     }
 
@@ -124,9 +123,9 @@ public class AuthenticationHandler {
             UserSession.setEmail(email);
             DialogUtils.closeOpenDialogs();
             UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "changePwd"));
-            Log.info(UserSession.class, email + " generated an OTP for password change.");
+            logger.info("{} generated an OTP for password change.", email);
         }
         else
-            Log.warn(UserSession.class, email + " failed to generate an OTP for password change.");
+            logger.warn("{} failed to generate an OTP for password change.", email);
     }
 }

@@ -1,16 +1,19 @@
 package com.dieti.dietiestates25.dto;
 
 import com.dieti.dietiestates25.constants.Constants.*;
-import com.dieti.dietiestates25.services.logging.Log;
 import com.google.gson.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
 @Getter
 @Setter
 public class SimpleResponse {
+
+    private final Logger logger = LoggerFactory.getLogger(SimpleResponse.class);
 
     private static final String ENTITIES_LITERAL = "entities";
     protected int statusCode;
@@ -30,7 +33,7 @@ public class SimpleResponse {
     public <T> EntityResponse<T> parse(Class<T> entityType) {
         try {
             if (this.rawBody == null || this.rawBody.isEmpty()) {
-                Log.warn(SimpleResponse.class, "Error while parsing: Raw response body is null or empty");
+                logger.warn("Error while parsing: Raw response body is null or empty");
                 return new EntityResponse<>(this.statusCode, "");
             }
 
@@ -68,7 +71,7 @@ public class SimpleResponse {
             return response;
 
         } catch (Exception e) {
-            Log.error(SimpleResponse.class, "Unexpected error while parsing the response: " + e.getMessage());
+            logger.error("Unexpected error while parsing the response: {}", e.getMessage());
             return new EntityResponse<>(this.statusCode, "");
         }
     }
