@@ -139,7 +139,7 @@ class UploadViewTest {
 
         getBackButton().click();
 
-        assertEquals("form-start-notification", NotificationsKt.getNotifications().getFirst().getId().orElse(null));
+        NotificationsKt.expectNotifications("You're at the beginning of the form");
     }
 
     @Test

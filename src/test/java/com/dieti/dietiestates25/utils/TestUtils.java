@@ -5,7 +5,6 @@ import com.dieti.dietiestates25.dto.User;
 import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.dto.bid.Bid;
-import com.dieti.dietiestates25.services.session.UserSession;
 
 import java.util.List;
 
@@ -40,13 +39,13 @@ public class TestUtils {
         var ad1 = new Ad();
         var ad2 = new Ad();
         ad1.setId(1);
-        ad1.setAgent(UserSession.asUser());
+        ad1.setAgent(newUser("A"));
         ad1.setPrice(100.0);
         ad1.setType("S");
         ad1.setNRooms(1);
         ad1.setNBathrooms(1);
         ad2.setId(2);
-        ad2.setAgent(UserSession.asUser());
+        ad2.setAgent(newUser("A"));
         ad2.setPrice(200.0);
         ad2.setType("R");
         ad2.setNRooms(2);
@@ -74,6 +73,7 @@ public class TestUtils {
 
     public static Ad mockAd() {
         Ad ad = new Ad();
+        ad.setType("S");
         ad.setAgent(TestUtils.newUser("A"));
         ad.setId(1);
         ad.setDescription("Test Description");

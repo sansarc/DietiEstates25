@@ -8,10 +8,10 @@ public class SessionManager {
 
     private SessionManager() {}
 
-    public static final long SESSION_TIMEOUT = 60L * 60 * 1000; // 1 hour
-    public static final long WARNING_THRESHOLD = 10L * 60 * 1000; // 10 minutes
+    static final long SESSION_TIMEOUT = 60L * 60 * 1000; // 1 hour
+    static final long WARNING_THRESHOLD = 10L * 60 * 1000; // 10 minutes
 
-    private static boolean warned = false;
+    static boolean warned = false;
 
     public static void monitorSession(UI ui) {
         if (!UserSession.isUserLoggedIn()) return;
@@ -20,7 +20,7 @@ public class SessionManager {
         ui.addPollListener(event -> checkSessionTimeout(ui));
     }
 
-    private static void checkSessionTimeout(UI ui) {
+    public static void checkSessionTimeout(UI ui) {
         var start = UserSession.getSessionStart();
         if (start == null) return;
 

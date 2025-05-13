@@ -179,10 +179,8 @@ public class UploadView extends VerticalLayout implements BeforeLeaveObserver {
                 tabs.setSelectedTab(detailsTab);
             } else if (selectedTab.equals(detailsTab)) {
                 tabs.setSelectedTab(generalInfoTab);
-            } else {
-                var notification = Notification.show("You're at the beginning of the form");
-                notification.setId("form-start-notification");
-            }
+            } else
+                Notification.show("You're at the beginning of the form").setPosition(Notification.Position.TOP_CENTER);
         });
 
 

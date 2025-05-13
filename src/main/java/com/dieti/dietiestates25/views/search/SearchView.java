@@ -6,7 +6,6 @@ import com.dieti.dietiestates25.ui_components.*;
 import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -43,40 +42,41 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
     public static final String FOR_RENT = "For Rent";
     transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
-    private VerticalLayout adsList;
-    private InteractiveMap map;
-    private Select<String> sortByPrice;
-    private transient Select<String> agencyFilter;
-    private transient ArrayList<Ad> sortedAds;
-    private HorizontalLayout adsFilters;
-    private Span adsFoundCount;
-    private Div mapDiv;
-    private LDefaultComponentManagementRegistry registry;
-    private boolean isMapDefault;
+    VerticalLayout adsList;
+    InteractiveMap map;
+    Select<String> sortByPrice;
+    transient Select<String> agencyFilter;
+    transient ArrayList<Ad> sortedAds;
+    HorizontalLayout adsFilters;
+    Span adsFoundCount;
+    Div mapDiv;
+    LDefaultComponentManagementRegistry registry;
+    boolean isMapDefault;
 
-    private Form form;
-    private Select<String> type;
-    private NumberField minPrice;
-    private NumberField maxPrice;
-    private IntegerField nRooms;
-    private IntegerField nBathrooms;
-    private Form.LocationForm locationComponents;
+    Form form;
+    Select<String> type;
+    NumberField minPrice;
+    NumberField maxPrice;
+    IntegerField nRooms;
+    IntegerField nBathrooms;
+    Form.LocationForm locationComponents;
+    Button search;
 
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String ignored) {
         var queryParams = event.getLocation().getQueryParameters().getParameters();
-        Ad.SearchBy search;
+        Ad.SearchBy searchParams;
 
         var locationAny = getFirstParam(queryParams, "locationAny");
         if (locationAny != null && !locationAny.isEmpty()) {
-            search = new Ad.SearchBy(locationAny);
-            searchNRefresh(search);
+            searchParams = new Ad.SearchBy(locationAny);
+            searchNRefresh(searchParams);
             return;
         }
 
         var type = getFirstParam(queryParams, "q"); // "sale" or "rent"
-        var nRooms = pareInt(getFirstParam(queryParams, "nrooms"));
-        var nBathrooms = pareInt(getFirstParam(queryParams, "nbathrooms"));
+        var nRooms = parseInt(getFirstParam(queryParams, "nrooms"));
+        var nBathrooms = parseInt(getFirstParam(queryParams, "nbathrooms"));
         var region = getFirstParam(queryParams, "region");
         var province = getFirstParam(queryParams, "province");
         var city = getFirstParam(queryParams, "city");
@@ -85,14 +85,14 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         var maxPrice = parseDouble(getFirstParam(queryParams, "max"));
 
         if (type != null || nRooms > 0 || nBathrooms > 0 || region != null || province != null || city != null || address != null || maxPrice > 0 || minPrice > 0) {
-            search = new Ad.SearchBy(
-                    type != null && type.equalsIgnoreCase("rent") ? "R" : "S",
+            searchParams = new Ad.SearchBy(
+                    type != null && (type.equalsIgnoreCase("rent") || type.equalsIgnoreCase("sale")) ? type : "",
                     nRooms, nBathrooms,
                     region, province, city, address,
                     minPrice, maxPrice
             );
-            fillForm(search);
-            searchNRefresh(search);
+            fillForm(searchParams);
+            searchNRefresh(searchParams);
         }
     }
 
@@ -103,12 +103,12 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
 
     private void fillForm(Ad.SearchBy search) {
         String typeValue;
-        if (search.getType().equalsIgnoreCase("all"))
-            typeValue = "All";
+        if (search.getType().equalsIgnoreCase("rent"))
+            typeValue = FOR_RENT;
         else if (search.getType().equalsIgnoreCase("sale"))
             typeValue = FOR_SALE;
         else
-            typeValue = FOR_RENT;
+            typeValue = "All";
 
         type.setValue(typeValue);
         nRooms.setValue(search.getNRooms());
@@ -125,7 +125,7 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         return (values != null && !values.isEmpty()) ? values.getFirst() : null;
     }
 
-    private int pareInt(String value) {
+    private int parseInt(String value) {
         try {
             return value != null ? Integer.parseInt(value) : 0;
         } catch (NumberFormatException e) {
@@ -160,8 +160,8 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         form.setMaxWidth("1200px");
         form.getStyle().setMargin("0 auto").setPadding("var(--lumo-space-xxs)").setMarginBottom("5px");
         form.setResponsiveSteps(
-            new FormLayout.ResponsiveStep("0", 1),
-            new FormLayout.ResponsiveStep("500px", 8)
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("500px", 8)
         );
         form.getChildren()          // get all form's component bigger except min and max price (NumberField)
                 .forEach(component -> {
@@ -169,7 +169,7 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
                         form.setColspan(component, 2);
                 });
 
-        var search = getSearchButton();
+        search = getSearchButton();
 
         var clear = new Button(VaadinIcon.CLOSE.create(), event -> form.clear());
         clear.setTooltipText("Clear form");
@@ -229,7 +229,9 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         form.getChildren()
                 .map(HasValue.class::cast)
                 .forEach(component -> {
-                    if ((component.getValue() != null))
+                    if (/*(!(component instanceof Select<?>)) &&*/
+                            component.getValue() != null &&
+                            !component.getValue().toString().isBlank())
                         isValid.set(true);
                 });
 
@@ -237,9 +239,12 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
     }
 
     private Button getSearchButton() {
-        var search = new Button("Search", event -> handleSearchClick());
+        search = new Button("Search", event -> {
+            handleSearchClick();
+            search.setEnabled(true);
+        });
 
-        search.addClickShortcut(Key.ENTER);
+        search.setDisableOnClick(true);
         search.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         search.getStyle().setCursor("pointer");
         search.setWidth("20px");
@@ -257,32 +262,35 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
                 locationComponents, minPrice.getValue(), maxPrice.getValue());
         UI.getCurrent().getPage().getHistory().replaceState(null, "search" + query);
 
-        setEnabled(false);
         var ads = adRequestsHandler.searchAds(new Ad.SearchBy(
                 getTypeValue(),
                 nRooms.getValue() == null ? 0 : nRooms.getValue(),
-                nBathrooms.getValue() == null ? 0 : nRooms.getValue(),
+                nBathrooms.getValue() == null ? 0 : nBathrooms.getValue(),
                 locationComponents.getRegion(),
                 locationComponents.getProvince(),
                 locationComponents.getCity(),
                 locationComponents.getAddress(),
-                minPrice.getValue() == null ? 0 : nRooms.getValue(),
-                maxPrice.getValue() == null ? 0 : nRooms.getValue()
+                minPrice.getValue() == null ? 0 : minPrice.getValue(),
+                maxPrice.getValue() == null ? 0 : maxPrice.getValue()
         ));
-        setEnabled(true);
 
         refresh(ads);
     }
 
     private String getTypeValue() {
-        String typeVal = type.getValue();
-        if (typeVal == null || typeVal.equals("All") || typeVal.isEmpty()) {
-            return "";
-        }
-        return typeVal.substring(4, 5);
+        if (type.getValue() == null) return "";
+
+        return switch (type.getValue()) {
+            case FOR_SALE -> "S";
+            case FOR_RENT -> "R";
+            default -> "";
+        };
     }
 
-    private void refresh(List<Ad> ads) {
+    public void refresh(List<Ad> ads) {
+        agencyFilter.clear();
+        sortByPrice.setValue("None");
+
         if (ads == null || ads.isEmpty()) {
             adsFoundCount.setText("No ads found.");
             clearPreviousData();
@@ -383,7 +391,7 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         adsList.add(adsFilters);
     }
 
-    private String buildQueryParams(String type, Integer nRooms, Integer nBathrooms, Form.LocationForm loc, Double minPrice, Double maxPrice) {
+    String buildQueryParams(String type, Integer nRooms, Integer nBathrooms, Form.LocationForm loc, Double minPrice, Double maxPrice) {
         StringBuilder params = new StringBuilder();
         params.append("?q=");
 
