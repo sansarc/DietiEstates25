@@ -6,13 +6,10 @@ import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.AdCard;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.registerAgency.ConfirmAccountDialog;
-import com.dieti.dietiestates25.views.search.SearchView;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.Autocomplete;
@@ -20,12 +17,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -190,11 +185,7 @@ public class HomeView extends VerticalLayout {
     }
 
     private void createSearchButton() {
-        searchButton = new Button(VaadinIcon.SEARCH.create(), event -> {
-            if (!searchText.getValue().isBlank())
-                UI.getCurrent().navigate(SearchView.class, new QueryParameters(Map.of("locationAny", List.of(searchText.getValue()))));
-        });
-
+        searchButton = MainLayout.getSearchButton(searchText);
         searchButton.setHeight("50px");
         searchButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         searchButton.addClickShortcut(Key.ENTER);

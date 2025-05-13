@@ -1,6 +1,5 @@
 package com.dieti.dietiestates25.views;
 
-import com.dieti.dietiestates25.services.authentication.AuthenticationHandler;
 import com.dieti.dietiestates25.ui_components.UserMenu;
 import com.dieti.dietiestates25.constants.Constants.LumoSpacing;
 import com.dieti.dietiestates25.services.session.UserSession;
@@ -38,6 +37,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     DietiEstatesLogo logo;
     HorizontalLayout variablePartNavigationBar;
     Select<String> themeMode;
+    Button searchButton;
 
     public MainLayout() {
         configureComponents();
@@ -153,17 +153,11 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         searchField.setWidth("220px");
         searchField.getStyle().setMarginRight("-15px");
 
-        var searchButton = new Button(VaadinIcon.SEARCH.create(), event -> {
-            if (!searchField.getValue().isBlank()) {
-                UI.getCurrent().navigate(SearchView.class, new QueryParameters(Map.of("locationAny", List.of(searchField.getValue()))));
-            }
-        });
+        searchButton = getSearchButton(searchField);
         searchButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 
         var advancedSearch = new RouterLink("Advanced Search", SearchView.class);
-        advancedSearch.getStyle()
-                .set("fontSize", "13px")
-                .set("marginLeft", "-2px");
+        advancedSearch.getStyle().setFontSize("13px").setMarginLeft("-2px");
 
         var searchGroup = new HorizontalLayout(searchField, searchButton, advancedSearch);
         searchGroup.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
@@ -173,6 +167,21 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         searchGroup.getStyle().setMarginLeft("15px");
 
         navigationBar.add(searchGroup);
+    }
+
+    public static Button getSearchButton(TextField searchField) {
+        var searchButton = new Button(VaadinIcon.SEARCH.create());
+        searchButton.setDisableOnClick(true);
+
+        searchButton.addClickListener(event -> {
+            if (!searchField.getValue().isBlank()) {
+                UI.getCurrent().navigate(SearchView.class, new QueryParameters(Map.of("locationAny", List.of(searchField.getValue()))));
+            }
+            searchButton.setEnabled(true);
+            searchField.clear();
+        });
+
+        return searchButton;
     }
 
     private void configureLayout() {
