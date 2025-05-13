@@ -21,18 +21,21 @@ public class NotificationFactory {
         UI.getCurrent().access(() -> Notification.show(text, 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_SUCCESS));
     }
 
-    public static void error(String text) {
-        UI.getCurrent().access(() -> Notification.show(text, 5000, Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR));
+    public static Notification error(String text) {
+        var notification = new Notification(text, 5000, Notification.Position.TOP_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.open();
+        return notification;
     }
 
     public static void criticalError(String exceptionText) {
         var errorText = new Span("Critical Error:");
         errorText.getStyle().setMarginRight("4px").setFontWeight(Style.FontWeight.BOLD);
         var notificationText = new VerticalLayout(new Span(errorText), new Span(exceptionText), new Anchor("mailto:sansevieroarcangelo@gmail.com", "Let us know!"));
-        StyleNotificationNOpen(notificationText);
+        styleNotificationNOpen(notificationText);
     }
 
-    private static void StyleNotificationNOpen(VerticalLayout notificationText) {
+    private static void styleNotificationNOpen(VerticalLayout notificationText) {
         var notification = new Notification();
         notification.setPosition(Notification.Position.TOP_CENTER);
         notification.setDuration(0); // persistent

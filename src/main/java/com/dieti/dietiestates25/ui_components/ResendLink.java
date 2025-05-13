@@ -14,7 +14,7 @@ public class ResendLink extends Span {
     Registration pollListenerRegistration = () -> {}; // prevents NPE
     UI ui;
 
-    public transient Runnable action;
+    public final transient Runnable action;
 
     public ResendLink(Runnable action) {
         this.action = action;

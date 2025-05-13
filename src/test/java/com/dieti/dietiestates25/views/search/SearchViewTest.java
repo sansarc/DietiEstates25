@@ -5,7 +5,6 @@ import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.ui_components.AdCard;
 import com.dieti.dietiestates25.utils.TestUtils;
 import com.github.mvysny.kaributesting.v10.MockVaadin;
-import com.github.mvysny.kaributesting.v10.NotificationsKt;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static com.github.mvysny.kaributesting.v10.NotificationsKt.getNotifications;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -164,7 +164,7 @@ class SearchViewTest {
         view.form.clear();
         view.search.click();
 
-        NotificationsKt.expectNotifications("Fill at least one field to make a search.");
+        assertTrue(getNotifications().getFirst().getElement().getProperty("text").contains("Fill at least one field to make a search."));
         verifyNoInteractions(handlerMock);
     }
 }

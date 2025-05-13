@@ -8,7 +8,6 @@ import com.dieti.dietiestates25.views.upload.forms.DescriptionNMediaForm;
 import com.dieti.dietiestates25.views.upload.forms.DetailsForm;
 import com.dieti.dietiestates25.views.upload.forms.GeneralInfoForm;
 import com.github.mvysny.kaributesting.v10.MockVaadin;
-import com.github.mvysny.kaributesting.v10.NotificationsKt;
 import com.github.mvysny.kaributesting.v10.Routes;
 import com.github.mvysny.kaributesting.v10.mock.MockedUI;
 import com.github.mvysny.kaributesting.v10.pro.ConfirmDialogKt;
@@ -27,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.github.mvysny.kaributesting.v10.LocatorJ._get;
+import static com.github.mvysny.kaributesting.v10.NotificationsKt.getNotifications;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -139,7 +139,7 @@ class UploadViewTest {
 
         getBackButton().click();
 
-        NotificationsKt.expectNotifications("You're at the beginning of the form");
+        assertTrue(getNotifications().getFirst().getElement().getProperty("text").contains("You're at the beginning of the form"));
     }
 
     @Test

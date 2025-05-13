@@ -33,7 +33,7 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
     private static final String CHANGE_PWD = "changePassword";
 
     private String KEY;
-    private String TITLE;
+    private String TITLE_STRING;
 
     DivContainer otpViewDiv = new DivContainer("600px", "250px");
     H3 title;
@@ -60,10 +60,10 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
         else
             event.forwardTo(PageNotFoundView.class);
 
-        TITLE = KEY.equals(CHANGE_PWD) ? "Change Your Password" : "Confirm Your Account";
+        TITLE_STRING = KEY.equals(CHANGE_PWD) ? "Change Your Password" : "Confirm Your Account";
 
         UI.getCurrent().access(() ->   // change page title depending on the param
-                UI.getCurrent().getPage().setTitle(TITLE)
+                UI.getCurrent().getPage().setTitle(TITLE_STRING)
         );
 
         configureComponents();
@@ -73,7 +73,7 @@ public class OtpView extends VerticalLayout implements BeforeEnterObserver {
     public OtpView() { /* for testing */ }
 
     private void configureComponents() {
-        title = new H3(TITLE);
+        title = new H3(TITLE_STRING);
         title.getStyle().setMarginBottom("10px");
 
         var logo = new DietiEstatesLogo("600px", "auto");

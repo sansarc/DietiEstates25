@@ -2,6 +2,8 @@ package com.dieti.dietiestates25.views.upload.forms;
 
 import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.dto.ad.City;
+import com.github.mvysny.kaributesting.v10.MockVaadin;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,8 +15,16 @@ class GeneralInfoFormTest {
 
     @BeforeEach
     void setUp() {
+        MockVaadin.setup();
+
         form = new GeneralInfoForm();
     }
+
+    @AfterEach
+    void tearDown() {
+        MockVaadin.tearDown();
+    }
+
 
     @Test
     void addFormValues_setsCorrectAdValues() {
