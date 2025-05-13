@@ -12,7 +12,7 @@ import com.vaadin.flow.component.textfield.TextField;
 
 public class AddAgentDialog extends Dialog {
 
-    final AgencyRequestsHandler agencyRequestsHandler = new AgencyRequestsHandler();
+    transient AgencyRequestsHandler agencyRequestsHandler = new AgencyRequestsHandler();
 
     public AddAgentDialog() {
         setHeaderTitle("New Agent");

@@ -37,8 +37,8 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
     transient BidActionListener listener;
     @Setter @Getter private transient Bid bid;
 
-    Button acceptButton;
-    Button refuseButton;
+    @Getter Button acceptButton;
+    @Getter Button refuseButton;
     Button trashButton;
     Span amount;
     Span counterOffer;

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.github.mvysny.kaributesting.v10.LocatorJ._find;
+import static com.github.mvysny.kaributesting.v10.LocatorJ._get;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -75,7 +76,7 @@ class AgencyDashboardViewTest {
      */
 
     @Test
-    void testManagerViewsOwnAgency() {
+    void testManagerViewsOwnAgency_addAgentButtonOpensDialog() {
         UserSession.init(MANAGER);
         UserSession.setSessionId("mock-session");
 
@@ -90,9 +91,6 @@ class AgencyDashboardViewTest {
         view.beforeEnter(beforeEnterMock);
 
         assertEquals("ACME Agency", ((H1) view.container.getComponentAt(0)).getText());
-
-        // verifying that add agent button is there
-        assertNotNull(view.addAgentButton);
 
         // verifying that the number of shown agents in the layout is actually the same as the List
         view.agentsLayout.getComponentAt(0).removeFromParent();
@@ -116,6 +114,11 @@ class AgencyDashboardViewTest {
                 .toList();
 
         assertEquals(expected, agentNames);
+
+        // verifying that add agent button is there and opens the dialog
+        assertNotNull(view.addAgentButton);
+        view.addAgentButton.click();
+        assertTrue(_get(AddAgentDialog.class).isOpened());
     }
 
     @Test
