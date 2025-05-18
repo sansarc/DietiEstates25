@@ -65,7 +65,7 @@ public class RegisterAgencyView extends VerticalLayout {
     }
 
     private void configureComponents() {
-        var logo = new DietiEstatesLogo(true);
+        //var logo = new DietiEstatesLogo(true);
         var registerAgencyDiv = new DivContainer("600px", "auto");
         createForm();
 
@@ -92,7 +92,7 @@ public class RegisterAgencyView extends VerticalLayout {
                 register
         );
 
-        add(logo, registerAgencyDiv);
+        add(/*logo, */registerAgencyDiv);
     }
 
     private void configureLayout() {
