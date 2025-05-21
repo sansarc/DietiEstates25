@@ -35,8 +35,6 @@ public class LoginView extends VerticalLayout implements HasUrlParameter<String>
     Anchor forgotPasswordLink = new Anchor("#", "Forgot Password?");
     DivContainer loginDiv = new DivContainer("400px", "auto");
     ThirdPartyLoginButton googleButton = new ThirdPartyLoginButton("Google", "75%", "/images/google_logo.png", "/oauth2/authorization/google");
-    ThirdPartyLoginButton linkedinButton = new ThirdPartyLoginButton("Linkedin", "75%", "/images/linkedin_logo.png", "");
-    ThirdPartyLoginButton facebookButton = new ThirdPartyLoginButton("Facebook", "75%", "/images/facebook_logo.png", "");
 
     transient AuthenticationHandler authHandler = new AuthenticationHandler();
 
@@ -69,8 +67,6 @@ public class LoginView extends VerticalLayout implements HasUrlParameter<String>
                 loginButton,
                 new Hr(),
                 googleButton,
-                linkedinButton,
-                facebookButton,
                 new Hr(),
                 new TextWithLink("Don't have an account yet?", new RouterLink("Sign up", SignUpView.class)),
                 new TextWithLink("Want to register your agency? Do it", new RouterLink("here", RegisterAgencyView.class))
@@ -81,7 +77,7 @@ public class LoginView extends VerticalLayout implements HasUrlParameter<String>
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.START);
-        setAlignSelf(Alignment.CENTER, title, loginButton, googleButton, linkedinButton, facebookButton);
+        setAlignSelf(Alignment.CENTER, title, loginButton, googleButton);
         setAlignSelf(Alignment.START, forgotPasswordLink);
     }
 

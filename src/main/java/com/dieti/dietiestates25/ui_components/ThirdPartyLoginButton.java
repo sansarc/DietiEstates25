@@ -7,7 +7,7 @@ import com.vaadin.flow.component.html.Image;
 public class ThirdPartyLoginButton extends Button {
 
     public ThirdPartyLoginButton(String label, String width, String iconPath, String url) {
-        super("Sign up with " + label, event -> UI.getCurrent().getPage().setLocation(url));
+        super("Login with " + label, event -> UI.getCurrent().getPage().setLocation(url));
         setWidth(width);
 
         Image logo = new Image(iconPath, "logo");

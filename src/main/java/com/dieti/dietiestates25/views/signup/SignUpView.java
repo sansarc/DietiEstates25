@@ -35,8 +35,6 @@ public class SignUpView extends VerticalLayout {
         Paragraph disclaimer;
         Button signup;
         ThirdPartyLoginButton googleButton;
-        ThirdPartyLoginButton linkedinButton;
-        ThirdPartyLoginButton facebookButton;
 
         transient AuthenticationHandler authHandler = new AuthenticationHandler();
 
@@ -52,9 +50,7 @@ public class SignUpView extends VerticalLayout {
             createForm();
             createSignUpButton();
             createDisclaimer();
-            googleButton = new ThirdPartyLoginButton("Google", "50%", "/images/google_logo.png", "/oauth2/authorization/google");
-            linkedinButton = new ThirdPartyLoginButton("Linkedin", "50%", "/images/linkedin_logo.png", "");
-            facebookButton = new ThirdPartyLoginButton("Facebook", "50%", "/images/facebook_logo.png", "");
+            googleButton = new ThirdPartyLoginButton("Google", "50%", "/images/google_logo.png", "http://localhost:8082/oauth2/authorization/google");
 
             signupDiv.add(
                     title,
@@ -64,9 +60,7 @@ public class SignUpView extends VerticalLayout {
                     signup,
                     disclaimer,
                     new Hr(),
-                    googleButton,
-                    linkedinButton,
-                    facebookButton
+                    googleButton
             );
 
             add(signupDiv);
@@ -75,7 +69,7 @@ public class SignUpView extends VerticalLayout {
         private void configureLayout() {
             setAlignItems(Alignment.CENTER);
             setJustifyContentMode(JustifyContentMode.START);
-            setAlignSelf(Alignment.CENTER, title, googleButton, linkedinButton, facebookButton, disclaimer, signup);
+            setAlignSelf(Alignment.CENTER, title, googleButton, disclaimer, signup);
 
             setSpacing(false);
         }
