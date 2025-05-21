@@ -48,6 +48,29 @@ public class AuthenticationService {
         return response;
     }
 
+    public SimpleResponse login3part(String code) {
+        var params = new HashMap<String, Serializable>();
+        params.put("code", code);
+        var response = requestService.GET(ApiEndpoints.LOGIN_3_PART, params);
+
+        if (response.getStatusCode() == Codes.INTERNAL_SERVER_ERROR)
+            return null;
+
+        if (response.ok()) {
+            var entityResponse = response.parse(User.class);
+
+            if (entityResponse != null) {
+                User user = entityResponse.getFirstEntity();
+
+                if (user != null) {
+                    UserSession.init(user);
+                    UserSession.setSessionId(entityResponse.getMessage());
+                }
+            }
+        }
+
+        return response;
+    }
 
     public SimpleResponse createUser(User user) {
         String json = new Gson().toJson(user);

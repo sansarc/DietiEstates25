@@ -1,5 +1,6 @@
 package com.dieti.dietiestates25.services.authentication;
 
+import com.dieti.dietiestates25.dto.SimpleResponse;
 import com.dieti.dietiestates25.dto.User;
 import com.dieti.dietiestates25.services.session.SessionManager;
 import com.dieti.dietiestates25.services.session.UserSession;
@@ -55,6 +56,21 @@ public class AuthenticationHandler {
         } else {
             logger.warn("User was unable to log in with email: {}", email);
             NotificationFactory.error("Invalid credentials.");
+        }
+    }
+
+    public void login3part(String code) {
+        SimpleResponse authenticated = authenticationService.login3part(code);
+
+        if (authenticated == null)
+            return;
+
+        if (authenticated.ok()) {
+            UI.getCurrent().getPage().reload();
+            NotificationFactory.success(String.format("Welcome Back, %s!", UserSession.getFirstName()));
+            SessionManager.monitorSession(UI.getCurrent());
+        } else {
+            NotificationFactory.error("Internal error.");
         }
     }
 

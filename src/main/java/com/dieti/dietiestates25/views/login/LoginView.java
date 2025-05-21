@@ -25,7 +25,7 @@ import java.util.Map;
 @ForwardLoggedUser
 @PageTitle("Login")
 @Route(value = "login", layout = MainLayout.class)
-public class LoginView extends VerticalLayout implements HasUrlParameter<String> {
+public class LoginView extends VerticalLayout implements HasUrlParameter<String>, BeforeEnterObserver {
 
     public static final String TMP_PWD_LITERAL = "tmpPwd";
     H3 title = new H3("Login");
@@ -34,10 +34,16 @@ public class LoginView extends VerticalLayout implements HasUrlParameter<String>
     Button loginButton = createLoginButton();
     Anchor forgotPasswordLink = new Anchor("#", "Forgot Password?");
     DivContainer loginDiv = new DivContainer("400px", "auto");
-    ThirdPartyLoginButton googleButton = new ThirdPartyLoginButton("Google", "75%", "/images/google_logo.png", "/oauth2/authorization/google");
+    ThirdPartyLoginButton googleButton = new ThirdPartyLoginButton("Google", "75%", "/images/google_logo.png", "http://localhost:8082/oauth2/authorization/google");
 
     transient AuthenticationHandler authHandler = new AuthenticationHandler();
-
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        Map<String, List<String>> params = event.getLocation().getQueryParameters().getParameters();
+        String code = params.getOrDefault("code", List.of()).stream().findFirst().orElse(null);
+        if(code != null)
+            authHandler.login3part(code);
+    }
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String ignored) {
         var queryParameters = event.getLocation().getQueryParameters();

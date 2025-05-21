@@ -29,6 +29,7 @@ public final class Constants {
         public static final String CANCEL_BID = BASE_URL + "/cancelBid";
         public static final String ACCEPT_OR_REFUSE_BID = BASE_URL + "/acceptOrRefuseBid";
         public static final String ACCEPT_OR_REFUSE_COUNTEROFFER = BASE_URL + "/acceptOrRefuseCounteroffer";
+        public static final String LOGIN_3_PART = BASE_URL + "/login3part";
     }
 
     public static final class Codes {
