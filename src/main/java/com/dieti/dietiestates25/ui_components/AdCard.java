@@ -26,6 +26,7 @@ import lombok.Setter;
 @Setter
 public class AdCard extends Card implements AfterNavigationObserver {
 
+    public static final String POINTER = "pointer";
     private transient Ad ad;
 
     public AdCard(Ad ad) {
@@ -33,7 +34,7 @@ public class AdCard extends Card implements AfterNavigationObserver {
 
         setWidth("600px");
         setHeight("160px");
-        getStyle().setCursor("pointer");
+        getStyle().setCursor(POINTER);
 
         addThemeVariants(
                 CardVariant.LUMO_OUTLINED,
@@ -85,7 +86,7 @@ public class AdCard extends Card implements AfterNavigationObserver {
         if (ad.getAgent().getEmail().equals(UserSession.getEmail()) && UserSession.getCurrentPath().contains("profile")) {
             var trashButton = new Button("🗑", event -> {});
             trashButton.setTooltipText("Delete");
-            trashButton.getStyle().setCursor("pointer");
+            trashButton.getStyle().setCursor(POINTER);
 
             var footer = new HorizontalLayout(trashButton);
             footer.setWidthFull();
@@ -121,7 +122,7 @@ public class AdCard extends Card implements AfterNavigationObserver {
     public static void adaptButtonToAdCard(Button goToAd) {
         goToAd.setHeight("80%");
         goToAd.setWidth("70px");
-        goToAd.getStyle().setCursor("pointer").setMarginTop("16px");
+        goToAd.getStyle().setCursor(POINTER).setMarginTop("16px");
     }
 
     @Override
