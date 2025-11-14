@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- Vaadin project from https://github.com/vaadin/skeleton-starter-flow-spring -->
     <groupId>com.example</groupId>
@@ -14,7 +14,6 @@
         <java.version>21</java.version>
         <vaadin.version>24.7.2</vaadin.version>
         <sonar.projectKey>DietiEstates25</sonar.projectKey>
-        <sonar.token>${sonar.token_key}</sonar.token>  <!-- Token is now loaded from application.properties -->
         <sonar.host>http://localhost:9000/</sonar.host>
     </properties>
 
@@ -97,26 +96,26 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>             <!-- JSON formatting -->
+            <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>                <!-- Getters and Setters -->
+            <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
             <groupId>software.xdev</groupId>
-            <artifactId>vaadin-maps-leaflet-flow</artifactId>   <!-- Leaflet Map Component -->
+            <artifactId>vaadin-maps-leaflet-flow</artifactId>
             <version>4.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.parttio</groupId>
-            <artifactId>line-awesome</artifactId>              <!-- Icon Package -->
+            <artifactId>line-awesome</artifactId>
             <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.vaadin.addons.componentfactory</groupId>
-            <artifactId>vcf-splide</artifactId>                <!-- Images Carousel Component -->
+            <artifactId>vcf-splide</artifactId>
             <version>1.0.4</version>
         </dependency>
     </dependencies>
@@ -124,22 +123,10 @@
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
         <plugins>
+            <!-- Core App Plugins -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.43.0</version>
-                <configuration>
-                    <java>
-                        <eclipse>
-                            <version>4.33</version>
-                            <file>${project.basedir}/eclipse-formatter.xml</file>
-                        </eclipse>
-                    </java>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.vaadin</groupId>
@@ -154,25 +141,38 @@
                 </executions>
             </plugin>
 
+            <!-- Build & Compiler Plugins -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <!-- Test Plugins -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <!--
+                Removed hard-coded <configuration> block.
+                The jacoco-maven-plugin will now correctly inject its agent.
+                -->
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.2.5</version>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
-                <configuration>
-                    <argLine>
-                        -ea
-                        -javaagent:/home/sansarc/.m2/repository/org/jacoco/org.jacoco.agent/0.8.13/org.jacoco.agent-0.8.13-runtime.jar=destfile=/home/sansarc/IdeaProjects/DietiEstates25/target/jacoco.exec
-                        -Xshare:off
-                    </argLine>
-                </configuration>
-            </plugin>
-
+            <!-- Quality & Reporting Plugins -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -193,7 +193,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
@@ -207,40 +206,19 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
                 <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.30</version>
-                        </path>
-                    </annotationProcessorPaths>
+                    <java>
+                        <eclipse>
+                            <version>4.33</version>
+                            <file>${project.basedir}/eclipse-formatter.xml</file>
+                        </eclipse>
+                    </java>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>1.1.0</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>src/main/resources/application.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 
