@@ -10,11 +10,12 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -24,6 +25,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.server.VaadinSession;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
@@ -212,6 +214,7 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         mapDiv = new DivContainer("auto", "98%");
         mapDiv.getStyle().setMarginRight("-20px").setPadding("4px");
         mapDiv.add(InteractiveMap.createDefaultMap(registry));
+        mapDiv.getElement().addEventListener("mouseover", event -> showTip());
         isMapDefault = true;
 
         var adsNMap = new SplitLayout();
@@ -317,8 +320,7 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
                 .filter(ad -> ad.getAgent().getAgencyName().equals(selectedAgency))
                 .toList();
 
-        var i = 0;
-        for (var ad : filteredAds) { i++;
+        for (var ad : filteredAds) {
             if (ad.getCoordinates() != null) {
                 if (isMapDefault) {
                     // initializing map at the first valid ad with valid coordinates and setting central view there
@@ -333,16 +335,21 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
             }
 
             var card = new AdCard(ad);
-            var viewOnMap = new Anchor("#", "View on Map | ads n: " + i);
+            var viewOnMap = new Button(VaadinIcon.MAP_MARKER.create());
+            AdCard.adaptButtonToAdCard(viewOnMap);
 
             if (ad.getCoordinates() == null) {
-                viewOnMap.setEnabled(false);
-                new InfoPopover(viewOnMap, "We couldn't retrieve the coordinates of this address (" + ad.getAddress() + ").");
+                viewOnMap.setTooltipText("No coordinates available for this ad.");
+                viewOnMap.getStyle().setCursor("default");
+                viewOnMap.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
             }
-            else
-                viewOnMap.getElement().addEventListener("click", event -> map.moveToLocationSmoothly(registry, ad.getCoordinates()))
-                        .addEventData("event.preventDefault()");
+            else {
+                viewOnMap.setTooltipText("View on map");
+                viewOnMap.addClickListener(event -> map.moveToLocationSmoothly(registry, ad.getCoordinates()));
+                viewOnMap.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            }
 
+            viewOnMap.getStyle().setAlignSelf(Style.AlignSelf.CENTER);
             card.addToFooter(viewOnMap);
             adsList.add(card);
         }
@@ -434,4 +441,17 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         setJustifyContentMode(JustifyContentMode.START);
     }
 
+    private void showTip() {
+        var hasSeenTip = (Boolean) VaadinSession.getCurrent().getAttribute("searchViewSplitterTipSeen");
+
+        if (hasSeenTip == null || !hasSeenTip) {
+            VaadinSession.getCurrent().setAttribute("searchViewSplitterTipSeen", true);
+
+            var notification = new Notification(VaadinIcon.LIGHTBULB.create(), new Span("Tip: You can drag the divider between the ads list and map to resize them!"));
+            notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+            notification.setDuration(7000);
+            notification.setPosition(Notification.Position.TOP_END);
+            notification.open();
+        }
+    }
 }

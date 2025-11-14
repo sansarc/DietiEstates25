@@ -9,11 +9,8 @@ import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.BidMessage;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.Form;
-import com.dieti.dietiestates25.utils.NotificationFactory;
-import com.dieti.dietiestates25.views.login.LoginView;
 import com.dieti.dietiestates25.views.profile.ProfileView;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.avatar.AvatarVariant;
 import com.vaadin.flow.component.button.Button;
@@ -140,15 +137,10 @@ public class BidsPanel extends DivContainer implements BidActionListener {
         messageField.getStyle().setMarginBottom("12px");
 
         var sendBtn = new Button("Send", e -> {
-            if (!UserSession.isUserLoggedIn()) {
-                UI.getCurrent().navigate(LoginView.class);
-                NotificationFactory.primary("You need to log in first.");
-
-                if (priceField.isEmpty() || priceField.getValue() <= 0) {
+            if (priceField.isEmpty() || priceField.getValue() <= 0) {
                     priceField.setErrorMessage("Please enter a valid value.");
                     priceField.setInvalid(true);
                     return;
-                }
             }
 
             var bid = adRequestsHandler.sendBid(ad.getId(), priceField.getValue(), messageField.getValue());

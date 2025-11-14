@@ -10,7 +10,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.card.CardVariant;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -33,7 +32,7 @@ public class AdCard extends Card implements AfterNavigationObserver {
         this.ad = ad;
 
         setWidth("600px");
-        setHeight("150px");
+        setHeight("160px");
         getStyle().setCursor("pointer");
 
         addThemeVariants(
@@ -77,7 +76,7 @@ public class AdCard extends Card implements AfterNavigationObserver {
         if (ad.getDescription() == null)
             description = "No description provided.";
         else if (ad.getDescription().length() > 47)
-            description = ad.getDescription().substring(0, 47).trim() + "...";
+            description = ad.getDescription().substring(0, 46).trim() + "...";
         else
             description = ad.getDescription();
 
@@ -85,7 +84,6 @@ public class AdCard extends Card implements AfterNavigationObserver {
 
         if (ad.getAgent().getEmail().equals(UserSession.getEmail()) && UserSession.getCurrentPath().contains("profile")) {
             var trashButton = new Button("🗑", event -> {});
-            trashButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
             trashButton.setTooltipText("Delete");
             trashButton.getStyle().setCursor("pointer");
 
@@ -101,9 +99,15 @@ public class AdCard extends Card implements AfterNavigationObserver {
 
     private void defineClickEvents(boolean isInSearchView) {
         if (isInSearchView) {  // on search is annoying to have this click event
-            var goToAd = new Anchor(String.valueOf(ad.getId()), "Go to Ad");
-            goToAd.getElement().addEventListener("click", event -> goToAd())
-                            .addEventData("preventDefault()");
+            var goToAd = new Button(LumoIcon.ARROW_RIGHT.create(), event -> goToAd());
+            goToAd.getStyle().setMarginLeft("190px");
+            goToAd.setTooltipText("Go to ad");
+            goToAd.getElement().addEventListener("mouseover", event -> goToAd.addThemeVariants(ButtonVariant.LUMO_PRIMARY));
+            goToAd.getElement().addEventListener("mouseout", event -> goToAd.removeThemeVariants(ButtonVariant.LUMO_PRIMARY));
+            goToAd.setDisableOnClick(true);
+            adaptButtonToAdCard(goToAd);
+
+            getStyle().setCursor("default");
             addToFooter(goToAd);
         }
         else {
@@ -112,6 +116,12 @@ public class AdCard extends Card implements AfterNavigationObserver {
             getElement().addEventListener("mouseover", event -> getStyle().setTransform("scale(1.07)"));
             getElement().addEventListener("mouseout", event -> getStyle().setTransform("scale(1)"));
         }
+    }
+
+    public static void adaptButtonToAdCard(Button goToAd) {
+        goToAd.setHeight("80%");
+        goToAd.setWidth("70px");
+        goToAd.getStyle().setCursor("pointer").setMarginTop("16px");
     }
 
     @Override

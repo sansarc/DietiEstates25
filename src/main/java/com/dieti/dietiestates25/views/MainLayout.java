@@ -6,6 +6,7 @@ import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.utils.ThemeManager;
 import com.dieti.dietiestates25.views.login.LoginView;
+import com.dieti.dietiestates25.views.mobile.MobileComingSoonView;
 import com.dieti.dietiestates25.views.search.SearchView;
 import com.dieti.dietiestates25.views.signup.SignUpView;
 import com.dieti.dietiestates25.views.upload.UploadView;
@@ -20,17 +21,15 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.router.*;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.dieti.dietiestates25.observers.ThemeChangeNotifier;
 
 import java.util.List;
 import java.util.Map;
 
-public class MainLayout extends AppLayout implements AfterNavigationObserver {
+public class MainLayout extends AppLayout implements AfterNavigationObserver, BeforeEnterObserver {
 
     HorizontalLayout header;
     HorizontalLayout navigationBar;
@@ -197,5 +196,19 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                 .map(MainLayout.class::cast)
                 .findFirst()
                 .ifPresent(MainLayout::refreshVariablePartNavigationBar);
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (VaadinService.getCurrentRequest() == null) return;
+
+        var userAgent = VaadinService.getCurrentRequest().getHeader("User-Agent").toLowerCase();
+        var isMobile = userAgent.contains("iphone")
+                || userAgent.contains("android")
+                || userAgent.contains("ipad")
+                || userAgent.contains("mobile");
+
+        if (isMobile && !event.getNavigationTarget().equals(MobileComingSoonView.class))
+            event.rerouteTo(MobileComingSoonView.class);
     }
 }

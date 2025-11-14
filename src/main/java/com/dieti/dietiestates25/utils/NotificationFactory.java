@@ -29,7 +29,7 @@ public class NotificationFactory {
     }
 
     public static void criticalError(String exceptionText) {
-        var errorText = new Span("Critical Error:");
+        var errorText = new Span("Critical Error!");
         errorText.getStyle().setMarginRight("4px").setFontWeight(Style.FontWeight.BOLD);
         var notificationText = new VerticalLayout(new Span(errorText), new Span(exceptionText), new Anchor("mailto:sansevieroarcangelo@gmail.com", "Let us know!"));
         styleNotificationNOpen(notificationText);

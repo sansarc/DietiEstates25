@@ -6,8 +6,10 @@ import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.dto.ad.City;
 import com.dieti.dietiestates25.dto.ad.Photo;
+import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.ad.AdView;
+import com.dieti.dietiestates25.views.login.LoginView;
 import com.google.gson.Gson;
 import com.googlecode.gentyref.TypeToken;
 import com.vaadin.flow.component.UI;
@@ -117,7 +119,13 @@ public class AdRequestsHandler {
         );
 
         if (response == null || !response.ok()) {
-            NotificationFactory.error("Either you already placed a bid or another one was accepted.");
+            if (!UserSession.isUserLoggedIn()) {
+                UI.getCurrent().navigate(LoginView.class);
+                NotificationFactory.primary("You need to log in first.");
+            }
+            else
+                NotificationFactory.error("Either you already placed a bid or another one was accepted.");
+
             return null;
         }
 

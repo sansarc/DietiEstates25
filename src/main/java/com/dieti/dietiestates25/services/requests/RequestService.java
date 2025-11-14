@@ -127,7 +127,7 @@ public class RequestService {
 
         } catch (RuntimeException ex) {
             logger.error(UNEXPECTED_ERROR, ex.getMessage());
-            NotificationFactory.criticalError(ex.getMessage());
+            NotificationFactory.criticalError("Failed to fetch data from the server at " + endpoint + ".");
             return new SimpleResponse(Constants.Codes.INTERNAL_SERVER_ERROR, "");
         }
     }

@@ -7,6 +7,7 @@ import com.dieti.dietiestates25.dto.ad.AdInsert;
 import com.dieti.dietiestates25.dto.ad.City;
 import com.dieti.dietiestates25.dto.ad.Photo;
 import com.dieti.dietiestates25.dto.bid.Bid;
+import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.views.ad.AdView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -14,10 +15,7 @@ import com.vaadin.flow.router.RouteParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -51,9 +49,9 @@ class AdRequestsHandlerTest {
         handler.adRequestsService = service;
     }
 
-    private void verifyNavigationWithParamsTo(Class<? extends Component> target) {
+    private void verifyNavigationWithParamsTo() {
         verify(ui, atMostOnce()).navigate(navigationCaptor.capture(), (RouteParameters) any());
-        assertEquals(target, navigationCaptor.getValue());
+        assertEquals(AdView.class, navigationCaptor.getValue());
     }
 
     @SuppressWarnings("unchecked")
@@ -188,7 +186,7 @@ class AdRequestsHandlerTest {
 
         verify(service, atMostOnce()).insertAd(ad);
         verify(service, times(2)).uploadImages(anyInt(), any());
-        verifyNavigationWithParamsTo(AdView.class);
+        verifyNavigationWithParamsTo();
     }
 
     @Test
@@ -210,7 +208,7 @@ class AdRequestsHandlerTest {
 
         verify(service, atMostOnce()).insertAd(ad);
         verify(service, times(2)).uploadImages(anyInt(), any());
-        verifyNavigationWithParamsTo(AdView.class);
+        verifyNavigationWithParamsTo();
     }
 
     @SuppressWarnings("unchecked")
@@ -340,10 +338,13 @@ class AdRequestsHandlerTest {
     void testSendBid_nullResponse() {
         when(service.sendBid(any(Bid.Insert.class))).thenReturn(null);
 
-        var result = handler.sendBid(1, 150.0, "Test bid message");
+        try (MockedStatic<UserSession> sessionMock = mockStatic(UserSession.class)) {
+            sessionMock.when(UserSession::isUserLoggedIn).thenReturn(true);
+            var result = handler.sendBid(1, 150.0, "Test bid message");
 
-        assertNull(result);
-        verify(service, atMostOnce()).sendBid(any(Bid.Insert.class));
+            assertNull(result);
+            verify(service, atMostOnce()).sendBid(any(Bid.Insert.class));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -355,10 +356,13 @@ class AdRequestsHandlerTest {
 
         when(service.sendBid(any(Bid.Insert.class))).thenReturn(mockResponse);
 
-        var result = handler.sendBid(1, 300.0, "Another test bid message");
+        try (MockedStatic<UserSession> sessionMock = mockStatic(UserSession.class)) {
+            sessionMock.when(UserSession::isUserLoggedIn).thenReturn(false);
+            var result = handler.sendBid(1, 300.0, "Another test bid message");
 
-        assertNull(result);
-        verify(service, atMostOnce()).sendBid(any(Bid.Insert.class));
+            assertNull(result);
+            verify(service, atMostOnce()).sendBid(any(Bid.Insert.class));
+        }
     }
 
     @Test
