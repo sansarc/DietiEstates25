@@ -447,11 +447,27 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
         if (hasSeenTip == null || !hasSeenTip) {
             VaadinSession.getCurrent().setAttribute("searchViewSplitterTipSeen", true);
 
-            var notification = new Notification(VaadinIcon.LIGHTBULB.create(), new Span("Tip: You can drag the divider between the ads list and map to resize them!"));
+            var notificationContent = new HorizontalLayout(VaadinIcon.LIGHTBULB.create(), new Span("Tip: You can drag the divider between the ads list and map to resize them!"));
+            notificationContent.setAlignItems(Alignment.CENTER);
+            notificationContent.setJustifyContentMode(JustifyContentMode.CENTER);
+            var notification = new Notification(notificationContent);
             notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-            notification.setDuration(7000);
-            notification.setPosition(Notification.Position.TOP_END);
+            notification.setDuration(4000);
+            notification.setPosition(Notification.Position.BOTTOM_END);
             notification.open();
+
+            mapDiv.getStyle()
+                    .setBorder("2px solid var(--lumo-primary-color)")
+                    .setBoxShadow("0 0 18px 4px var(--lumo-primary-color-50pct)")
+                    .setBorderRadius("var(--lumo-border-radius-l)")
+                    .setTransition("all 0.4s ease");
+
+            notification.addDetachListener(event -> mapDiv.getStyle()
+                    .remove("box-shadow")
+                    .remove("border")
+                    .remove("transition")
+            );
         }
     }
+
 }

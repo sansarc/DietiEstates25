@@ -81,7 +81,7 @@ public class HomeView extends VerticalLayout {
         var lastAd = getOrFetchAd(0);   // retrieving the latest ad
         if (lastAd != null) {
             var lastId = lastAd.getId();
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 3; i++) {
                 var ad = getOrFetchAd(lastId--);  // then going down
                 if (ad != null)
                     adsList.add(new AdCard(ad));
