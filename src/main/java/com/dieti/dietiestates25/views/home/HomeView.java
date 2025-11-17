@@ -1,11 +1,14 @@
 package com.dieti.dietiestates25.views.home;
 
+import com.dieti.dietiestates25.constants.Constants;
 import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.AdCard;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.registerAgency.ConfirmAccountDialog;
+import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
+import com.dieti.dietiestates25.views.search.SearchView;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -55,7 +58,47 @@ public class HomeView extends VerticalLayout {
         createSecondTitle();
 
         background.add(backgroundContent);
-        add(background, new Hr(), adsList);
+
+        add(background, new Hr(), getCardsLayout(), new Hr(), adsList, getFooter());
+
+        getStyle().setPaddingBottom("1rem");
+    }
+
+    private Footer getFooter() {
+        var footer = new Footer(new Span("© 2025 DietiEstates. All rights reserved."));
+        footer.getStyle()
+                .setFontSize("12px")
+                .setColor(Constants.Colors.SECONDARY_GRAY)
+                .setMarginTop("40px");
+        return footer;
+    }
+
+    private HorizontalLayout getCardsLayout() {
+        var cardsLayout = new HorizontalLayout();
+        cardsLayout.setSizeFull();
+        cardsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+        cardsLayout.setAlignItems(Alignment.CENTER);
+        cardsLayout.getStyle().setMarginTop("25px");
+
+        cardsLayout.add(
+                new HomeViewCard(
+                        "images/searchCard.png",
+                        "Search",
+                        "Find your dream property and place competitive bids! Browse through our extensive listings and discover the perfect match for your needs.",
+                        new SearchView()
+                ),
+                new HomeViewCard(
+                        "images/sellCard.png",
+                        "Sell",
+                        "Join our platform as a real estate professional and showcase your properties! List your exclusive offerings and connect with potential buyers today.",
+                        new RegisterAgencyView()
+                ),
+                new H4("Coming Soon...")
+        );
+
+        cardsLayout.getComponentAt(2).getStyle().setMarginLeft("20px");
+        
+        return cardsLayout;
     }
 
     private Ad getOrFetchAd(int id) {
@@ -76,7 +119,6 @@ public class HomeView extends VerticalLayout {
         adsList = new VerticalLayout(secondTitle, subtitle);
         adsList.setSizeFull();
         adsList.setAlignItems(Alignment.CENTER);
-        adsList.setAlignSelf(Alignment.START, secondTitle, subtitle);
 
         var lastAd = getOrFetchAd(0);   // retrieving the latest ad
         if (lastAd != null) {
