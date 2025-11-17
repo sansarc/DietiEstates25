@@ -50,7 +50,7 @@ public class SignUpView extends VerticalLayout {
             createForm();
             createSignUpButton();
             createDisclaimer();
-            googleButton = new ThirdPartyLoginButton("Google", "50%", "/images/google_logo.png", "http://localhost:8082/oauth2/authorization/google");
+            googleButton = new ThirdPartyLoginButton("Signup", "Google", "50%", "/images/google_logo.png", "http://localhost:8082/oauth2/authorization/google");
 
             signupDiv.add(
                     title,

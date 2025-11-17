@@ -60,6 +60,12 @@ public class BadgeFactory {
         return badge;
     }
 
+    public static Span floor(int floor) {
+        var badge = new Span(createIcon(LineAwesomeIcon.WALKING_SOLID.create()), createTitle("Floor " + floor));
+        badge.getElement().getThemeList().add("badge primary");
+        return badge;
+    }
+
     public static Span bathrooms(int number) {
         var badge = new Span(createIcon(LineAwesomeIcon.BATH_SOLID.create()), createTitle(number + (number > 1 ? " Bathrooms" : " Bathroom")));
         badge.getElement().getThemeList().add("badge primary");

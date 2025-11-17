@@ -17,4 +17,15 @@ public class ThirdPartyLoginButton extends Button {
         setIcon(logo);
     }
 
+    public ThirdPartyLoginButton(String prefix, String label, String width, String iconPath, String url) {
+        super(prefix + " with " + label, event -> UI.getCurrent().getPage().setLocation(url));
+        setWidth(width);
+
+        Image logo = new Image(iconPath, "logo");
+        logo.setHeight("16px");
+        logo.setWidth("16px");
+
+        setIcon(logo);
+    }
+
 }

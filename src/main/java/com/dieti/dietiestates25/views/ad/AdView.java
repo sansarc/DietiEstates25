@@ -95,6 +95,7 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
         badges.add(
                 BadgeFactory.rooms(ad.getNRooms()),
                 BadgeFactory.bathrooms(ad.getNBathrooms()),
+                BadgeFactory.floor(ad.getFloor()),
                 BadgeFactory.squareMeters(ad.getDimensions())
         );
 
