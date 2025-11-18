@@ -7,7 +7,7 @@ public final class Constants {
         private ApiEndpoints() {}
 
         public static final String PORT = "8082";
-        public static final String BASE_URL = "http://localhost:" + PORT;
+        public static final String BASE_URL = "http://host.docker.internal:" + PORT;  //"http://localhost:" + PORT;
         public static final String LOGIN = BASE_URL + "/login";
         public static final String LOGOUT = BASE_URL + "/logout";
         public static final String SIGNUP = BASE_URL + "/createUser";
