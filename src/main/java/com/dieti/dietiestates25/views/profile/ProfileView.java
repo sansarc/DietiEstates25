@@ -153,7 +153,7 @@ public class ProfileView extends VerticalLayout implements BeforeEnterObserver, 
         bidsTitle.getStyle().setPaddingTop("var(--lumo-space-m)");
         add(bidsTitle);
 
-        var bids = adRequestsHandler.getBidsBy("offerer", user.getEmail());
+        var bids = adRequestsHandler.getBidsBy("OFFERER", user.getEmail());
 
         for (var bid : bids) {
             if (!bid.getStatus().equals("C")) {

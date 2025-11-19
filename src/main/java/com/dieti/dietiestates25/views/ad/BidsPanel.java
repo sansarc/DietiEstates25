@@ -62,7 +62,7 @@ public class BidsPanel extends DivContainer implements BidActionListener {
      public void createBidsList(Ad ad) {
         bidsListLayout.removeAll();
 
-        var bids = adRequestsHandler.getBidsBy("ad", ad.getId());
+        var bids = adRequestsHandler.getBidsBy("AD", ad.getId());
 
         for (var bid : bids)
             createNDefineBidMessage(ad, bid);

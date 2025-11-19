@@ -238,16 +238,22 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
 
     public void setCounterOfferAccepted() {
         disableButtons();
-        accept.setText("accepted");
-        counterOfferLayout.remove(refuse);
-        counterOffer.getStyle().setColor(GREEN).setFontWeight(Style.FontWeight.BOLD);
+        if (accept != null) {
+            accept.setText("accepted");
+            counterOfferLayout.remove(refuse);
+        }
+        counterOffer.getStyle()
+                .setColor(GREEN)
+                .setFontWeight(Style.FontWeight.BOLD);
     }
 
     public void setCounterOfferRefused() {
         disableButtons();
-        refuse.setText("refused");
-        refuse.setEnabled(false);
-        counterOfferLayout.remove(accept);
+        if (refuse != null) {
+            refuse.setText("refused");
+            refuse.setEnabled(false);
+            counterOfferLayout.remove(accept);
+        }
     }
 
     public void setAccepted() {
