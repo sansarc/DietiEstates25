@@ -25,7 +25,7 @@ public class Ad extends AdInsert {
     @Setter
     @Getter
     public static class SearchBy {
-        private String agentEmail;
+        private String agent;
         private String type;
         private String region;
         private String province;

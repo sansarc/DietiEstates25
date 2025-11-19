@@ -195,7 +195,7 @@ public class AdRequestsHandler {
 
     public List<Ad> getAdsByAgent(String agentEmail) {
         var search = new Ad.SearchBy();
-        search.setAgentEmail(agentEmail);
+        search.setAgent(agentEmail);
         var response = adRequestsService.searchAds(search);
 
         if (badAdResponse(response))
