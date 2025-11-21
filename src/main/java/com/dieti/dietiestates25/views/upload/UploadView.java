@@ -32,6 +32,7 @@ import java.util.List;
 public class UploadView extends VerticalLayout implements BeforeLeaveObserver {
 
     public static final String GREEN = "green";
+    public boolean UPLOADED = false;
 
     Tabs tabs;
     Div tabsContent;
@@ -165,7 +166,11 @@ public class UploadView extends VerticalLayout implements BeforeLeaveObserver {
                 dialog.setConfirmText("Next");
                 dialog.setCancelText("Cancel");
 
-                dialog.addConfirmListener(confirm -> adRequestsHandler.insertAd(ad, photos));
+                dialog.addConfirmListener(confirm -> {
+                    UPLOADED = true;
+                    adRequestsHandler.insertAd(ad, photos);
+                    dialog.close();
+                });
 
                 dialog.open();
             }
@@ -197,9 +202,12 @@ public class UploadView extends VerticalLayout implements BeforeLeaveObserver {
 
     @Override
     public void beforeLeave(BeforeLeaveEvent event) {
-        var postponeNavigationAction = event.postpone();
-        if (!generalInfoForm.isEmpty())
-            new ConfirmDialog("Unsaved changes", "Are you sure?", "Leave", e -> postponeNavigationAction.proceed(), "Stay", e -> {}).open();
+        if (UPLOADED) return;
+
+        if (!generalInfoForm.isEmpty()) {
+            var action = event.postpone();
+            new ConfirmDialog("Unsaved changes", "Are you sure?", "Leave", e -> action.proceed(), "Stay", e -> {}).open();
+        }
     }
 
 }

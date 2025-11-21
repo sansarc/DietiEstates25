@@ -1,15 +1,17 @@
 package com.dieti.dietiestates25.views.home;
 
 import com.dieti.dietiestates25.constants.Constants;
-import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.AdCard;
+import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.registerAgency.ConfirmAccountDialog;
 import com.dieti.dietiestates25.views.registerAgency.RegisterAgencyView;
 import com.dieti.dietiestates25.views.search.SearchView;
+import com.dieti.dietiestates25.views.upload.UploadView;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.*;
@@ -22,9 +24,6 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 @Route(value = "", layout = MainLayout.class)
@@ -41,8 +40,6 @@ public class HomeView extends VerticalLayout {
     Div background;
     VerticalLayout backgroundContent;
     VerticalLayout adsList;
-
-    private static final Map<Integer, Ad> TEMP_AD_CACHE = new HashMap<>();
 
     public HomeView() {
         configureLayout();
@@ -85,13 +82,17 @@ public class HomeView extends VerticalLayout {
                         "images/searchCard.png",
                         "Search",
                         "Find your dream property and place competitive bids! Browse through our extensive listings and discover the perfect match for your needs.",
-                        new SearchView()
+                        e -> UI.getCurrent().navigate(SearchView.class)
                 ),
                 new HomeViewCard(
                         "images/sellCard.png",
                         "Sell",
                         "Join our platform as a real estate professional and showcase your properties! List your exclusive offerings and connect with potential buyers today.",
-                        new RegisterAgencyView()
+                        UserSession.isUserLoggedIn()
+                                ? UserSession.getRole().equals("U")
+                                    ? e -> NotificationFactory.primary("This action is for agents only.")
+                                    : e -> UI.getCurrent().navigate(UploadView.class)
+                                : e -> UI.getCurrent().navigate(RegisterAgencyView.class)
                 ),
                 new H4("Coming Soon...")
         );
@@ -99,17 +100,6 @@ public class HomeView extends VerticalLayout {
         cardsLayout.getComponentAt(2).getStyle().setMarginLeft("20px");
         
         return cardsLayout;
-    }
-
-    private Ad getOrFetchAd(int id) {
-        if (TEMP_AD_CACHE.containsKey(id))
-            return TEMP_AD_CACHE.get(id);
-
-        var ad = adRequestsHandler.getAd(id);
-        if (ad != null)
-            TEMP_AD_CACHE.put(id, ad);
-
-        return ad;
     }
 
     private void createSecondTitle() {
@@ -120,11 +110,13 @@ public class HomeView extends VerticalLayout {
         adsList.setSizeFull();
         adsList.setAlignItems(Alignment.CENTER);
 
-        var lastAd = getOrFetchAd(0);   // retrieving the latest ad
+        var lastAd = adRequestsHandler.getAd(0);   // retrieving the latest ad
         if (lastAd != null) {
+            adsList.add(new AdCard(lastAd));
             var lastId = lastAd.getId();
-            for (int i = 0; i < 3; i++) {
-                var ad = getOrFetchAd(lastId--);  // then going down
+
+            for (int i = 0; i < 2; i++) {
+                var ad = adRequestsHandler.getAd(--lastId);  // then going down
                 if (ad != null)
                     adsList.add(new AdCard(ad));
             }

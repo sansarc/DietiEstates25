@@ -26,6 +26,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.theme.lumo.LumoIcon;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 import software.xdev.vaadin.maps.leaflet.registry.LDefaultComponentManagementRegistry;
 
@@ -336,21 +337,27 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
 
             var card = new AdCard(ad);
             var viewOnMap = new Button(VaadinIcon.MAP_MARKER.create());
-            AdCard.adaptButtonToAdCard(viewOnMap);
+            var goToAd = new Button(LumoIcon.ARROW_RIGHT.create(), event -> AdCard.goToAd(ad));
+            goToAd.getStyle().setMarginLeft("190px");
+            goToAd.setTooltipText("Go to ad");
+            goToAd.getElement().addEventListener("mouseover", event -> goToAd.addThemeVariants(ButtonVariant.LUMO_PRIMARY));
+            goToAd.getElement().addEventListener("mouseout", event -> goToAd.removeThemeVariants(ButtonVariant.LUMO_PRIMARY));
+            goToAd.setDisableOnClick(true);
+            adaptButtonToAdCard(viewOnMap);
+            adaptButtonToAdCard(goToAd);
 
             if (ad.getCoordinates() == null) {
-                viewOnMap.setTooltipText("No coordinates available for this ad.");
-                viewOnMap.getStyle().setCursor("default");
-                viewOnMap.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+                viewOnMap.setTooltipText("No coordinates available for this ad");
+                viewOnMap.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+                viewOnMap.getStyle().setCursor("not-allowed").setOpacity("0.5");
             }
             else {
                 viewOnMap.setTooltipText("View on map");
                 viewOnMap.addClickListener(event -> map.moveToLocationSmoothly(registry, ad.getCoordinates()));
-                viewOnMap.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             }
 
             viewOnMap.getStyle().setAlignSelf(Style.AlignSelf.CENTER);
-            card.addToFooter(viewOnMap);
+            card.addToFooter(viewOnMap, goToAd);
             adsList.add(card);
         }
 
@@ -468,6 +475,12 @@ public class SearchView extends VerticalLayout implements HasUrlParameter<String
                     .remove("transition")
             );
         }
+    }
+
+    private void adaptButtonToAdCard(Button goToAd) {
+        goToAd.setHeight("80%");
+        goToAd.setWidth("70px");
+        goToAd.getStyle().setCursor("pointer").setMarginTop("16px");
     }
 
 }

@@ -1,7 +1,7 @@
 package com.dieti.dietiestates25.views.home;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
@@ -15,7 +15,7 @@ import com.vaadin.flow.dom.Style;
 
 public class HomeViewCard extends Card {
 
-    public HomeViewCard(String imagePath, String title, String description, Component navigationTarget) {
+    public HomeViewCard(String imagePath, String title, String description, ComponentEventListener<ClickEvent<Button>> clickListener) {
         super();
 
         var cardImage = new Image(imagePath, "image");
@@ -37,7 +37,7 @@ public class HomeViewCard extends Card {
         header.getStyle().setMarginTop("20px");
         setTitle(header);
 
-        var button = new Button(title, event -> UI.getCurrent().navigate(navigationTarget.getClass()));
+        var button = new Button(title, clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         button.getStyle().setMarginTop("10px").setCursor("pointer");
 

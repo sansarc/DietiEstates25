@@ -70,7 +70,7 @@ public class AuthenticationHandler {
             NotificationFactory.success(String.format("Welcome Back, %s!", UserSession.getFirstName()));
             SessionManager.monitorSession(UI.getCurrent());
         } else {
-            NotificationFactory.error("Internal error.");
+            NotificationFactory.criticalError("");
         }
     }
 
@@ -138,10 +138,12 @@ public class AuthenticationHandler {
             UserSession.setSessionId("temp session");
             UserSession.setEmail(email);
             DialogUtils.closeOpenDialogs();
-            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "changePwd"));
+            UI.getCurrent().navigate(OtpView.class, new RouteParameters("key", "changePassword"));
             logger.info("{} generated an OTP for password change.", email);
         }
-        else
+        else {
+            NotificationFactory.error("Failed to generate an OTP for password change");
             logger.warn("{} failed to generate an OTP for password change.", email);
+        }
     }
 }

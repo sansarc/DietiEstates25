@@ -112,7 +112,7 @@ public class AuthenticationService {
     public SimpleResponse sendOTP(String email) {
         var params = new HashMap<String, Serializable>();
         params.put("email", email);
-        params.put("key", "ChangePwd");
+        params.put("key", "CHANGE_PWD");
         
         var response = requestService.GET(ApiEndpoints.GENERATE_OTP, params);
 

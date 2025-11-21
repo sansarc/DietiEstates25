@@ -20,6 +20,11 @@ public class GeneralInfoForm extends Form {
         configureComponents();
     }
 
+    @Override
+    public boolean isEmpty() { // because of saleType, it'll never be actually "empty"
+        return locationComponents.isEmpty() && dimension.isEmpty() && floor.isEmpty();
+    }
+
     protected void configureComponents() {
         saleType =  radioButtonGroup("Sale Type", "For Sale", " For Rent");
         saleType.setValue("For Sale");
@@ -38,7 +43,7 @@ public class GeneralInfoForm extends Form {
     }
 
     public void addFormValues(AdInsert ad) {
-        ad.setType((saleType.getValue().substring(4, 5))); // S for Sale or R for Rent
+        ad.setType(String.valueOf((saleType.getValue().charAt(4)))); // S for Sale or R for Rent
         ad.setCity(locationComponents.city.getValue().getCode());
         ad.setAddress(locationComponents.getAddress());
         ad.setDimensions(dimension.getValue().intValue());
