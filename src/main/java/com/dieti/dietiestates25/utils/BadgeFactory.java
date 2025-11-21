@@ -61,7 +61,7 @@ public class BadgeFactory {
     }
 
     public static Span floor(int floor) {
-        var badge = new Span(createIcon(LineAwesomeIcon.WALKING_SOLID.create()), createTitle("Floor " + floor));
+        var badge = new Span(createIcon(LineAwesomeIcon.WALKING_SOLID.create()), createTitle(floor == 0 ? "Ground Floor" : floor + " Floor"));
         badge.getElement().getThemeList().add("badge primary");
         return badge;
     }

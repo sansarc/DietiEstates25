@@ -15,6 +15,7 @@ public final class Constants {
         public static final String CREATE_AGENCY = BASE_URL + "/insertCompany";
         public static final String CREATE_AGENT = BASE_URL + "/createAgent";
         public static final String INSERT_AD = BASE_URL + "/insertAd";
+        public static final String DELETE_AD = BASE_URL + "/deleteAd";
         public static final String SEND_BID = BASE_URL + "/insertBid";
         public static final String GET_REGIONS = BASE_URL + "/getRegions";
         public static final String GET_PROVINCES = BASE_URL + "/getProvinces";

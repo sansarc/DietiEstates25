@@ -2,13 +2,16 @@ package com.dieti.dietiestates25.views.ad;
 
 import com.dieti.dietiestates25.dto.ad.Ad;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
+import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.DivContainer;
 import com.dieti.dietiestates25.ui_components.ImagesCarousel;
 import com.dieti.dietiestates25.ui_components.InteractiveMap;
 import com.dieti.dietiestates25.utils.BadgeFactory;
+import com.dieti.dietiestates25.utils.DeleteButton;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.home.HomeView;
 import com.dieti.dietiestates25.views.notfound.PageNotFoundView;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -105,7 +108,23 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
         if (ad.isDoormanService()) badges.add(BadgeFactory.doormanService());
         badges.setWrap(true);
 
-        descriptionDiv.add(descriptionTitle, new Hr(), new H3(ad.getPriceAsString()), badges, descriptionText);
+        var descriptionTextLayout = new HorizontalLayout(descriptionTitle);
+        descriptionTextLayout.setAlignItems(Alignment.BASELINE);
+        descriptionTextLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
+
+        if (ad.getAgent().getEmail().equals(UserSession.getEmail())) {
+            descriptionTextLayout.getStyle().setMarginTop("-40px").setMarginBottom("-20px");
+            var delete = new DeleteButton(event -> {
+                adRequestsHandler.deleteAd(ad.getId());
+                UI.getCurrent().navigate(HomeView.class);
+            });
+            delete.setText("Delete this ad");
+            delete.setTooltipText("");
+            delete.getStyle().setMarginBottom("25px");
+            descriptionTextLayout.add(delete);
+        }
+
+        descriptionDiv.add(descriptionTextLayout, new Hr(), new H3(ad.getPriceAsString()), badges, descriptionText);
 
         var mapDiv = new DivContainer(SCROLLER_CONTENT_WIDTH, "500px");
         var mapTitle = new H3("What's around");

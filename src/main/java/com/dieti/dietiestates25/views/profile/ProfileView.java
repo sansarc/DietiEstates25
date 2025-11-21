@@ -7,6 +7,7 @@ import com.dieti.dietiestates25.observers.BidActionListener;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.ui_components.AdCard;
 import com.dieti.dietiestates25.ui_components.BidMessage;
+import com.dieti.dietiestates25.utils.DeleteButton;
 import com.dieti.dietiestates25.views.agency_dashboard.AgencyDashboardView;
 import com.dieti.dietiestates25.annotations.forward_guest.ForwardGuest;
 import com.dieti.dietiestates25.constants.Constants;
@@ -19,6 +20,7 @@ import com.dieti.dietiestates25.views.notfound.PageNotFoundView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
@@ -130,19 +132,29 @@ public class ProfileView extends VerticalLayout implements BeforeEnterObserver, 
         adsList = new VerticalLayout();
         for (var ad : ads) {
             var adCard = new AdCard(ad);
-            adsList.add(adCard);
+            if (user.getEmail().equals(UserSession.getEmail())) {
+                var delete = new DeleteButton(event -> adRequestsHandler.deleteAd(ad.getId()));
+                delete.getStyle().setMarginLeft("25px");
+                adsList.add(new HorizontalLayout(adCard, delete));
+            }
+            else adsList.add(adCard);
         }
 
-        adsList.setAlignItems(Alignment.CENTER);
-        var scroller = new Scroller(adsList);
-        scroller.setWidth("70%");
-        scroller.setHeight("auto");
-        scroller.setMaxHeight("300px");
-        scroller.getStyle()
-                .setBorder("0.5px solid #ccc")
-                .setBorderRadius("4px")
-                .setBackgroundColor("#f9f9f9");
-        add(scroller);
+        if (adsList.getComponentCount() > 0) {
+            adsList.setAlignItems(Alignment.CENTER);
+            var scroller = new Scroller(adsList);
+            scroller.setWidth("70%");
+            scroller.setHeight("auto");
+            scroller.setMaxHeight("300px");
+            scroller.getStyle()
+                    .setBorder("0.5px solid #ccc")
+                    .setBorderRadius("4px")
+                    .setBackgroundColor("#f9f9f9");
+            add(scroller);
+        }
+        else {
+            add(new Span("You don't have any ads yet."));
+        }
     }
 
     private void createBidsLayout(User user) {

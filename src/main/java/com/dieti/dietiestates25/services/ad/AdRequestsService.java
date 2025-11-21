@@ -57,6 +57,14 @@ public class AdRequestsService {
         return response.parse(City.class);
     }
 
+    public SimpleResponse deleteAd(int id) {
+        var params = new HashMap<String, Serializable>();
+        params.put("id", id);
+        var response = requestService.DELETE(ApiEndpoints.DELETE_AD, SESSION_ID, UserSession.getSessionId(), params);
+
+        return response.getStatusCode() == INTERNAL_SERVER_ERROR ? null : response;
+    }
+
     public EntityResponse<Ad> insertAd(AdInsert ad) {
         String json = new Gson().toJson(ad);
         var response =  requestService.POST(ApiEndpoints.INSERT_AD, SESSION_ID, UserSession.getSessionId(), json);

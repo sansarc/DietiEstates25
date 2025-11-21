@@ -49,6 +49,21 @@ public class AdRequestsHandler {
         return response.getEntities();
     }
 
+    public void deleteAd(int id) {
+        var response = adRequestsService.deleteAd(id);
+
+        System.out.println(UserSession.getCurrentPath());
+
+        NotificationFactory.success("Ad deleted successfully!" + (UserSession.getCurrentPath().contains("profile") ? " Refresh this page to see the changes." : ""));
+        if (response == null) return;
+
+
+        if (response.ok())
+            NotificationFactory.success("Ad deleted successfully!" + (UserSession.getCurrentPath().contains("profile") ? "Refresh this page to see the changes." : ""));
+        else
+            NotificationFactory.error("We couldn't cancel this ad.");
+    }
+
     public void insertAd(AdInsert ad, List<Photo> photos) {
         var adResponse = adRequestsService.insertAd(ad);
 
@@ -78,7 +93,7 @@ public class AdRequestsHandler {
 
         logger.info("New ad created. Ad ID: {}", adId);
         NotificationFactory.success("Ad created successfully!");
-        UI.getCurrent().navigate(AdView.class, new RouteParameters("id", String.valueOf(adId))); // even if there may be partial pictures?
+        UI.getCurrent().navigate(AdView.class, new RouteParameters("id", String.valueOf(adId)));
     }
 
     public Ad getAd(int idAd) {

@@ -4,6 +4,7 @@ import com.dieti.dietiestates25.dto.bid.Bid;
 import com.dieti.dietiestates25.observers.BidActionListener;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.services.session.UserSession;
+import com.dieti.dietiestates25.utils.DeleteButton;
 import com.dieti.dietiestates25.views.ad.AdView;
 import com.dieti.dietiestates25.views.ad.BidsPanel;
 import com.dieti.dietiestates25.views.profile.ProfileView;
@@ -75,15 +76,11 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
         timestamp = new Span(bid.getTimestamp());
         timestamp.getStyle().setFontSize("12px").setColor("gray");
 
-        trashButton = new Button("🗑", e -> {
+        trashButton = new DeleteButton(e -> {
             adRequestsHandler.cancelBid(bid.getId());
             if (listener != null)
                 listener.onDeleted(bid);  // Notify deletion
         });
-
-        trashButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        trashButton.setTooltipText("Delete");
-        trashButton.getStyle().setCursor(POINTER);
 
         topLayout = new HorizontalLayout(messageLayout, trashButton);
         topLayout.setWidthFull();
