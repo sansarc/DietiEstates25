@@ -1,11 +1,17 @@
 package com.dieti.dietiestates25.views.ad;
 
 import com.dieti.dietiestates25.dto.bid.Bid;
+import com.dieti.dietiestates25.observers.BidActionListener;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
+import com.dieti.dietiestates25.services.session.UserSession;
 import com.dieti.dietiestates25.ui_components.BidMessage;
 import com.dieti.dietiestates25.utils.TestUtils;
 import com.github.mvysny.kaributesting.v10.MockVaadin;
 import com.github.mvysny.kaributesting.v10.Routes;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +20,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static com.github.mvysny.kaributesting.v10.ButtonKt._click;
 import static com.github.mvysny.kaributesting.v10.LocatorJ._find;
+import static com.github.mvysny.kaributesting.v10.LocatorJ._get;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -43,46 +51,7 @@ class BidsPanelTest {
         bidsPanel = new BidsPanel(TestUtils.mockAd());
         bidsPanel.adRequestsHandler = handlerMock;
         
-        bids = createMockBids();
-    }
-
-    private List<Bid> createMockBids() {
-        // pending bid
-        Bid pendingBid = new Bid();
-        pendingBid.setId(1);
-        pendingBid.setStatus("P");
-        pendingBid.setAmount(100000.0);
-        pendingBid.setOfferer("johnsmith@dietiestates25.com");
-        pendingBid.setFirstname("John");
-        pendingBid.setLastname("Smith");
-
-        // accepted bid
-        Bid acceptedBid = new Bid();
-        acceptedBid.setId(2);
-        acceptedBid.setStatus("A");
-        acceptedBid.setAmount(120000.0);
-        acceptedBid.setOfferer("jane@dietiestates25.com");
-        acceptedBid.setFirstname("Jane");
-        acceptedBid.setLastname("Doe");
-
-        // Create a refused bid
-        Bid refusedBid = new Bid();
-        refusedBid.setId(3);
-        refusedBid.setStatus("R");
-        refusedBid.setAmount(90000.0);
-        refusedBid.setOfferer("bob@dietiestates25.com");
-        refusedBid.setFirstname("Bob");
-        refusedBid.setLastname("Johnson");
-
-        // Create a canceled bid (should not appear in the list)
-        Bid canceledBid = new Bid();
-        canceledBid.setId(4);
-        canceledBid.setStatus("C");
-        canceledBid.setAmount(95000.0);
-        canceledBid.setFirstname("Alice");
-        canceledBid.setLastname("Brown");
-
-        return List.of(pendingBid, acceptedBid, refusedBid, canceledBid);
+        bids = TestUtils.mockBidsList();
     }
 
     @AfterEach
@@ -92,7 +61,7 @@ class BidsPanelTest {
 
     @Test
     void testCreateBidsList_withBids() {
-        when(handlerMock.getBidsBy(eq("ad"), any()))
+        when(handlerMock.getBidsBy(eq("AD"), any()))
                 .thenReturn(bids);
 
         bidsPanel.createBidsList(TestUtils.mockAd());
@@ -109,7 +78,7 @@ class BidsPanelTest {
 
     @Test
     void testCreateBidsList_withoutBids() {
-        when(handlerMock.getBidsBy(eq("ad"), any()))
+        when(handlerMock.getBidsBy(eq("AD"), any()))
                 .thenReturn(List.of());
 
         bidsPanel.createBidsList(TestUtils.mockAd());
@@ -120,7 +89,7 @@ class BidsPanelTest {
 
     @Test
     void testOnAccepted() {
-        when(handlerMock.getBidsBy(eq("ad"), any()))
+        when(handlerMock.getBidsBy(eq("AD"), any()))
                 .thenReturn(bids);
 
         bidsPanel.createBidsList(TestUtils.mockAd());
@@ -149,7 +118,7 @@ class BidsPanelTest {
 
     @Test
     void testOnRefused() {
-        when(handlerMock.getBidsBy(eq("ad"), any()))
+        when(handlerMock.getBidsBy(eq("AD"), any()))
                 .thenReturn(bids);
 
         bidsPanel.createBidsList(TestUtils.mockAd());
@@ -172,7 +141,7 @@ class BidsPanelTest {
 
     @Test
     void testOnDeleted() {
-        when(handlerMock.getBidsBy(eq("ad"), any()))
+        when(handlerMock.getBidsBy(eq("AD"), any()))
                 .thenReturn(bids);
 
         bidsPanel.createBidsList(TestUtils.mockAd());
@@ -194,4 +163,106 @@ class BidsPanelTest {
             assertEquals(updatedComponentCount - 1, bidsListLayout.getComponentCount());
         }
     }
+
+    @Test
+    void testAcceptButtonCallsHandlerAndListener() {
+        var handlerMock = mock(AdRequestsHandler.class);
+        var listenerMock = mock(BidActionListener.class);
+        var bid = bids.getFirst();
+
+        when(handlerMock.acceptOrRefuseBid(any())).thenReturn(true);
+
+        var msg = new BidMessage(bid, "x@test.com", listenerMock);
+        msg.adRequestsHandler = handlerMock;
+
+        _click(msg.getAcceptButton());
+
+        verify(handlerMock).acceptOrRefuseBid(any());
+        verify(listenerMock).onAccepted(bid);
+    }
+
+    private static Bid.Counteroffer getCounteroffer(String status) {
+        var counter = new Bid.Counteroffer();
+        counter.setId(5);
+        counter.setStatus(status);
+        counter.setAmount(1000);
+        return counter;
+    }
+
+    @Test
+    void testCounterOfferAcceptedBranch() {
+        var counter = getCounteroffer("A");
+
+        var bid = bids.getFirst();
+        bid.setCounteroffer(counter);
+
+        var msg = new BidMessage(bid, bid.getOfferer(), mock(BidActionListener.class));
+
+        var offerSpan = msg.getCounterOfferLayout().getComponentAt(0);
+        assertEquals("green", offerSpan.getStyle().get("color"));
+    }
+
+    @Test
+    void testCounterOfferRefusedBranch() {
+        var counter = getCounteroffer("R");
+
+        var bid = bids.getFirst();
+        bid.setCounteroffer(counter);
+
+        var msg = new BidMessage(bid, bid.getOfferer(), mock(BidActionListener.class));
+
+        // The accept/refuse anchors shouldn't be present
+        assertFalse(msg.getCounterOfferLayout().getComponentAt(0).getChildren().anyMatch(Anchor.class::isInstance));
+    }
+
+    @Test
+    void testCounterOfferPendingShowsAnchorButtons() {
+        var counter = getCounteroffer("P");
+        var bid = bids.getFirst();
+
+        try (var sessionMock = mockStatic(UserSession.class)) {
+            sessionMock.when(UserSession::getEmail).thenReturn("AGENT@example.com");
+
+            bid.setOfferer(UserSession.getEmail());
+            bid.setCounteroffer(counter);
+
+            var msg = new BidMessage(bid, bid.getOfferer(), mock(BidActionListener.class));
+
+            assertEquals(2, msg.getCounterOfferLayout().getChildren()
+                    .filter(Anchor.class::isInstance)
+                    .count());
+        }
+    }
+
+    @Test
+    void testLaunchCounterOfferDialogStraightRefusalCallsListener() {
+        // ... (Mocks and setup remain the same) ...
+        var handlerMock = mock(AdRequestsHandler.class);
+        var listenerMock = mock(BidActionListener.class);
+        when(handlerMock.acceptOrRefuseBid(any())).thenReturn(true);
+
+        var bid = bids.getFirst();
+        var msg = new BidMessage(bid, bid.getOfferer(), listenerMock);
+        msg.adRequestsHandler = handlerMock;
+
+        // 1. Open the dialog
+        _click(msg.getRefuseButton());
+
+        // 2. Find the Dialog
+        // Dialogs are attached to the UI root, so we use _get() without a parent
+        // to search the whole UI. We search for 'Dialog', not 'ConfirmDialog'.
+        var dialog = _get(Dialog.class);
+
+        // 3. Find the "Confirm" button inside the Dialog
+        // We scope the search to the 'dialog' variable found above.
+        // We match by caption "Confirm" to ensure we get the right button.
+        Button confirmBtn = _get(dialog, Button.class, spec -> spec.withThemes(ButtonVariant.LUMO_PRIMARY.getVariantName()));
+        // 4. Click and Verify
+        _click(confirmBtn);
+
+        verify(listenerMock).onRefused(bid);
+    }
+
+
+
 }

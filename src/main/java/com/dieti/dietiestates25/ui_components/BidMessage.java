@@ -33,21 +33,22 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
 
     public static final String POINTER = "pointer";
     public static final String GREEN = "green";
-    transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
+    public transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
-    transient BidActionListener listener;
+    @Setter transient BidActionListener listener;
     @Setter @Getter private transient Bid bid;
 
     @Getter Button acceptButton;
     @Getter Button refuseButton;
-    Button trashButton;
+    @Getter DeleteButton deleteButton;
+
     Span amount;
     Span counterOffer;
     Span timestamp;
     Anchor accept;
     Anchor refuse;
     HorizontalLayout topLayout;
-    HorizontalLayout counterOfferLayout;
+    @Getter HorizontalLayout counterOfferLayout;
 
     public void createBidBaseUI(Bid bid) {
         this.bid = bid;
@@ -76,13 +77,13 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
         timestamp = new Span(bid.getTimestamp());
         timestamp.getStyle().setFontSize("12px").setColor("gray");
 
-        trashButton = new DeleteButton(e -> {
+        deleteButton = new DeleteButton(e -> {
             adRequestsHandler.cancelBid(bid.getId());
             if (listener != null)
                 listener.onDeleted(bid);  // Notify deletion
         });
 
-        topLayout = new HorizontalLayout(messageLayout, trashButton);
+        topLayout = new HorizontalLayout(messageLayout, deleteButton);
         topLayout.setWidthFull();
         topLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
     }
@@ -116,7 +117,7 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
 
     private void manageButtonVisibility(Bid bid, String agentEmail) {
         if (!bid.getOfferer().equals(UserSession.getEmail())) {
-            topLayout.remove(trashButton);
+            topLayout.remove(deleteButton);
         }
 
         if (!agentEmail.equals(UserSession.getEmail())) {
@@ -261,7 +262,7 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
     public void disableButtons() {
         refuseButton.setEnabled(false);
         acceptButton.setEnabled(false);
-        trashButton.setEnabled(false);
+        deleteButton.setEnabled(false);
     }
 
     public void disableCounterOfferButtons() {
@@ -279,10 +280,8 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
 
         bidsListLayout.getChildren()
                 .forEach(component -> {
-                    if (component instanceof BidMessage i && i.getBid().getId() == id) {
+                    if (component instanceof BidMessage i && i.getBid().getId() == id)
                             bidMessage.set(i);
-                        }
-
                 });
 
         return bidMessage.get();

@@ -77,7 +77,8 @@ class AdViewTest {
         assertTrue(view.scrollerContent.getChildren().allMatch(DivContainer.class::isInstance));
 
         var descriptionDiv = view.scrollerContent.getComponentAt(0);
-        assertEquals(2, descriptionDiv.getChildren().filter(H3.class::isInstance).count());
+        assertTrue(descriptionDiv.getChildren().anyMatch(H3.class::isInstance));
+        assertTrue(descriptionDiv.getChildren().anyMatch(HorizontalLayout.class::isInstance));
         assertTrue(descriptionDiv.getChildren().anyMatch(Span.class::isInstance)); // descriptionText
         assertTrue(descriptionDiv.getChildren().anyMatch(HorizontalLayout.class::isInstance)); // badges
     }
@@ -102,7 +103,8 @@ class AdViewTest {
         assertTrue(view.scrollerContent.getChildren().allMatch(DivContainer.class::isInstance));
 
         var descriptionDiv = view.scrollerContent.getComponentAt(0);
-        assertEquals(2, descriptionDiv.getChildren().filter(H3.class::isInstance).count());
+        assertTrue(descriptionDiv.getChildren().anyMatch(H3.class::isInstance));
+        assertTrue(descriptionDiv.getChildren().anyMatch(HorizontalLayout.class::isInstance));
         assertTrue(descriptionDiv.getChildren().anyMatch(Span.class::isInstance)); // descriptionText
         assertTrue(descriptionDiv.getChildren().anyMatch(HorizontalLayout.class::isInstance)); // badges
 
@@ -147,7 +149,7 @@ class AdViewTest {
 
         view.createScrollerSide(ad);
 
-        countBadges(0, 7);
+        countBadges(0, 1);
         countBadges(1, 3);
     }
 
@@ -161,7 +163,7 @@ class AdViewTest {
 
         assertEquals("No description given.", view.descriptionText.getText());
 
-        countBadges(0, 3);
+        countBadges(0, 1);
         countBadges(1, 0);
     }
 

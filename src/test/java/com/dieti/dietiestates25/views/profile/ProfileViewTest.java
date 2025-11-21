@@ -11,6 +11,7 @@ import com.github.mvysny.kaributesting.v10.MockVaadin;
 import com.github.mvysny.kaributesting.v10.Routes;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -77,7 +78,7 @@ class ProfileViewTest {
         when(handlerMock.getAdsByAgent(any()))
                 .thenReturn(new ArrayList<>());
 
-        when(handlerMock.getBidsBy(eq("offerer"), any()))
+        when(handlerMock.getBidsBy(eq("OFFERER"), any()))
                 .thenReturn(new ArrayList<>());
 
         when(beforeEnterMock.getRouteParameters())
@@ -137,7 +138,7 @@ class ProfileViewTest {
         when(handlerMock.getAdsByAgent(any()))
                 .thenReturn(mockAds);
 
-        when(handlerMock.getBidsBy(eq("offerer"), any()))
+        when(handlerMock.getBidsBy(eq("OFFERER"), any()))
                 .thenReturn(mockBids);
 
         when(beforeEnterMock.getRouteParameters())
@@ -166,8 +167,8 @@ class ProfileViewTest {
 
         // ads list assertions
         assertEquals(2, view.adsList.getComponentCount());
-        assertEquals(1, ((AdCard) view.adsList.getComponentAt(0)).getAd().getId());
-        assertEquals(2, ((AdCard) view.adsList.getComponentAt(1)).getAd().getId());
+        assertEquals(1, ((AdCard) ((HorizontalLayout) view.adsList.getComponentAt(0)).getComponentAt(0)).getAd().getId());
+        assertEquals(2, (((AdCard) ((HorizontalLayout) view.adsList.getComponentAt(1)).getComponentAt(0)).getAd().getId()));
 
 
         int[] expectedBidIds = {1, 2, 3}; // expected ids
@@ -183,7 +184,7 @@ class ProfileViewTest {
         assertArrayEquals(expectedBidIds, componentBidIds);
 
         verify(handlerMock, atMostOnce()).getAdsByAgent(any());
-        verify(handlerMock, atMostOnce()).getBidsBy(eq("offerer"), any());
+        verify(handlerMock, atMostOnce()).getBidsBy(eq("OFFERER"), any());
     }
 
     @Test
