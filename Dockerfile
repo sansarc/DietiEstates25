@@ -4,9 +4,11 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends nodejs npm git && rm -rf /var/lib/apt/lists/*
 
 COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
 COPY src ./src
 
-RUN mvn -e clean package -Pproduction -DskipTests
+RUN mvn -e clean vaadin:build-frontend package -Pproduction -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app

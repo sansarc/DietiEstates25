@@ -197,14 +197,6 @@
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>4.0.0.4121</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>sonar</goal>
-                        </goals>
-                        <phase>verify</phase>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
