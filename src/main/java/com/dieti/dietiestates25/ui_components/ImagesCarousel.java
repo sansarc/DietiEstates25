@@ -4,12 +4,12 @@ import com.dieti.dietiestates25.dto.ad.Photo;
 import com.vaadin.componentfactory.addons.splide.ImageSlide;
 import com.vaadin.componentfactory.addons.splide.Splide;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.dependency.JsModule;
 
 import java.util.List;
 
-// Requesting the Splide NPM package and CSS for production (in development it's loaded dynamically)
-@NpmPackage(value = "@splidejs/splide", version = "3.6.12")
+// Requesting the Splide NPM package, JS and CSS for production (in development it's loaded dynamically)
+@JsModule("@splidejs/splide/dist/js/splide.esm.js")
 @CssImport("@splidejs/splide/dist/css/splide.min.css")
 public class ImagesCarousel extends Splide {
 
