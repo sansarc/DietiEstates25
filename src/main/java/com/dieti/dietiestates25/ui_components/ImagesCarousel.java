@@ -8,8 +8,8 @@ import com.vaadin.flow.component.dependency.JsModule;
 
 import java.util.List;
 
-// Requesting the Splide NPM package, JS and CSS for production (in development it's loaded dynamically)
-@JsModule("@splidejs/splide/dist/js/splide.esm.js")
+// Requesting the Splide JS and CSS for production (in development it's loaded dynamically)
+@JsModule("@splidejs/splide/dist/js/splide.min.js")
 @CssImport("@splidejs/splide/dist/css/splide.min.css")
 public class ImagesCarousel extends Splide {
 
