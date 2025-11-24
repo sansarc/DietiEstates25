@@ -90,7 +90,7 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
 
     public void createScrollerSide(Ad ad) {
         var descriptionDiv = new DivContainer(SCROLLER_CONTENT_WIDTH, "auto");
-        descriptionTitle = new H3("About this property");
+        descriptionTitle = new H3("About this listing");
         descriptionText = ad.getDescription() == null || ad.getDescription().isEmpty() ? new Span("No description given.") : new Span(ad.getDescription());
 
         var badges = new HorizontalLayout();
