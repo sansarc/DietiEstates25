@@ -4,6 +4,8 @@ import com.dieti.dietiestates25.dto.Agency;
 import com.dieti.dietiestates25.dto.User;
 import com.dieti.dietiestates25.dto.bid.Bid;
 import com.dieti.dietiestates25.observers.BidActionListener;
+import com.dieti.dietiestates25.observers.ThemeChangeListener;
+import com.dieti.dietiestates25.observers.ThemeChangeNotifier;
 import com.dieti.dietiestates25.services.ad.AdRequestsHandler;
 import com.dieti.dietiestates25.ui_components.AdCard;
 import com.dieti.dietiestates25.ui_components.BidMessage;
@@ -32,15 +34,15 @@ import java.util.Map;
 @ForwardGuest(LoginView.class)
 @Route(value = "profile", layout = MainLayout.class)
 @RouteAlias(value = "profile/:email", layout = MainLayout.class)
-public class ProfileView extends VerticalLayout implements BeforeEnterObserver, BidActionListener {
+public class ProfileView extends VerticalLayout implements BeforeEnterObserver, BidActionListener, ThemeChangeListener {
 
     transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
     private static final Map<String, User> TEMP_USER_CACHE = new HashMap<>();
 
     DivContainer container;
-    VerticalLayout adsList;
-    VerticalLayout bidsList;
+    VerticalLayout adsList, bidsList;
+    Scroller adsListScroller, bidsListScroller;
 
     public static void cacheUser(User user) {
         TEMP_USER_CACHE.put(user.getEmail(), user);
@@ -73,7 +75,7 @@ public class ProfileView extends VerticalLayout implements BeforeEnterObserver, 
         );
     }
 
-    public ProfileView() {/* for testing */}
+    public ProfileView() {}
 
     private void configureComponents(User user, boolean isPersonalProfile) {
         removeAll(); // to prevent duplication
@@ -83,7 +85,6 @@ public class ProfileView extends VerticalLayout implements BeforeEnterObserver, 
         add(container);
 
         createProfileHeader(user);
-
 
         if ("A".equals(user.getRole()) || "M".equals(user.getRole())) {
             RouterLink agencyLink;
@@ -102,6 +103,11 @@ public class ProfileView extends VerticalLayout implements BeforeEnterObserver, 
 
         if (isPersonalProfile)
             createBidsLayout(user);
+
+        ThemeChangeNotifier.addListener(this);
+        addDetachListener(event -> ThemeChangeNotifier.removeListener(this));
+        var darkTheme = UserSession.isDarkThemeOn();
+        applyTheme(darkTheme != null ? darkTheme : false);
     }
 
     private void createProfileHeader(User user) {
@@ -142,15 +148,15 @@ public class ProfileView extends VerticalLayout implements BeforeEnterObserver, 
 
         if (adsList.getComponentCount() > 0) {
             adsList.setAlignItems(Alignment.CENTER);
-            var scroller = new Scroller(adsList);
-            scroller.setWidth("70%");
-            scroller.setHeight("auto");
-            scroller.setMaxHeight("300px");
-            scroller.getStyle()
+            adsListScroller = new Scroller(adsList);
+            adsListScroller.setWidth("70%");
+            adsListScroller.setHeight("auto");
+            adsListScroller.setMaxHeight("300px");
+            adsListScroller.getStyle()
                     .setBorder("0.5px solid #ccc")
-                    .setBorderRadius("4px")
-                    .setBackgroundColor("#f9f9f9");
-            add(scroller);
+                    .setBorderRadius("4px");
+
+            add(adsListScroller);
         }
         else {
             add(new Span("You don't have any ads yet."));
@@ -183,24 +189,43 @@ public class ProfileView extends VerticalLayout implements BeforeEnterObserver, 
         }
 
         if (bidsList.getComponentCount() > 0) {
-            var scroller = new Scroller(bidsList);
-            scroller.setWidth("60%");
-            scroller.setHeight("auto");
-            scroller.setMaxHeight("400px");
-            scroller.getStyle()
+            bidsListScroller = new Scroller(bidsList);
+            bidsListScroller.setWidth("60%");
+            bidsListScroller.setHeight("auto");
+            bidsListScroller.setMaxHeight("400px");
+            bidsListScroller.getStyle()
                     .setBorder("0.5px solid #ccc")
-                    .setBorderRadius("4px")
-                    .setBackgroundColor("#f9f9f9");
-            add(scroller);
+                    .setBorderRadius("4px");
+
+            add(bidsListScroller);
         } else
             add(new Span("Looks like you haven't place a bid yet."));
     }
 
     @Override public void onAccepted(Bid bid) {/* Accepting a bid will be possible only on the ad page */}
     @Override public void onRefused(Bid bid) {/* Same goes for refusal */}
-    @Override
-    public void onDeleted(Bid bid) {
+    @Override public void onDeleted(Bid bid) {
         bidsList.remove(BidMessage.find(bidsList, bid.getId()));
+    }
+
+    @Override
+    public void onThemeChange(boolean darkTheme) {
+        applyTheme(darkTheme);
+    }
+
+    private void applyTheme(boolean darkTheme) {
+        var bg = darkTheme ? Constants.Colors.GRAY_OVER_DARKMODE : Constants.Colors.GRAY_OVER_WHITEMODE;
+
+        if (adsListScroller != null) {
+            adsListScroller.getStyle()
+                    .setBackgroundColor(bg)
+                    .setBorder(bg);
+        }
+        if (bidsListScroller != null) {
+            bidsListScroller.getStyle()
+                    .setBackgroundColor(bg)
+                    .setBorder(bg);
+        }
     }
 
     private void configureLayout() {

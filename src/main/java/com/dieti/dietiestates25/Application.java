@@ -1,5 +1,6 @@
 package com.dieti.dietiestates25;
 
+import com.dieti.dietiestates25.constants.Constants;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
@@ -18,7 +19,7 @@ public class Application implements AppShellConfigurator {
 
     @Override
     public void configurePage(AppShellSettings settings) {
-        settings.addFavIcon("icon", "icons/favicon.ico", "16x16");
+        settings.addFavIcon("icon", Constants.StaticPaths.FAVICON, "16x16");
     }
 
     public static void main(String[] args) {

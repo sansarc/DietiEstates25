@@ -82,6 +82,7 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
             if (listener != null)
                 listener.onDeleted(bid);  // Notify deletion
         });
+        deleteButton.getStyle().setMarginTop("20px");
 
         topLayout = new HorizontalLayout(messageLayout, deleteButton);
         topLayout.setWidthFull();

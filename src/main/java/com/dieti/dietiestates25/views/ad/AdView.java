@@ -8,6 +8,7 @@ import com.dieti.dietiestates25.ui_components.ImagesCarousel;
 import com.dieti.dietiestates25.ui_components.InteractiveMap;
 import com.dieti.dietiestates25.utils.BadgeFactory;
 import com.dieti.dietiestates25.utils.DeleteButton;
+import com.dieti.dietiestates25.utils.NotificationFactory;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.dieti.dietiestates25.views.home.HomeView;
 import com.dieti.dietiestates25.views.notfound.PageNotFoundView;
@@ -64,8 +65,10 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
                 configureComponents(ad);
                 configureLayout();
             }
-            else
+            else {
                 event.forwardTo(HomeView.class);
+                NotificationFactory.primary("The ad you were looking for was not found.");
+            }
         } else
             event.forwardTo(PageNotFoundView.class);
     }

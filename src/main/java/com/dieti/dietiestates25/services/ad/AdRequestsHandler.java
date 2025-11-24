@@ -54,12 +54,10 @@ public class AdRequestsHandler {
 
         System.out.println(UserSession.getCurrentPath());
 
-        NotificationFactory.success("Ad deleted successfully!" + (UserSession.getCurrentPath().contains("profile") ? " Refresh this page to see the changes." : ""));
         if (response == null) return;
 
-
         if (response.ok())
-            NotificationFactory.success("Ad deleted successfully!" + (UserSession.getCurrentPath().contains("profile") ? "Refresh this page to see the changes." : ""));
+            NotificationFactory.success("Ad deleted successfully!" + (UserSession.getCurrentPath().contains("profile") ? " Refresh this page to see the changes." : ""));
         else
             NotificationFactory.error("We couldn't cancel this ad.");
     }
@@ -177,7 +175,7 @@ public class AdRequestsHandler {
         if (response == null) return false;
 
         if (response.ok()) {
-            NotificationFactory.primary("Please refresh this page to see the counteroffer.");
+            NotificationFactory.primary("Refresh this page to see the changes.");
         }
         else
             NotificationFactory.error(response.getRawBody());

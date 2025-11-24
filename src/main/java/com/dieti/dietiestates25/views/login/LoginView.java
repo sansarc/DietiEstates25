@@ -40,9 +40,7 @@ public class LoginView extends VerticalLayout implements HasUrlParameter<String>
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         Map<String, List<String>> params = event.getLocation().getQueryParameters().getParameters();
-        String code = params.getOrDefault("code", List.of()).stream().findFirst().orElse(null);
-        if(code != null)
-            authHandler.login3part(code);
+        params.getOrDefault("code", List.of()).stream().findFirst().ifPresent(code -> authHandler.login3part(code));
     }
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String ignored) {
@@ -63,8 +61,9 @@ public class LoginView extends VerticalLayout implements HasUrlParameter<String>
     }
 
     private void configureComponents(String tmpPwd) {
-        loginFormSetUp(tmpPwd);
+        loginDiv.removeAll(); // prevents duplication
 
+        loginFormSetUp(tmpPwd);
         loginDiv.add(
                 title,
                 emailField,

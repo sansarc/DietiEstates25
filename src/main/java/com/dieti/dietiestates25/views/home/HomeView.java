@@ -186,7 +186,7 @@ public class HomeView extends VerticalLayout {
                 .setDisplay(Style.Display.FLEX)
                 .setAlignItems(Style.AlignItems.CENTER)
                 .setJustifyContent(Style.JustifyContent.CENTER)
-                .set("background-image", "url(images/background.jpg)")
+                .set("background-image", Constants.StaticPaths.BACKGROUND)
                 .set("background-size", "cover")
                 .set("background-repeat", "no-repeat")
                 .set("background-position", "center");

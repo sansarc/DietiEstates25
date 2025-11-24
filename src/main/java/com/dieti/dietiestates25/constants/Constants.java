@@ -45,7 +45,7 @@ public final class Constants {
         private StaticPaths() {}
 
         public static final String FAVICON = "icons/favicon.ico";
-        public static final String BACKGROUND = "images/background.jpg";
+        public static final String BACKGROUND = "url(images/background.jpg)";
     }
 
     public static final class Colors {
@@ -53,7 +53,7 @@ public final class Constants {
 
         public static final String PRIMARY_BLUE = "var(--lumo-primary-color)";
         public static final String SECONDARY_GRAY = "var(--lumo-secondary-color)";
-        public static final String GRAY_OVER_WHITEMODE = "#E0E0E0";
+        public static final String GRAY_OVER_WHITEMODE = "#f9f9f9";
         public static final String GRAY_OVER_DARKMODE = "#2D2F31";
     }
 
