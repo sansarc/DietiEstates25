@@ -24,6 +24,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,6 +38,7 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
 
     @Setter transient BidActionListener listener;
     @Setter @Getter private transient Bid bid;
+    Registration reg;
 
     @Getter Button acceptButton;
     @Getter Button refuseButton;
@@ -103,7 +105,8 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
     private void addActionButtons(Bid bid) {
         acceptButton = new Button("Accept", e -> {
             boolean success = adRequestsHandler.acceptOrRefuseBid(new Bid.Accept(bid.getId()));
-            if (listener != null && success) listener.onAccepted(bid);
+            if (listener != null && success)
+                listener.onAccepted(bid);
         });
         acceptButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         acceptButton.getStyle().setCursor(POINTER);
@@ -173,10 +176,13 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
     }
 
     private void setupCounterOfferEvents(Bid.Counteroffer counter) {
-        accept.getElement().addEventListener("click", event -> {
+        reg = accept.getElement().addEventListener("click", event -> {
             boolean success = adRequestsHandler.acceptOrRefuseCounterOffer(new Bid.Accept(counter.getId()));
-            if (success) setCounterOfferAccepted();
-        }).addEventData("event.preventDefault()");
+            if (success)
+                setCounterOfferAccepted();
+        });
+
+        accept.getElement().addEventListener("click", e -> {}).addEventData("event.preventDefault()");
 
         refuse.getElement().addEventListener("click", event -> {
             boolean success = adRequestsHandler.acceptOrRefuseCounterOffer(new Bid.Counteroffer.Refuse(counter.getId()));
@@ -188,7 +194,7 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
     public void afterNavigation(AfterNavigationEvent event) {
         if (UI.getCurrent().getCurrentView() instanceof ProfileView) {
             if (bid.getCounteroffer() != null) {
-                var status = new Span(String.format("(%s)", bid.getCounteroffer().getStatus().equals("A") ? "Accepted" : "Refused"));
+                var status = new Span(String.format("(%s)", bid.getCounteroffer().getStatus().equals("A") ? "Accepted" : "Refused or Pending"));
                 status.getStyle().setFontSize("14px").setColor("gray");
                 counterOfferLayout.add(status);
             }
@@ -239,6 +245,8 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
         disableButtons();
         if (accept != null) {
             accept.setText("accepted");
+            reg.remove();
+            accept.getElement().executeJs("this.oneclick = null;");
             counterOfferLayout.remove(refuse);
         }
         counterOffer.getStyle()
@@ -274,6 +282,12 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
     public void setRefused() {
         amount.getStyle().setColor("red").setTextDecoration("line-through");
         disableButtons();
+
+        if (!bid.getAgentMessage().isEmpty()) {
+            var agentMessage = new Span("Agent message: " + bid.getAgentMessage());
+            agentMessage.getStyle().setFontSize("14px").setColor("gray");
+            add(agentMessage);
+        }
     }
 
     public static BidMessage find(VerticalLayout bidsListLayout, int id) {

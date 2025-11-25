@@ -27,11 +27,13 @@ import com.vaadin.flow.router.RouterLink;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 public class BidsPanel extends DivContainer implements BidActionListener {
 
     transient AdRequestsHandler adRequestsHandler = new AdRequestsHandler();
 
-    @Getter private static VerticalLayout bidsListLayout;
+    @Getter private VerticalLayout bidsListLayout;
     private final Scroller scroller = new Scroller();
 
     @Setter
@@ -59,21 +61,28 @@ public class BidsPanel extends DivContainer implements BidActionListener {
         createBidsList(ad);
     }
 
+    private boolean allBidsAreCanceled(List<Bid> bids) {
+        for (var bid : bids)
+            if (!bid.getStatus().equals("C")) return false;
+        return true;
+    }
+
      public void createBidsList(Ad ad) {
         bidsListLayout.removeAll();
 
         var bids = adRequestsHandler.getBidsBy("AD", ad.getId());
 
-        for (var bid : bids)
-            createNDefineBidMessage(ad, bid);
-
-
-        if (bidsListLayout.getComponentCount() > 0) {
-            scroller.setContent(bidsListLayout);
-            add(scroller);
+        if (bids.isEmpty() || allBidsAreCanceled(bids))
+            bidsListLayout.add(new Span("No bids found for this ad."));
+        else {
+            for (var bid : bids)
+                createNDefineBidMessage(ad, bid);
         }
-        else
-            add(new Span("No bids found for this ad."));
+
+        scroller.setContent(bidsListLayout);
+
+        if (scroller.getParent().isEmpty())
+            add(scroller);
     }
 
     private void createNDefineBidMessage(Ad ad, Bid bid) {
@@ -117,6 +126,11 @@ public class BidsPanel extends DivContainer implements BidActionListener {
     }
 
     @Override
+    public void onAdded(Bid bid, String agentEmail) {
+        bidsListLayout.addComponentAsFirst(new BidMessage(bid, agentEmail, this));
+    }
+
+    @Override
     public void onRefused(Bid bid) {
         var refusedBidMessage = BidMessage.find(bidsListLayout, bid.getId());
         refusedBidMessage.setRefused();
@@ -148,10 +162,14 @@ public class BidsPanel extends DivContainer implements BidActionListener {
                 if (bidsListLayout.getComponentCount() > 0 && bidsListLayout.getComponentAt(0) instanceof Span)  // basically if it's the first being added, remove the "no bids found" thing
                     bidsListLayout.removeAll();
 
-                bid.setFirstname(UserSession.getFirstName()); bid.setLastname(UserSession.getLastName());
-                bidsListLayout.add(new BidMessage(bid, ad.getAgent().getEmail(), this));
-                bidsListLayout.setVisible(false); bidsListLayout.setVisible(true); // forcing refresh
+                bid.setFirstname(UserSession.getFirstName());
+                bid.setLastname(UserSession.getLastName());
+
+                onAdded(bid, ad.getAgent().getEmail());
                 scroller.scrollToBottom();
+
+                priceField.clear();
+                messageField.clear();
             }
         });
 

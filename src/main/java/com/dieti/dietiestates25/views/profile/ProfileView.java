@@ -149,9 +149,8 @@ public class ProfileView extends VerticalLayout implements BeforeEnterObserver, 
         if (adsList.getComponentCount() > 0) {
             adsList.setAlignItems(Alignment.CENTER);
             adsListScroller = new Scroller(adsList);
-            adsListScroller.setWidth("70%");
-            adsListScroller.setHeight("auto");
-            adsListScroller.setMaxHeight("300px");
+            adsListScroller.setWidth("50%");
+            adsListScroller.setMaxHeight("500px");
             adsListScroller.getStyle()
                     .setBorder("0.5px solid #ccc")
                     .setBorderRadius("4px");
@@ -190,8 +189,8 @@ public class ProfileView extends VerticalLayout implements BeforeEnterObserver, 
 
         if (bidsList.getComponentCount() > 0) {
             bidsListScroller = new Scroller(bidsList);
-            bidsListScroller.setWidth("60%");
-            bidsListScroller.setHeight("auto");
+            bidsListScroller.setWidth("50%");
+            bidsListScroller.setMaxHeight("400px");
             bidsListScroller.setMaxHeight("400px");
             bidsListScroller.getStyle()
                     .setBorder("0.5px solid #ccc")

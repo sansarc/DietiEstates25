@@ -164,7 +164,7 @@ public class AdRequestsHandler {
         if (response == null) return;
 
         if (response.ok())
-            NotificationFactory.success("Bid deleted successfully!");
+            NotificationFactory.primary("Bid deleted successfully!");
         else
             NotificationFactory.error("We couldn't cancel your bid.");
     }
@@ -175,10 +175,24 @@ public class AdRequestsHandler {
         if (response == null) return false;
 
         if (response.ok()) {
-            NotificationFactory.primary("Refresh this page to see the changes.");
+            if (bid instanceof Bid.Accept) {
+                NotificationFactory.success("Bid accepted.");
+                logger.info("Bid {} accepted for ad {}.", bid.getId(), bid.getAdId());
+            }
+            else if (bid instanceof Bid.Refuse) {
+                if (bid.getAmount() != 0) {
+                    NotificationFactory.primary("Counter offer sent. Refresh this page to see it appear.");
+                    logger.info("Counter offer for bid {} sent for ad {}.", bid.getId(), bid.getAdId());
+                } else {
+                    NotificationFactory.primary("Bid refused." + (bid.getAgentMessage().isEmpty() ? "" : " Refresh this page to see your message appear."));
+                    logger.info("Bid {} refused for ad {}.", bid.getId(), bid.getAdId());
+                }
+            }
         }
-        else
+        else {
             NotificationFactory.error(response.getRawBody());
+            logger.warn("Failed to accept or refuse bid {} for ad {}.", bid.getId(), bid.getAdId());
+        }
 
         return response.ok();
     }
