@@ -59,14 +59,17 @@ public class TestUtils {
         bid1.setId(1);
         bid1.setOfferer("test1@example.com");
         bid1.setStatus("P");
+        bid1.setAgentMessage("");
         var bid2 = new Bid();
         bid2.setId(2);
         bid2.setOfferer("test2@example.com");
         bid2.setStatus("A");
+        bid2.setAgentMessage("Accepted!");
         var bid3 = new Bid();
         bid3.setId(3);
         bid3.setOfferer("test3@example.com");
         bid3.setStatus("R");
+        bid3.setAgentMessage("Refused!");
 
         return List.of(bid1, bid2, bid3);
     }

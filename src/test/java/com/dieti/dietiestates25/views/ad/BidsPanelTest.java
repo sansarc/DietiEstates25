@@ -66,10 +66,10 @@ class BidsPanelTest {
 
         bidsPanel.createBidsList(TestUtils.mockAd());
 
-        assertNotNull(BidsPanel.getBidsListLayout());
-        assertEquals(3, BidsPanel.getBidsListLayout().getComponentCount());
-        assertInstanceOf(BidMessage.class, BidsPanel.getBidsListLayout().getComponentAt(0));
-        var acceptedBid = (BidMessage) BidsPanel.getBidsListLayout().getComponentAt(0);
+        assertNotNull(bidsPanel.getBidsListLayout());
+        assertEquals(3, bidsPanel.getBidsListLayout().getComponentCount());
+        assertInstanceOf(BidMessage.class, bidsPanel.getBidsListLayout().getComponentAt(0));
+        var acceptedBid = (BidMessage) bidsPanel.getBidsListLayout().getComponentAt(0);
         assertEquals(2, acceptedBid.getBid().getId());
         assertEquals("A", acceptedBid.getBid().getStatus());
 
@@ -99,7 +99,7 @@ class BidsPanelTest {
 
         bidsPanel.onAccepted(toAccept);
 
-        var bidsListLayout = BidsPanel.getBidsListLayout();
+        var bidsListLayout = bidsPanel.getBidsListLayout();
 
         // Since we already had an accepted bid (bid #2), and now bid #1 is also accepted,
         // the accepted bids should be at the top in reverse order of acceptance
@@ -146,7 +146,7 @@ class BidsPanelTest {
 
         bidsPanel.createBidsList(TestUtils.mockAd());
 
-        var bidsListLayout = BidsPanel.getBidsListLayout();
+        var bidsListLayout = bidsPanel.getBidsListLayout();
 
         var toDelete = bids.getFirst();
         var bidMessage = new BidMessage(toDelete, TestUtils.mockAd().getAgent().getEmail(), bidsPanel);
