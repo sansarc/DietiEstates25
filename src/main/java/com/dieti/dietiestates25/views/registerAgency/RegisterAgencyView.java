@@ -3,7 +3,6 @@ package com.dieti.dietiestates25.views.registerAgency;
 import com.dieti.dietiestates25.annotations.forward_logged_user.ForwardLoggedUser;
 import com.dieti.dietiestates25.services.agency.AgencyRequestsHandler;
 import com.dieti.dietiestates25.ui_components.DivContainer;
-import com.dieti.dietiestates25.ui_components.DietiEstatesLogo;
 import com.dieti.dietiestates25.ui_components.Form;
 import com.dieti.dietiestates25.views.MainLayout;
 import com.vaadin.flow.component.Key;
