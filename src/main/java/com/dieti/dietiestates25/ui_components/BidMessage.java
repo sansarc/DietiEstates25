@@ -52,7 +52,7 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
     HorizontalLayout topLayout;
     @Getter HorizontalLayout counterOfferLayout;
 
-    public void createBidBaseUI(Bid bid) {
+    public void createBidBaseUI(Bid bid, String agentEmail) {
         this.bid = bid;
 
         setWidthFull();
@@ -62,7 +62,10 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
                 .setBorderRadius("8px")
                 .setPadding("10px");
 
-        var name = new Span(bid.getFirstname() + " " + bid.getLastname() + ":");
+        var name = new Span(bid.getOfferer().equals(agentEmail)
+            ? "Agent added:"
+            : bid.getFirstname() + " " + bid.getLastname() + ":"
+        );
 
         amount = new Span(bid.getAmountAsString());
         amount.getStyle().setFontWeight(Style.FontWeight.BOLD);
@@ -96,7 +99,7 @@ public class BidMessage extends VerticalLayout implements AfterNavigationObserve
     public BidMessage(Bid bid, String agentEmail, BidActionListener listener) {
         this.listener = listener;
 
-        createBidBaseUI(bid);
+        createBidBaseUI(bid, agentEmail);
         addActionButtons(bid);
         manageButtonVisibility(bid, agentEmail);
         handleCounterOfferIfPresent(bid);

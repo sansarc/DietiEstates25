@@ -142,7 +142,12 @@ public class BidsPanel extends DivContainer implements BidActionListener {
     }
 
     private void createBidForm(Ad ad) {
-        var title = new H4("Make an offer for this listing");
+        var title = new H4(
+                UserSession.isUserLoggedIn() && UserSession.getEmail().equals(ad.getAgent().getEmail())
+                        ? "Insert a bid for this listing"
+                        : "Make an offer for this listing"
+        );
+
         title.getStyle().setMarginBottom("10px");
 
         var priceField = Form.priceInEuroNumberField("");
@@ -152,9 +157,9 @@ public class BidsPanel extends DivContainer implements BidActionListener {
 
         var sendBtn = new Button("Send", e -> {
             if (priceField.isEmpty() || priceField.getValue() <= 0) {
-                    priceField.setErrorMessage("Please enter a valid value.");
-                    priceField.setInvalid(true);
-                    return;
+                priceField.setErrorMessage("Please enter a valid value.");
+                priceField.setInvalid(true);
+                return;
             }
 
             var bid = adRequestsHandler.sendBid(ad.getId(), priceField.getValue(), messageField.getValue());

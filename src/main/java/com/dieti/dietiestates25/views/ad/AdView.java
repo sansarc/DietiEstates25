@@ -115,7 +115,9 @@ public class AdView extends VerticalLayout implements BeforeEnterObserver {
         descriptionTextLayout.setAlignItems(Alignment.BASELINE);
         descriptionTextLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-        if (ad.getAgent().getEmail().equals(UserSession.getEmail())) {
+        if (ad.getAgent().getEmail().equals(UserSession.getEmail()) ||
+                (UserSession.isManager() && ad.getAgent().getAgencyVAT().equals(UserSession.getAgencyVAT()))) {
+
             descriptionTextLayout.getStyle().setMarginTop("-40px").setMarginBottom("-20px");
             var delete = new DeleteButton(event -> {
                 adRequestsHandler.deleteAd(ad.getId());
