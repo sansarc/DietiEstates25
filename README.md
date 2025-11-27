@@ -1,99 +1,107 @@
-# Project Base for Vaadin and Spring Boot
+# DietiEstates25
 
-This project can be used as a starting point to create your own Vaadin application with Spring Boot.
-It contains all the necessary configuration and some placeholder files to get you started.
+![logo](src/main/resources/static/images/logo.png)
 
-The best way to create your own project based on this starter is [start.vaadin.com](https://start.vaadin.com/) - you can get only the necessary parts and choose the package naming you want to use.
+**DietiEstates25** is a modern Real Estate Management platform built with **Java 21**, **Spring Boot**, and **Vaadin Flow**. This repository contains the **frontend UI**, which allows users to browse ads, place bids, and manage real estate agencies, communicating with a separate REST API backend.
 
-## Running the Application
-There are two ways to run the application :  using `mvn spring-boot:run` or by running the `Application` class directly from your IDE.
+---
 
-You can use any IDE of your preference,but we suggest Eclipse or Intellij IDEA.
-Below are the configuration details to start the project using a `spring-boot:run` command. Both Eclipse and Intellij IDEA are covered.
+## 🚀 Live Demo & Documentation
 
-#### Eclipse
-- Right click on a project folder and select `Run As` --> `Maven build..` . After that a configuration window is opened.
-- In the window set the value of the **Goals** field to `spring-boot:run` 
-- You can optionally select `Skip tests` checkbox
-- All the other settings can be left to default
+* Live Application: [Link to Demo](http://13.39.106.216:8080/)
+* Project Documentation: [Link to Documentation](https://drive.google.com/file/d/1zLKVpf4YuNPdB1Gs9EugkauPbv0Zs-z0/view)
 
-Once configurations are set clicking `Run` will start the application
+### 🔌 API
+* API Repository: [Link to Backend](https://github.com/luigisabatino/API_DietiEstates25)
+* Swagger Documentation: [Link to Swagger](http://51.45.7.98/swagger-ui/index.html)
+---
 
-#### Intellij IDEA
-- On the right side of the window, select Maven --> Plugins--> `spring-boot` --> `spring-boot:run` goal
-- Optionally, you can disable tests by clicking on a `Skip Tests mode` blue button.
+## 🛠 Tech Stack
 
-Clicking on the green run button will start the application.
+* **Language**: Java 21
+* **Framework**: Spring Boot
+* **UI Framework**: Vaadin Flow (Server-side Java UI)
+* **Build Tool**: Maven
+* **Containerization**: Docker & AWS ECR
+* **External Integrations**: Leaflet (Maps), SplideJS (Carousels)
+---
 
-After the application has started, you can view your it at http://localhost:8080/ in your browser.
+## 🏗 Architecture
+
+Layered architecture:
+* Views (`/views`) – UI pages (e.g., HomeView)
+* Services (`/services`) – Business logic & API communication
+* DTOs (`/dto`) – Data Transfer Objects for mapping JSON responses
+* Utils (`/utils`) – Helper classes for notifications, formatting, and UI factories
+* UI Components (`/ui_components`) – Reusable Vaadin components
+---
+
+## ⚙️ Configuration
+
+The UI connects to the backend API using environment variables:
+
+| Variable     | Description                 | Default              |
+|--------------|-----------------------------|----------------------|
+| API_BASE_URL | URL of the backend REST API | http://localhost:8082 |
+| PORT         | Port for the UI server      | 8080                 |
 
 
-If you want to run the application locally in the production mode, use `spring-boot:run -Pproduction` command instead.
-### Running Integration Tests
+> Note: For public use, replace `API_BASE_URL` with the URL of a deployed backend instance.
 
-Integration tests are implemented using [Vaadin TestBench](https://vaadin.com/testbench). The tests take a few minutes to run and are therefore included in a separate Maven profile. We recommend running tests with a production build to minimize the chance of development time toolchains affecting test stability. To run the tests using Google Chrome, execute
+## 💻 Running Locally 
+Prerequisites:
+* JDK 21
+* Maven 3.9+
+* Access to a running backend API (local or deployed)
 
-`mvn verify -Pit,production`
+You can run the frontend locally via Maven. Make sure `API_BASE_URL` points to API address:
 
-and make sure you have a valid TestBench license installed.
-
-Profile `it` adds the following parameters to run integration tests:
-```sh
--Dwebdriver.chrome.driver=path_to_driver
--Dcom.vaadin.testbench.Parameters.runLocally=chrome
+On Linux/macOS:
+```bash
+API_BASE_URL=http://51.45.7.98 mvn clean spring-boot:run
+```
+or, to create a frontend-optimized production build:
+```bash
+API_BASE_URL=http://51.45.7.98 mvn clean package -Pproduction -DskipTests 
 ```
 
-If you would like to run a separate test make sure you have added these parameters to VM Options of JUnit run configuration
+On Windows:
+```cmd
+set API_BASE_URL=http://51.45.7.98 && mvn clean spring-boot:run
+```
+or
+```cmd
+set API_BASE_URL=http://51.45.7.98 && mvn clean package -Pproduction -DskipTests
+```
 
-### Live Reload (optional)
+Without a backend, the UI will start but won’t display data.
 
-With live reload, you can see the results of your code changes immediately. 
-When you edit your Java code and recompile it, the application changes will be automatically reloaded and the browser is refreshed.
-This is done by leveraging [Spring Boot Developer Tools](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/html/using-boot-devtools.html). 
-To be able to see the changes in the browser tab, the page still needs to be reloaded. 
-That can also  be automated via a LiveReload browser extension. 
-One such extension for Google Chrome is [LiveReload](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei). 
-In Firefox, [LiveReload - Web extension](https://addons.mozilla.org/en-US/firefox/addon/livereload-web-extension/) can be used.
-You can find such similar extensions for other major browsers too.
-These extensions add an icon to your browser next to the address bar.
-To enable the extension, you should click that icon after you opened your application. 
+---
 
-You can find more information at [Live Reload in Spring Boot Applications](https://vaadin.com/docs/flow/workflow/tutorial-spring-boot-live-reload.html) document.
+## 🐳 Docker Deployment
 
-## Structure
+You can build and run the UI using the provided scripts.
 
-Vaadin web applications are full-stack and include both client-side and server-side code in the same project.
+On Linux/macOS:
+```bash
+chmod +x ./docker-build.sh
+./docker-build.sh
+```
 
-| Directory                                  | Description |
-|:-------------------------------------------| :--- |
-| `src/main/frontend/`                       | Client-side source directory |
-| &nbsp;&nbsp;&nbsp;&nbsp;`index.html`       | HTML template |
-| &nbsp;&nbsp;&nbsp;&nbsp;`index.ts`         | Frontend entrypoint |
-| &nbsp;&nbsp;&nbsp;&nbsp;`main-layout.ts`   | Main layout Web Component (optional) |
-| &nbsp;&nbsp;&nbsp;&nbsp;`views/`           | UI views Web Components (TypeScript / HTML) |
-| &nbsp;&nbsp;&nbsp;&nbsp;`styles/`          | Styles directory (CSS) |
-| `src/main/java/<groupId>/`                 | Server-side source directory |
-| &nbsp;&nbsp;&nbsp;&nbsp;`Application.java` | Server entrypoint |
-| &nbsp;&nbsp;&nbsp;&nbsp;`AppShell.java`    | application-shell configuration |
+On Windows:
+```cmd
+./docker_build.bat
+```
+---
 
-## Code Formatting
+## 📂 Project Structure
 
-The project includes the Spotless code formatter.
-
-To use it in IntelliJ, install the [https://plugins.jetbrains.com/plugin/22455-spotless-applier](IntelliJ plugin)
-To use it in VS Code, install the [https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle ](VS Code extension)
-To use it from the command line, run `mvn spotless:apply`
-
-## Useful links
-
-- Read the documentation at [vaadin.com/docs](https://vaadin.com/docs).
-- Follow the tutorials at [vaadin.com/tutorials](https://vaadin.com/tutorials).
-- Watch training videos and get certified at [vaadin.com/learn/training](https://vaadin.com/learn/training).
-- Create new projects at [start.vaadin.com](https://start.vaadin.com/).
-- Search UI components and their usage examples at [vaadin.com/components](https://vaadin.com/components).
-- View use case applications that demonstrate Vaadin capabilities at [vaadin.com/examples-and-demos](https://vaadin.com/examples-and-demos).
-- Discover Vaadin's set of CSS utility classes that enable building any UI without custom CSS in the [docs](https://vaadin.com/docs/latest/ds/foundation/utility-classes). 
-- Find a collection of solutions to common use cases in [Vaadin Cookbook](https://cookbook.vaadin.com/).
-- Find Add-ons at [vaadin.com/directory](https://vaadin.com/directory).
-- Ask questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/vaadin) or join our [Discord channel](https://discord.gg/MYFq5RTbBn).
-- Report issues, create pull requests in [GitHub](https://github.com/vaadin/platform).
+    src/main/java/com/dieti/dietiestates25
+    ├── annotations/       # Custom security annotations (e.g., @ManagerOnly)
+    ├── constants/         # App-wide constants and API endpoints
+    ├── dto/               # Data Transfer Objects
+    ├── observers/         # Event listeners (Theme changes, Bid actions)
+    ├── services/          # HTTP Request handlers and Logic
+    ├── ui_components/     # Reusable Vaadin components (Cards, Forms)
+    ├── utils/             # Static utility classes
+    └── views/             # Application pages (Home, Profile, Upload, etc.)
