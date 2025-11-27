@@ -13,7 +13,7 @@
 
 ### 🔌 API
 * API Repository: [Link to Backend](https://github.com/luigisabatino/API_DietiEstates25)
-* Swagger Documentation: [Link to Swagger](http://51.45.7.98/swagger-ui/index.html)
+* Swagger Documentation: [Link to Swagger](http://51.45.7.98:8082/swagger-ui/index.html)
 ---
 
 ## 🛠 Tech Stack
